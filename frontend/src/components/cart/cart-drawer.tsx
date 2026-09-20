@@ -35,11 +35,11 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       />
       
       {/* Drawer */}
-      <div className="relative w-full max-w-md bg-cloud h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+      <div className="relative w-full max-w-md bg-cloud h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-500 ease-out fill-mode-both">
         
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-ink/10 bg-white/50 shrink-0">
-          <h2 className="font-fraunces text-2xl text-ink">Your Cart ({cartCount})</h2>
+          <h2 className="font-heading font-bold text-3xl text-ink">Your Cart ({cartCount})</h2>
           <button onClick={onClose} className="p-2 -mr-2 text-ink/60 hover:text-ink transition-colors">
             <X className="w-6 h-6" />
           </button>
@@ -48,11 +48,11 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 hide-scrollbar">
           {cartDetails.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-              <p className="text-ink/60">Your cart is currently empty.</p>
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-6 bg-mint/40 rounded-[3rem] p-8 m-4">
+              <p className="text-ink/60 font-medium">Your cart is currently empty.</p>
               <button 
                 onClick={onClose}
-                className="bg-ink text-cloud px-8 py-3 rounded-full font-medium hover:bg-sky-soft hover:text-ink transition-colors"
+                className="bg-coral text-white px-8 py-4 rounded-full font-bold shadow-md hover:scale-105 hover:shadow-lg transition-all"
               >
                 Continue Shopping
               </button>
@@ -60,7 +60,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           ) : (
             cartDetails.map((item, idx) => (
               <div key={`${item.productId}-${item.size}-${idx}`} className="flex gap-4 group">
-                <div className="w-24 aspect-[3/4] bg-ink/5 rounded-lg overflow-hidden shrink-0">
+                <div className="w-24 aspect-[3/4] bg-ink/5 rounded-2xl overflow-hidden shrink-0">
                   <img src={item.product!.images[0]} alt={item.product!.name} className="w-full h-full object-cover" />
                 </div>
                 
@@ -85,7 +85,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                   <div className="mt-auto flex items-center justify-between">
                     {/* Quantity Stepper */}
-                    <div className="flex items-center justify-between border border-ink/20 rounded-md px-2 py-1.5 w-24">
+                    <div className="flex items-center justify-between border-2 border-ink/20 rounded-full px-3 py-1.5 w-28">
                       <button 
                         onClick={() => {
                           if (item.quantity > 1) {
@@ -108,10 +108,10 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                     <button 
                       onClick={() => removeItem(item.productId, item.size)}
-                      className="text-ink/40 hover:text-blush transition-colors p-2"
+                      className="text-ink/40 hover:text-watermelon hover:scale-110 transition-all p-2"
                       aria-label="Remove item"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
@@ -122,18 +122,18 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
         {/* Footer */}
         {cartDetails.length > 0 && (
-          <div className="border-t border-ink/10 p-6 bg-white/80 backdrop-blur-md shrink-0">
+          <div className="border-t border-ink/10 p-6 bg-sunshine/20 shrink-0">
             <div className="flex justify-between items-center mb-6">
               <span className="text-lg text-ink font-medium">Subtotal</span>
-              <span className="text-xl font-fraunces text-ink">{formatPrice(subtotal)}</span>
+              <span className="text-2xl font-heading font-bold text-ink">{formatPrice(subtotal)}</span>
             </div>
-            <p className="text-xs text-ink/50 mb-4 text-center">Shipping and taxes calculated at checkout.</p>
+            <p className="text-xs text-ink/50 mb-4 text-center font-medium">Shipping and taxes calculated at checkout.</p>
             <button 
               onClick={() => {
                 onClose()
                 router.navigate({ to: '/checkout' })
               }}
-              className="w-full bg-ink text-cloud py-4 rounded-lg font-medium shadow-xl hover:bg-sky-soft hover:text-ink transition-colors"
+              className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all"
             >
               Checkout
             </button>

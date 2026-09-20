@@ -13,10 +13,10 @@ export function ProductCarousel() {
     <section className="w-full py-16 md:py-24 bg-cloud overflow-hidden">
       <div className="container mx-auto px-4 lg:px-8 mb-10 flex items-end justify-between">
         <div>
-          <h2 className="font-fraunces text-4xl md:text-5xl text-ink">New In</h2>
+          <h2 className="font-heading text-4xl md:text-5xl text-ink font-bold">New In</h2>
           <p className="text-ink/70 mt-2 text-lg">The latest additions to our collection.</p>
         </div>
-        <Link to="/" className="hidden md:flex items-center gap-2 font-medium text-ink hover:text-sky transition-colors">
+        <Link to="/shop" search={{ sort: 'newest' }} className="hidden md:flex items-center gap-2 font-bold text-ink hover:text-sky transition-colors">
           View all <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
@@ -31,7 +31,7 @@ export function ProductCarousel() {
               name={p.name}
               price={formatPrice(p.price)}
               img={p.images[0]}
-              colors={p.colors}
+
               category={p.category}
               tags={p.tags}
             />
@@ -40,7 +40,7 @@ export function ProductCarousel() {
       </div>
       
       <div className="container mx-auto px-4 mt-2 md:hidden">
-        <Link to="/" className="flex items-center justify-center w-full py-4 border border-ink/20 rounded-xl font-medium text-ink">
+        <Link to="/shop" search={{ sort: 'newest' }} className="flex items-center justify-center w-full py-4 bg-cloud border border-ink/20 hover:border-ink rounded-xl font-bold text-ink transition-colors">
           View all products
         </Link>
       </div>

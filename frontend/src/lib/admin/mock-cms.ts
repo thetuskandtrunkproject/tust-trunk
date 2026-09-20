@@ -7,17 +7,14 @@ export const mockCmsData = {
     promoRibbonText: 'Free shipping on orders over ₹3000'
   },
   categoryTiles: {
-    men: { 
-      label: 'Men',
-      image: 'https://images.unsplash.com/photo-1516826957135-700ede19c6ce?q=80&w=800&h=1000&fit=crop'
-    },
+
     women: {
       label: 'Women',
-      image: 'https://images.unsplash.com/photo-1434389678369-182328d7b328?q=80&w=800&h=1000&fit=crop'
+      image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&h=1000&fit=crop'
     },
     kids: {
       label: 'Kids',
-      image: 'https://images.unsplash.com/photo-1519241047957-be31d7379a5d?q=80&w=800&h=1000&fit=crop'
+      image: 'https://images.unsplash.com/photo-1514090458281-c53340934d40?q=80&w=800&h=1000&fit=crop'
     }
   },
   about: {

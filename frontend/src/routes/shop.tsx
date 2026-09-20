@@ -6,6 +6,7 @@ import { mockProducts } from '@/lib/mock-products'
 import { SlidersHorizontal, ChevronDown, ChevronRight } from 'lucide-react'
 
 type ShopSearch = {
+  gender?: string
   category?: string
   sizes?: string
   minPrice?: string
@@ -16,6 +17,7 @@ type ShopSearch = {
 export const Route = createFileRoute('/shop')({
   validateSearch: (search: Record<string, unknown>): ShopSearch => {
     return {
+      gender: search.gender as string | undefined,
       category: search.category as string | undefined,
       sizes: search.sizes as string | undefined,
       minPrice: search.minPrice as string | undefined,
@@ -78,18 +80,19 @@ function ShopPage() {
   const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
 
   return (
-    <div className="container mx-auto px-4 lg:px-8 py-8 md:py-12">
+    <div className="bg-sky-soft/30 min-h-screen">
+      <div className="container mx-auto px-4 lg:px-8 py-8 md:py-12">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 lg:mb-12 pb-8 border-b border-ink/10">
         <div>
-          <div className="flex items-center gap-2 text-sm text-ink/60 mb-4">
+          <div className="flex items-center gap-2 text-sm text-ink/60 mb-4 font-sans font-bold">
             <Link to="/" className="hover:text-ink transition-colors">Home</Link>
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 text-sunshine" />
             <Link to="/shop" className="hover:text-ink transition-colors">Shop</Link>
             {(search.gender || search.category) && (
               <>
-                <ChevronRight className="w-4 h-4" />
-                <span className="text-ink font-medium capitalize">
+                <ChevronRight className="w-4 h-4 text-sunshine" />
+                <span className="text-ink font-bold capitalize">
                   {search.gender ? search.gender : ''} 
                   {search.gender && search.category ? ' / ' : ''} 
                   {search.category ? search.category : ''}
@@ -97,7 +100,7 @@ function ShopPage() {
               </>
             )}
           </div>
-          <h1 className="font-fraunces text-4xl lg:text-5xl text-ink capitalize">
+          <h1 className="font-heading text-4xl lg:text-6xl text-ink font-bold capitalize">
             {search.gender ? search.gender : search.category ? search.category : 'All Products'}
           </h1>
           <p className="text-ink/60 mt-2">{filteredProducts.length} products</p>
@@ -136,27 +139,30 @@ function ShopPage() {
 
         <div className="flex-1 w-full">
           {filteredProducts.length === 0 ? (
-            <div className="text-center py-24 px-4 bg-ink/5 rounded-3xl">
-              <h3 className="font-fraunces text-2xl mb-3 text-ink">Nothing matched your criteria.</h3>
-              <p className="text-ink/70 mb-8 max-w-sm mx-auto">Try adjusting your filters or browsing our other collections to find what you're looking for.</p>
+            <div className="text-center py-24 px-4 bg-cloud rounded-[3rem] border border-ink/5">
+              <h3 className="font-heading font-bold text-3xl mb-3 text-ink">Oops! Nothing here.</h3>
+              <p className="text-ink/70 mb-8 max-w-sm mx-auto font-sans text-lg">We couldn't find any products matching those playful filters. Let's try something else!</p>
               <button 
                 onClick={() => navigate({ search: (prev) => ({ category: prev.category }), replace: true })}
-                className="bg-ink text-cloud px-8 py-3 rounded-full font-medium hover:bg-sky-soft hover:text-ink transition-colors"
+                className="bg-coral text-white px-8 py-3 rounded-full font-bold hover:scale-105 hover:shadow-md transition-all"
               >
                 Clear all filters
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-              {filteredProducts.map(p => (
-                <div key={p.id}>
+              {filteredProducts.map((p, i) => (
+                <div 
+                  key={p.id}
+                  className="animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out fill-mode-both"
+                  style={{ animationDelay: `${i * 50}ms` }}
+                >
                   <ProductCard 
                     id={p.id}
                     slug={p.slug}
                     name={p.name}
                     price={formatPrice(p.price)}
                     img={p.images[0]}
-                    colors={p.colors}
                     category={p.category}
                     tags={p.tags}
                   />
@@ -167,13 +173,14 @@ function ShopPage() {
 
           {filteredProducts.length > 0 && (
             <div className="mt-16 flex justify-center">
-              <button className="border border-ink/20 text-ink px-10 py-4 rounded-full font-medium hover:bg-ink hover:text-cloud transition-colors">
+              <button className="bg-sky-soft text-ink px-10 py-4 rounded-full font-bold hover:bg-coral hover:text-white hover:scale-105 transition-all shadow-sm">
                 Load More Products
               </button>
             </div>
           )}
         </div>
       </div>
+    </div>
     </div>
   )
 }

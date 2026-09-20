@@ -21,23 +21,7 @@ export interface AdminProduct {
 
 const generateMockAdminProducts = (): AdminProduct[] => {
   return [
-    {
-      id: 'prod-001',
-      name: 'Classic Linen Shirt',
-      description: 'A breathable, lightweight linen shirt perfect for summer days.',
-      gender: 'men',
-      category: 'shirts',
-      status: 'Active',
-      basePrice: 2499,
-      images: ['https://images.unsplash.com/photo-1596755094514-f87e32f85e2c?q=80&w=800&fit=crop'],
-      variants: [
-        { id: 'v1', sku: 'M-LIN-SH-WHT-S', size: 'S', stock: 12 },
-        { id: 'v2', sku: 'M-LIN-SH-WHT-M', size: 'M', stock: 45 },
-        { id: 'v3', sku: 'M-LIN-SH-WHT-L', size: 'L', stock: 0 },
-        { id: 'v4', sku: 'M-LIN-SH-NVY-M', size: 'M', stock: 3 },
-        { id: 'v5', sku: 'M-LIN-SH-NVY-L', size: 'L', stock: 18 }
-      ]
-    },
+
     {
       id: 'prod-002',
       name: 'Essential Cotton Tee',
@@ -55,21 +39,7 @@ const generateMockAdminProducts = (): AdminProduct[] => {
         { id: 'v10', sku: 'W-TEE-GRY-M', size: 'M', stock: 2 }
       ]
     },
-    {
-      id: 'prod-003',
-      name: 'Everyday Straight Fit Jeans',
-      description: 'Classic straight fit denim that gets better with every wash.',
-      gender: 'men',
-      category: 'jeans',
-      status: 'Active',
-      basePrice: 2999,
-      images: ['https://images.unsplash.com/photo-1542272604-780c8d52a5ce?q=80&w=800&fit=crop'],
-      variants: [
-        { id: 'v11', sku: 'M-JNS-BLU-30', size: '30', stock: 5 },
-        { id: 'v12', sku: 'M-JNS-BLU-32', size: '32', stock: 12 },
-        { id: 'v13', sku: 'M-JNS-BLU-34', size: '34', stock: 8 }
-      ]
-    },
+
     {
       id: 'prod-004',
       name: 'Oversized Premium Hoodie',
@@ -114,21 +84,7 @@ const generateMockAdminProducts = (): AdminProduct[] => {
         { id: 'v21', sku: 'W-DRS-FLR-M', size: 'M', stock: 0 }
       ]
     },
-    {
-      id: 'prod-007',
-      name: 'Classic Chino Shorts',
-      description: 'Tailored chino shorts with a 7-inch inseam.',
-      gender: 'men',
-      category: 'shorts',
-      status: 'Active',
-      basePrice: 1499,
-      images: ['https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=800&fit=crop'],
-      variants: [
-        { id: 'v22', sku: 'M-SHO-KHK-30', size: '30', stock: 15 },
-        { id: 'v23', sku: 'M-SHO-KHK-32', size: '32', stock: 28 },
-        { id: 'v24', sku: 'M-SHO-NVY-32', size: '32', stock: 4 }
-      ]
-    },
+
     {
       id: 'prod-008',
       name: 'Cozy Knit Sweater',

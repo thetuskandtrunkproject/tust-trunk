@@ -18,8 +18,8 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
           <button
             key={idx}
             onClick={() => setActiveIndex(idx)}
-            className={`w-full aspect-[3/4] rounded-lg overflow-hidden border-2 transition-all ${
-              idx === activeIndex ? 'border-sky' : 'border-transparent hover:border-ink/20'
+            className={`w-full aspect-[3/4] rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+              idx === activeIndex ? 'border-sunshine ring-2 ring-sunshine scale-105 shadow-sm' : 'border-transparent hover:border-ink/20'
             }`}
           >
             <img src={img} alt={`${productName} thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
@@ -43,11 +43,11 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
         </div>
 
         {/* Desktop Main Image */}
-        <div className="hidden md:block w-full h-full">
+        <div className="hidden md:block w-full h-full overflow-hidden">
           <img 
             src={images[activeIndex]} 
             alt={productName} 
-            className="w-full h-full object-cover object-center transition-opacity duration-300"
+            className="w-full h-full object-cover object-center transition-all duration-500 hover:scale-105"
             key={images[activeIndex]} // Forces re-render for transition if needed, though simple replacement is fine
           />
         </div>
@@ -57,7 +57,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
           {images.map((_, idx) => (
             <div 
               key={idx} 
-              className={`w-1.5 h-1.5 rounded-full transition-all ${idx === activeIndex ? 'bg-ink w-4' : 'bg-ink/30'}`}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === activeIndex ? 'bg-coral w-6' : 'bg-ink/20'}`}
             />
           ))}
         </div>

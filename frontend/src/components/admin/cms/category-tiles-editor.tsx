@@ -8,7 +8,6 @@ export function CategoryTilesEditor() {
   const [showToast, setShowToast] = useState(false)
   
   const fileInputRefs = {
-    men: useRef<HTMLInputElement>(null),
     women: useRef<HTMLInputElement>(null),
     kids: useRef<HTMLInputElement>(null)
   }

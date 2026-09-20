@@ -18,7 +18,7 @@ function AccountLayout() {
   return (
     <div className="min-h-screen bg-cloud pt-8 pb-24">
       <div className="container mx-auto px-4 lg:px-8 max-w-6xl">
-        <h1 className="font-fraunces text-4xl text-ink mb-8 md:mb-12">My Account</h1>
+        <h1 className="font-heading font-bold text-5xl text-ink mb-8 md:mb-12">My Account</h1>
         
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
           {/* Mobile Tab Bar */}
@@ -33,8 +33,8 @@ function AccountLayout() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-full whitespace-nowrap text-sm font-medium transition-colors ${
-                    isActive ? 'bg-ink text-cloud' : 'text-ink/60 hover:text-ink hover:bg-ink/5'
+                  className={`flex items-center gap-2 px-6 py-3 rounded-full whitespace-nowrap text-sm font-bold transition-colors ${
+                    isActive ? 'bg-coral text-white' : 'text-ink/60 hover:text-ink hover:bg-ink/5'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -56,11 +56,11 @@ function AccountLayout() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-3 px-5 py-4 rounded-xl text-base font-medium transition-all ${
-                    isActive ? 'bg-white shadow-sm text-ink font-semibold' : 'text-ink/60 hover:text-ink hover:bg-ink/5'
+                  className={`flex items-center gap-3 px-6 py-4 rounded-full text-base font-bold transition-all ${
+                    isActive ? 'bg-coral text-white shadow-md scale-105' : 'text-ink/60 hover:text-ink hover:bg-ink/5'
                   }`}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-sky' : ''}`} />
+                  <Icon className="w-5 h-5" />
                   {item.label}
                 </Link>
               )

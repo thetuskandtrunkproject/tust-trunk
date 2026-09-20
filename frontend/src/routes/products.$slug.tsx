@@ -82,18 +82,18 @@ function ProductDetailPage() {
     <div className="bg-cloud min-h-screen">
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 lg:px-8 py-4">
-        <div className="flex items-center gap-2 text-sm text-ink/60 mb-4 md:mb-8">
+        <div className="flex items-center gap-2 text-sm text-ink/60 mb-4 md:mb-8 font-sans font-bold">
           <Link to="/" className="hover:text-ink transition-colors">Home</Link>
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-4 h-4 text-sunshine" />
           <Link to="/shop" search={{ gender: product.gender }} className="hover:text-ink transition-colors">
             {product.gender}
           </Link>
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-4 h-4 text-sunshine" />
           <Link to="/shop" search={{ gender: product.gender, category: product.category }} className="hover:text-ink transition-colors">
             {product.category}
           </Link>
-          <span>/</span>
-          <span className="text-ink font-medium">{product.name}</span>
+          <span className="text-sunshine font-bold">/</span>
+          <span className="text-ink font-bold">{product.name}</span>
         </div>
       </div>
 
@@ -107,9 +107,9 @@ function ProductDetailPage() {
 
           {/* Info Right */}
           <div className="w-full lg:w-[40%] flex flex-col">
-            <p className="text-xs uppercase tracking-widest text-ink/50 mb-2">{product.gender} • {product.category}</p>
-            <h1 className="font-fraunces text-4xl lg:text-5xl text-ink mb-4 leading-tight">{product.name}</h1>
-            <p className="text-2xl text-ink mb-8">{formatPrice(product.price)}</p>
+            <p className="text-xs uppercase tracking-widest text-ink/50 mb-2 font-sans font-bold">{product.gender} • {product.category}</p>
+            <h1 className="font-heading font-bold text-4xl lg:text-6xl text-ink mb-4 leading-tight">{product.name}</h1>
+            <p className="font-sans font-bold text-2xl text-coral mb-8">{formatPrice(product.price)}</p>
 
             {/* Sizes */}
             <div className="mb-8">
@@ -128,9 +128,9 @@ function ProductDetailPage() {
                       key={size}
                       onClick={() => !oos && setSelectedSize(size)}
                       disabled={oos}
-                      className={`min-w-[3rem] px-4 py-3 border rounded-lg text-sm font-medium transition-all ${
-                        oos ? 'border-ink/10 text-ink/20 cursor-not-allowed bg-ink/5 line-through decoration-ink/30' :
-                        isActive ? 'border-ink bg-ink text-cloud' : 'border-ink/20 text-ink hover:border-ink/50 hover:bg-white/50'
+                      className={`min-w-[3.5rem] px-4 py-3 border-2 rounded-full text-sm font-bold transition-all duration-300 ${
+                        oos ? 'border-ink/5 text-ink/20 cursor-not-allowed bg-cloud line-through decoration-ink/20' :
+                        isActive ? 'border-sky bg-sky text-ink scale-110 shadow-sm' : 'border-ink/10 text-ink hover:border-ink/30 hover:bg-white hover:-translate-y-1'
                       }`}
                     >
                       {size}
@@ -147,12 +147,12 @@ function ProductDetailPage() {
             <div className="flex items-end gap-4 mb-8">
               <div className="w-1/3">
                 <span className="block text-sm font-medium text-ink mb-3">Quantity</span>
-                <div className="flex items-center justify-between border border-ink/20 rounded-lg px-3 py-3 bg-white/50">
-                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-ink/60 hover:text-ink">
+                <div className="flex items-center justify-between border-2 border-ink/10 rounded-full px-4 py-3 bg-white">
+                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-ink/60 hover:text-ink hover:scale-110 transition-transform">
                     <Minus className="w-5 h-5" />
                   </button>
-                  <span className="font-medium text-ink">{quantity}</span>
-                  <button onClick={() => setQuantity(quantity + 1)} className="text-ink/60 hover:text-ink">
+                  <span className="font-bold text-ink">{quantity}</span>
+                  <button onClick={() => setQuantity(quantity + 1)} className="text-ink/60 hover:text-ink hover:scale-110 transition-transform">
                     <Plus className="w-5 h-5" />
                   </button>
                 </div>
@@ -161,17 +161,17 @@ function ProductDetailPage() {
               <div className="flex-1 flex gap-3">
                 <button 
                   onClick={handleAddToCart}
-                  className="flex-1 bg-ink text-cloud py-3.5 rounded-lg font-medium hover:bg-sky-soft hover:text-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-coral text-white py-4 rounded-full font-bold hover:opacity-90 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                 >
                   Add to Cart
                 </button>
                 <button 
                   onClick={() => toggleWishlist(product.id)}
-                  className={`p-3.5 border rounded-lg transition-colors flex items-center justify-center shrink-0 ${
-                    wishlisted ? 'bg-blush border-blush text-ink' : 'border-ink/20 hover:border-ink text-ink'
+                  className={`p-4 border-2 rounded-full transition-all duration-300 flex items-center justify-center shrink-0 ${
+                    wishlisted ? 'bg-watermelon border-watermelon text-white scale-110 shadow-sm' : 'bg-white border-ink/10 hover:border-ink/30 hover:-translate-y-1 text-ink'
                   }`}
                 >
-                  <Heart className={`w-6 h-6 ${wishlisted ? 'fill-ink' : ''}`} />
+                  <Heart className={`w-6 h-6 transition-all duration-300 ${wishlisted ? 'fill-white scale-110' : ''}`} />
                 </button>
               </div>
             </div>
@@ -227,9 +227,9 @@ function ProductDetailPage() {
 
         {/* You may also like */}
         {relatedProducts.length > 0 && (
-          <div className="mb-24">
-            <h2 className="font-fraunces text-3xl text-ink mb-8 text-center md:text-left">You may also like</h2>
-            <div className="flex overflow-x-auto gap-4 md:gap-6 hide-scrollbar snap-x snap-mandatory pb-4">
+          <div className="mb-24 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out fill-mode-both">
+            <h2 className="font-heading font-bold text-4xl text-ink mb-8 text-center md:text-left">You may also like</h2>
+            <div className="flex overflow-x-auto gap-4 md:gap-6 hide-scrollbar snap-x snap-mandatory pb-8 pt-4 px-2 -mx-2">
               {relatedProducts.map(p => (
                 <div key={p.id} className="min-w-[260px] md:min-w-[280px] snap-start">
                   <ProductCard 
@@ -238,7 +238,7 @@ function ProductDetailPage() {
                     name={p.name}
                     price={formatPrice(p.price)}
                     img={p.images[0]}
-                    colors={p.colors}
+
                     category={p.category}
                     tags={p.tags}
                   />
@@ -249,33 +249,33 @@ function ProductDetailPage() {
         )}
 
         {/* Reviews Scaffold */}
-        <div className="mb-24 border-t border-ink/10 pt-16">
+        <div className="mb-24 border-t border-ink/10 pt-16 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out fill-mode-both" style={{ animationDelay: '150ms' }}>
           <div className="flex flex-col md:flex-row gap-12">
             <div className="md:w-1/3">
-              <h2 className="font-fraunces text-3xl text-ink mb-4">Customer Reviews</h2>
+              <h2 className="font-heading font-bold text-4xl text-ink mb-4">Customer Reviews</h2>
               <div className="flex items-center gap-4 mb-4">
-                <div className="flex text-butter">
-                  {[1,2,3,4,5].map(star => <span key={star}>★</span>)}
+                <div className="flex text-sunshine">
+                  {[1,2,3,4,5].map(star => <span key={star} className="text-2xl">★</span>)}
                 </div>
-                <span className="font-medium text-ink text-xl">4.8</span>
+                <span className="font-bold text-ink text-2xl">4.8</span>
               </div>
-              <p className="text-ink/60 mb-6">Based on 124 reviews</p>
-              <button className="w-full border-2 border-ink text-ink font-medium py-3 rounded-full hover:bg-ink hover:text-cloud transition-colors">
+              <p className="text-ink/60 mb-6 font-sans font-bold">Based on 124 reviews</p>
+              <button className="w-full border-2 border-ink text-ink font-bold py-4 rounded-full hover:bg-ink hover:text-white transition-colors">
                 Write a Review
               </button>
             </div>
             
             <div className="md:w-2/3 flex flex-col gap-6">
               {[1, 2, 3].map(review => (
-                <div key={review} className="bg-white/50 p-6 rounded-2xl border border-ink/5">
+                <div key={review} className="bg-cloud p-8 rounded-[2rem] border border-ink/5">
                   <div className="flex justify-between items-start mb-2">
-                    <span className="font-medium text-ink">Sarah M.</span>
-                    <span className="text-sm text-ink/40">2 weeks ago</span>
+                    <span className="font-bold text-ink">Sarah M.</span>
+                    <span className="text-sm text-ink/40 font-bold">2 weeks ago</span>
                   </div>
-                  <div className="flex text-butter text-sm mb-3">
+                  <div className="flex text-sunshine text-lg mb-4">
                     {[1,2,3,4,5].map(star => <span key={star}>★</span>)}
                   </div>
-                  <p className="text-ink/80 text-sm leading-relaxed">
+                  <p className="text-ink/80 text-base leading-relaxed font-sans font-medium">
                     Absolutely love the fit and quality. I've washed it several times and it holds up perfectly. Highly recommend!
                   </p>
                 </div>
@@ -291,7 +291,7 @@ function ProductDetailPage() {
           <div className="absolute inset-0 bg-ink/30 backdrop-blur-sm" onClick={() => setIsSizeGuideOpen(false)} />
           <div className="relative bg-cloud rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-ink/10 flex justify-between items-center bg-white/50">
-              <h3 className="font-fraunces text-2xl text-ink">Size Guide</h3>
+              <h3 className="font-heading font-bold text-3xl text-ink">Size Guide</h3>
               <button onClick={() => setIsSizeGuideOpen(false)} className="text-ink/50 hover:text-ink transition-colors">
                 <X className="w-6 h-6" />
               </button>
@@ -324,7 +324,7 @@ function ProductDetailPage() {
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-cloud/90 backdrop-blur-md border-t border-ink/10 lg:hidden z-40 transform transition-transform translate-y-0">
         <button 
           onClick={handleAddToCart}
-          className="w-full bg-ink text-cloud py-3.5 rounded-lg font-medium shadow-xl disabled:opacity-50"
+          className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl disabled:opacity-50 active:scale-95 transition-transform"
         >
           Add to Cart - {formatPrice(product.price * quantity)}
         </button>

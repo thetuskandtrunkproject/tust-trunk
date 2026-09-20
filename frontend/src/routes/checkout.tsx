@@ -78,46 +78,52 @@ function CheckoutPage() {
         
         {/* Step Indicator */}
         <div className="flex items-center justify-between mb-12 relative">
-          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-ink/10 -z-10 -translate-y-1/2"></div>
-          <div className="absolute top-1/2 left-0 h-0.5 bg-ink transition-all duration-300 -z-10 -translate-y-1/2" style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%' }}></div>
+          <div className="absolute top-1/2 left-0 w-full h-1 bg-ink/10 -z-10 -translate-y-1/2 rounded-full"></div>
+          <div className="absolute top-1/2 left-0 h-1 bg-coral transition-all duration-500 -z-10 -translate-y-1/2 rounded-full" style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%' }}></div>
           
           <div className="flex flex-col items-center gap-2 bg-cloud px-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-medium transition-colors ${currentStep >= 1 ? 'bg-ink text-cloud' : 'bg-ink/10 text-ink'}`}>1</div>
-            <span className={`text-xs font-medium uppercase tracking-widest ${currentStep >= 1 ? 'text-ink' : 'text-ink/40'}`}>Review</span>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 1 ? 'bg-coral text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>1</div>
+            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 1 ? 'text-coral' : 'text-ink/40'}`}>Review</span>
           </div>
           <div className="flex flex-col items-center gap-2 bg-cloud px-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-medium transition-colors ${currentStep >= 2 ? 'bg-ink text-cloud' : 'bg-ink/10 text-ink'}`}>2</div>
-            <span className={`text-xs font-medium uppercase tracking-widest ${currentStep >= 2 ? 'text-ink' : 'text-ink/40'}`}>Details</span>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 2 ? 'bg-coral text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>2</div>
+            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 2 ? 'text-coral' : 'text-ink/40'}`}>Details</span>
           </div>
           <div className="flex flex-col items-center gap-2 bg-cloud px-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-medium transition-colors ${currentStep >= 3 ? 'bg-ink text-cloud' : 'bg-ink/10 text-ink'}`}>3</div>
-            <span className={`text-xs font-medium uppercase tracking-widest ${currentStep >= 3 ? 'text-ink' : 'text-ink/40'}`}>Payment</span>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 3 ? 'bg-coral text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>3</div>
+            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 3 ? 'text-coral' : 'text-ink/40'}`}>Payment</span>
           </div>
         </div>
 
         {/* Wizard Content */}
         <div className="overflow-hidden">
           {currentStep === 1 && (
-            <StepReview onNext={handleNextToDetails} deliveryFee={deliveryFee} />
+            <div className="animate-in slide-in-from-right fade-in duration-500 ease-out fill-mode-both">
+              <StepReview onNext={handleNextToDetails} deliveryFee={deliveryFee} />
+            </div>
           )}
           
           {currentStep === 2 && (
-            <StepDetails 
-              onNext={handleNextToPayment} 
-              onBack={handleBackToReview}
-              initialContact={contact}
-              initialShipping={shipping}
-              initialSaveDefault={saveDefault}
-            />
+            <div className="animate-in slide-in-from-right fade-in duration-500 ease-out fill-mode-both">
+              <StepDetails 
+                onNext={handleNextToPayment} 
+                onBack={handleBackToReview}
+                initialContact={contact}
+                initialShipping={shipping}
+                initialSaveDefault={saveDefault}
+              />
+            </div>
           )}
 
           {currentStep === 3 && (
-            <StepPayment 
-              onBack={handleBackToDetails}
-              onSuccess={handlePaymentSuccess}
-              onFailure={handlePaymentFailure}
-              totalAmount={totalAmount}
-            />
+            <div className="animate-in slide-in-from-right fade-in duration-500 ease-out fill-mode-both">
+              <StepPayment 
+                onBack={handleBackToDetails}
+                onSuccess={handlePaymentSuccess}
+                onFailure={handlePaymentFailure}
+                totalAmount={totalAmount}
+              />
+            </div>
           )}
         </div>
 

@@ -4,7 +4,7 @@ export type Product = {
   name: string
   description: string
   price: number
-  gender: 'Men' | 'Women' | 'Kids'
+  gender: 'Women' | 'Kids'
   category: string
   sizes: string[]
   images: string[]
@@ -26,48 +26,7 @@ export const brandColors = {
 const getImg = (id: string) => `https://images.weserv.nl/?url=images.unsplash.com/photo-${id}&w=800&h=1000&fit=cover&output=webp`
 
 export const mockProducts: Product[] = [
-  // Men (8 items)
-  { 
-    id: 'm1', slug: 'essential-oversized-tee', name: 'Essential Oversized Tee', price: 2499, gender: 'Men', category: 'Tees', sizes: ['S', 'M', 'L', 'XL'], 
-    images: [getImg('1521572163474-6864f9cf17ab'), getImg('1516257984099-ce11ed6e0018')], tags: ['new', 'bestseller'],
-    description: 'Our iconic oversized tee crafted from heavy-weight, breathable organic cotton. A slightly dropped shoulder and boxy fit make it the ultimate everyday essential.'
-  },
-  { 
-    id: 'm2', slug: 'relaxed-fit-jogger', name: 'Relaxed Fit Jogger', price: 3499, gender: 'Men', category: 'Pants', sizes: ['M', 'L', 'XL', 'XXL'], 
-    images: [getImg('1552902865-b72c031ac5ea'), getImg('1617127365659-c47fa864d8bc')], tags: ['bestseller'],
-    description: 'Lounge in style or hit the streets in these relaxed fit joggers. Made with ultra-soft French terry with ribbed cuffs and an adjustable drawstring waist.'
-  },
-  { 
-    id: 'm3', slug: 'premium-heavyweight-hoodie', name: 'Premium Heavyweight Hoodie', price: 4999, gender: 'Men', category: 'Hoodies', sizes: ['S', 'M', 'L', 'XL'], 
-    images: [getImg('1556821840-3a63f95609a7'), getImg('1583316174775-bd5a5b29074a')], tags: ['new'],
-    description: 'The hoodie you’ll never want to take off. Features a double-lined hood, kangaroo pocket, and premium 400gsm cotton fleece for unmatched warmth.'
-  },
-  { 
-    id: 'm4', slug: 'classic-linen-shirt', name: 'Classic Linen Shirt', price: 3999, gender: 'Men', category: 'Shirts', sizes: ['M', 'L', 'XL'], 
-    images: [getImg('1603252109303-2751441dd157'), getImg('1507676184212-d4c3045fc11b')], tags: [],
-    description: 'Breezy and effortlessly sharp. Our classic button-down is spun from 100% European flax linen, pre-washed for immediate softness.'
-  },
-  { 
-    id: 'm5', slug: 'textured-knit-polo', name: 'Textured Knit Polo', price: 3299, gender: 'Men', category: 'Shirts', sizes: ['S', 'M', 'L'], 
-    images: [getImg('1581655353564-df123a1eb820'), getImg('1512436991641-6745cdb1723f')], tags: [],
-    description: 'Elevate your casual wear with this vintage-inspired knit polo. Featuring a distinct ribbed texture and open collar design.'
-  },
-  { 
-    id: 'm6', slug: 'everyday-chino-shorts', name: 'Everyday Chino Shorts', price: 2899, gender: 'Men', category: 'Shorts', sizes: ['30', '32', '34', '36'], 
-    images: [getImg('1591195853828-11db59a44f6b'), getImg('1530864380905-961d6db0d33f')], tags: ['new'],
-    description: 'Tailored for comfort, styled for versatility. These chino shorts sit just above the knee and are woven with a hint of stretch.'
-  },
-  { 
-    id: 'm7', slug: 'vintage-wash-denim', name: 'Vintage Wash Denim', price: 5499, gender: 'Men', category: 'Jeans', sizes: ['30', '32', '34'], 
-    images: [getImg('1542272454315-4c01d7abdf4a'), getImg('1605518216938-7c31b7b14ad0')], tags: ['bestseller'],
-    description: 'A timeless straight leg cut with an authentic vintage wash. Built to fade and mold uniquely to you over time.'
-  },
-  { 
-    id: 'm8', slug: 'lightweight-windbreaker', name: 'Lightweight Windbreaker', price: 5999, gender: 'Men', category: 'Outerwear', sizes: ['M', 'L', 'XL'], 
-    images: [getImg('1559551409-dadc959f76b8'), getImg('1506152983158-b4a74a01c721')], tags: [],
-    description: 'Your go-to layer for unpredictable weather. Water-resistant, highly packable, and finished with secure zip pockets.'
-  },
-  
+
   // Women (8 items)
   { 
     id: 'w1', slug: 'classic-denim-jacket', name: 'Classic Denim Jacket', price: 5999, gender: 'Women', category: 'Outerwear', sizes: ['XS', 'S', 'M', 'L'], 
@@ -113,7 +72,7 @@ export const mockProducts: Product[] = [
   // Kids (8 items)
   { 
     id: 'k1', slug: 'graphic-cotton-tee', name: 'Graphic Cotton Tee', price: 1499, gender: 'Kids', category: 'Tees', sizes: ['2Y', '4Y', '6Y', '8Y'], 
-    images: [getImg('1519238263530-99abca901d4c'), getImg('1604467794349-0b74285de7e7')], tags: ['new', 'bestseller'],
+    images: [getImg('1622290291468-a28f7a7dc6a8'), getImg('1514090458281-c53340934d40')], tags: ['new', 'bestseller'],
     description: 'Fun, durable, and super soft. A playful graphic tee made to withstand the wildest playground adventures.'
   },
   { 
@@ -133,7 +92,7 @@ export const mockProducts: Product[] = [
   },
   { 
     id: 'k5', slug: 'puffer-vest', name: 'Puffer Vest', price: 2699, gender: 'Kids', category: 'Outerwear', sizes: ['4Y', '6Y', '8Y', '10Y'], 
-    images: [getImg('1579603099981-061099b244cb'), getImg('1608688402506-c8da7311b8b8')], tags: ['new'],
+    images: [getImg('1503342394128-c104d54dba01'), getImg('1503919545889-46765cb18128')], tags: ['new'],
     description: 'Lightweight insulation perfect for shifting seasons. Fully lined and easy to zip up over any sweater.'
   },
   { 

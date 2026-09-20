@@ -97,7 +97,7 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
   const FilterContent = () => (
     <div className="flex flex-col h-full overflow-y-auto hide-scrollbar p-6 lg:p-0">
       <div className="flex items-center justify-between mb-6 lg:hidden">
-        <h2 className="font-fraunces text-2xl text-ink">Filters</h2>
+        <h2 className="font-heading text-3xl font-bold text-ink">Filters</h2>
         <button onClick={onClose} className="p-2 text-ink/70 hover:text-ink">
           <X className="w-6 h-6" />
         </button>
@@ -116,7 +116,7 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
       {!currentFilters.gender && (
         <div className="border-b border-ink/10 py-5">
           <button 
-            className="flex items-center justify-between w-full text-ink font-medium"
+            className="flex items-center justify-between w-full text-ink font-heading font-bold text-lg"
             onClick={() => toggleSection('gender')}
           >
             Gender
@@ -124,7 +124,7 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
           </button>
           {expandedSections.gender && (
             <div className="mt-4 flex flex-col gap-3">
-              {['Men', 'Women', 'Kids'].map(g => {
+              {['Women', 'Kids'].map(g => {
                 const count = getGenderCount(g)
                 if (count === 0) return null
                 return (
@@ -134,9 +134,10 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
                     onClick={() => updateSearch({ gender: g })}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded border border-ink/20 flex items-center justify-center group-hover:border-ink/50 transition-colors">
+                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300 ${currentFilters.gender === g ? 'bg-mint border-mint scale-110' : 'border-ink/20 group-hover:border-ink/50'}`}>
+                        {currentFilters.gender === g && <Check className="w-3 h-3 text-ink" />}
                       </div>
-                      <span className="text-ink/80 text-sm group-hover:text-ink">{g}</span>
+                      <span className="text-ink/80 text-sm font-bold group-hover:text-ink">{g}</span>
                     </div>
                     <span className="text-xs text-ink/40">({count})</span>
                   </button>
@@ -151,7 +152,7 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
       {!currentFilters.category && (
         <div className="border-b border-ink/10 py-5">
           <button 
-            className="flex items-center justify-between w-full text-ink font-medium"
+            className="flex items-center justify-between w-full text-ink font-heading font-bold text-lg"
             onClick={() => toggleSection('category')}
           >
             Category
@@ -169,9 +170,10 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
                     onClick={() => updateSearch({ category: cat })}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded border border-ink/20 flex items-center justify-center group-hover:border-ink/50 transition-colors">
+                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300 ${currentFilters.category === cat ? 'bg-sunshine border-sunshine scale-110' : 'border-ink/20 group-hover:border-ink/50'}`}>
+                        {currentFilters.category === cat && <Check className="w-3 h-3 text-ink" />}
                       </div>
-                      <span className="text-ink/80 text-sm group-hover:text-ink">{cat}</span>
+                      <span className="text-ink/80 text-sm font-bold group-hover:text-ink">{cat}</span>
                     </div>
                     <span className="text-xs text-ink/40">({count})</span>
                   </button>
@@ -185,7 +187,7 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
       {/* Sizes */}
       <div className="border-b border-ink/10 py-5">
         <button 
-          className="flex items-center justify-between w-full text-ink font-medium"
+          className="flex items-center justify-between w-full text-ink font-heading font-bold text-lg"
           onClick={() => toggleSection('size')}
         >
           Size
@@ -204,10 +206,10 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
                   className="flex items-center justify-between w-full group"
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isActive ? 'bg-ink border-ink' : 'border-ink/20 group-hover:border-ink/50'}`}>
-                      {isActive && <Check className="w-3 h-3 text-cloud" />}
+                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-sky border-sky scale-110' : 'border-ink/20 group-hover:border-ink/50'}`}>
+                      {isActive && <Check className="w-3 h-3 text-ink" />}
                     </div>
-                    <span className="text-ink/80 text-sm group-hover:text-ink">{size}</span>
+                    <span className="text-ink/80 text-sm font-bold group-hover:text-ink">{size}</span>
                   </div>
                   <span className="text-xs text-ink/40">({count})</span>
                 </button>
@@ -222,7 +224,7 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
       {/* Price Range (Simplified) */}
       <div className="py-5">
         <button 
-          className="flex items-center justify-between w-full text-ink font-medium"
+          className="flex items-center justify-between w-full text-ink font-heading font-bold text-lg"
           onClick={() => toggleSection('price')}
         >
           Price

@@ -19,17 +19,16 @@ export function SiteFooter() {
           </div>
           
           <div>
-            <h4 className="font-fraunces text-xl text-ink mb-6">Shop</h4>
+            <h4 className="font-heading text-xl text-ink mb-6">Shop</h4>
             <ul className="space-y-4 text-ink/80 text-sm font-medium">
-              <li><Link to="/" className="hover:text-sky transition-colors">New In</Link></li>
-              <li><Link to="/" className="hover:text-sky transition-colors">Men</Link></li>
-              <li><Link to="/" className="hover:text-sky transition-colors">Women</Link></li>
-              <li><Link to="/" className="hover:text-sky transition-colors">Kids</Link></li>
+              <li><Link to="/shop" search={{ sort: 'newest' }} className="hover:text-sky transition-colors">New In</Link></li>
+              <li><Link to="/shop" search={{ gender: 'Women' }} className="hover:text-sky transition-colors">Women</Link></li>
+              <li><Link to="/shop" search={{ gender: 'Kids' }} className="hover:text-sky transition-colors">Kids</Link></li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-fraunces text-xl text-ink mb-6">Help</h4>
+            <h4 className="font-heading text-xl text-ink mb-6">Help</h4>
             <ul className="space-y-4 text-ink/80 text-sm font-medium">
               <li><Link to="/contact" className="hover:text-sky transition-colors">Contact Us</Link></li>
               <li><Link to="/" className="hover:text-sky transition-colors">Shipping Info</Link></li>
@@ -39,7 +38,7 @@ export function SiteFooter() {
           </div>
           
           <div>
-            <h4 className="font-fraunces text-xl text-ink mb-6">Company</h4>
+            <h4 className="font-heading text-xl text-ink mb-6">Company</h4>
             <ul className="space-y-4 text-ink/80 text-sm font-medium">
               <li><Link to="/about" className="hover:text-sky transition-colors">About Us</Link></li>
               <li><Link to="/" className="hover:text-sky transition-colors">Sustainability</Link></li>
