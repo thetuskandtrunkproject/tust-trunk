@@ -10,10 +10,11 @@ interface ProductCardProps {
   img: string
   category?: string
   tags?: string[]
+  sizes?: string[]
   actionButton?: React.ReactNode
 }
 
-export function ProductCard({ id, slug, name, price, img, category, tags = [], actionButton }: ProductCardProps) {
+export function ProductCard({ id, slug, name, price, img, category, tags = [], sizes = ['2-3Y', '4-5Y', '6-7Y'], actionButton }: ProductCardProps) {
   const { isWishlisted, toggleWishlist } = useWishlist()
   const wishlisted = isWishlisted(id)
 
@@ -48,9 +49,18 @@ export function ProductCard({ id, slug, name, price, img, category, tags = [], a
           </div>
         )}
 
+        {/* Available Sizes Overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-ink/60 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex justify-center gap-2 z-20">
+          {sizes.map(size => (
+            <span key={size} className="bg-white/90 backdrop-blur-sm text-ink text-[10px] font-bold px-2 py-1 rounded shadow-sm">
+              {size}
+            </span>
+          ))}
+        </div>
+
         {/* Action Button (e.g. Quick Add / Move to Cart) */}
         {actionButton && (
-          <div className="absolute bottom-4 left-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
             {actionButton}
           </div>
         )}
@@ -68,10 +78,10 @@ export function ProductCard({ id, slug, name, price, img, category, tags = [], a
         </button>
       </div>
       
-      <div className="space-y-1">
-        <h3 className="font-medium text-ink group-hover:text-sky transition-colors">{name}</h3>
-        {category && <p className="text-xs text-ink/60 uppercase tracking-wider">{category} Collection</p>}
-        <p className="text-ink/80">{price}</p>
+      <div className="space-y-1.5 px-2">
+        <h3 className="font-heading font-bold text-lg text-ink group-hover:text-coral transition-colors line-clamp-1">{name}</h3>
+        {category && <p className="text-[10px] text-sky font-bold uppercase tracking-widest">{category} Collection</p>}
+        <p className="text-coral font-bold text-lg">{price}</p>
       </div>
     </Link>
   )

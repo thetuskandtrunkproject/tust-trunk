@@ -9,88 +9,123 @@ gsap.registerPlugin(ScrollTrigger)
 
 export function CategoryTiles() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const bgFillRef = useRef<HTMLDivElement>(null)
+  const waveWrapRef = useRef<HTMLDivElement>(null)
   const cardsRef = useRef<(HTMLAnchorElement | null)[]>([])
-  const textRef = useRef<HTMLHeadingElement>(null)
+  const wordsRef = useRef<(HTMLSpanElement | null)[]>([])
+  const subtextRef = useRef<HTMLParagraphElement>(null)
 
   // Get 4 featured products for the cards
   const featuredProducts = mockProducts.filter(p => p.id.startsWith('k')).slice(0, 4)
 
   const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
-  const textFillRef = useRef<HTMLHeadingElement>(null)
-  const subtextRef = useRef<HTMLParagraphElement>(null)
+
+  // Split heading into individual words for GSAP text animation
+  const headingWords = ['Playful', '&', 'Breathable']
 
   useGSAP(() => {
-    // The timeline is tied directly to the scrollbar using scrub.
-    // If the user stops scrolling, the animation pauses.
-    // scrub: 1 adds a 1-second smoothing effect so it's not strictly rigid but follows the scroll in real-time.
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
-        start: 'top 75%',
-        end: 'center 40%', // Animation finishes when center of section hits 40% down the screen
-        scrub: 1, 
+        start: 'top 80%',
+        end: 'center 35%',
+        scrub: 1,
       }
     });
 
-    // 1. Professional Background Fill (Sleek solid color sweeping from left)
-    tl.fromTo(bgFillRef.current, 
-      { scaleX: 0 },
-      { scaleX: 1, ease: 'none', transformOrigin: 'left' },
-      0 // Start at the very beginning of the scroll trigger
+    // 1. WAVE BACKGROUND — Slide the wave container from left to right
+    gsap.set(waveWrapRef.current, { xPercent: -110 })
+    tl.to(waveWrapRef.current,
+      { xPercent: 0, ease: 'none', duration: 1 },
+      0
     )
 
-    // 2. Text Color Fill Animation (Gradient sweeping from left to match background)
-    tl.fromTo(textFillRef.current, 
-      { clipPath: 'inset(0 100% 0 0)' },
-      { clipPath: 'inset(0 0% 0 0)', ease: 'none' },
-      0 // Start at the same time as the background
-    )
+    // 2. GSAP TEXT ANIMATION — Each word pops up individually with stagger
+    wordsRef.current.forEach((word, i) => {
+      if (!word) return
+      tl.fromTo(word,
+        { y: 80, opacity: 0, rotateX: 45, scale: 0.8 },
+        { 
+          y: 0, 
+          opacity: 1, 
+          rotateX: 0, 
+          scale: 1, 
+          duration: 0.3, 
+          ease: 'back.out(1.7)' 
+        },
+        0.15 + i * 0.12 // Staggered start — each word comes slightly after the previous
+      )
+    })
 
-    // 3. Subtext Fade In
+    // 3. Subtext slides up and fades in
     tl.fromTo(subtextRef.current,
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, ease: 'power2.out' },
-      0.1 
+      { y: 40, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
+      0.5
     )
 
-    // 4. Product Cards Slide Up (Staggered)
+    // 4. Product Cards fly up with stagger
     tl.fromTo(cardsRef.current,
-      { y: 100, opacity: 0 },
-      { y: 0, opacity: 1, stagger: 0.1, ease: 'power2.out' },
-      0.2
+      { y: 120, opacity: 0, scale: 0.9 },
+      { y: 0, opacity: 1, scale: 1, stagger: 0.08, duration: 0.4, ease: 'power3.out' },
+      0.55
     )
 
   }, { scope: containerRef })
 
   return (
     <section ref={containerRef} className="w-full py-24 md:py-40 relative overflow-hidden bg-cloud">
-      {/* Animated Background Fill Layer (Professional Light Mint Tint) */}
+      
+      {/* WAVE BACKGROUND — A warm coral-peach wave that sweeps across */}
       <div 
-        ref={bgFillRef}
-        className="absolute inset-0 bg-[#E8F3F1] z-0"
-        style={{ transformOrigin: 'left', transform: 'scaleX(0)' }}
-      ></div>
+        ref={waveWrapRef}
+        className="absolute inset-0 z-0 will-change-transform"
+      >
+        {/* Main wave body */}
+        <div 
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(180deg, #FFECD2 0%, #FCB69F 50%, #FF9A9E 100%)' }}
+        ></div>
+
+        {/* Wavy right edge — created with an SVG wave shape */}
+        <svg 
+          className="absolute top-0 -right-px h-full w-24 md:w-40"
+          viewBox="0 0 100 800" 
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <path 
+            d="M0,0 L0,800 L100,800 C60,700 90,600 50,500 C10,400 80,300 40,200 C0,100 70,50 100,0 Z" 
+            fill="#FF9A9E"
+          />
+        </svg>
+
+        {/* Second wave layer (slightly transparent, offset) for depth */}
+        <div 
+          className="absolute inset-0 opacity-40"
+          style={{ 
+            background: 'linear-gradient(180deg, #a18cd1 0%, #fbc2eb 100%)',
+            clipPath: 'polygon(0 0, 85% 0, 95% 25%, 80% 50%, 95% 75%, 85% 100%, 0 100%)',
+          }}
+        ></div>
+      </div>
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         
-        {/* Heading */}
+        {/* GSAP Animated Heading — Each word animates individually */}
         <div className="text-center mb-24 max-w-4xl mx-auto flex flex-col items-center">
-          <div className="relative inline-block">
-            {/* Background text (faint grey outline base) */}
-            <h2 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold text-ink/10 select-none">
-              Playful & Breathable
-            </h2>
-            {/* Foreground text (vibrant gradient fill) */}
-            <h2 
-              ref={textFillRef}
-              className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-r from-coral via-sunshine to-sky absolute inset-0 z-10 select-none"
-              style={{ clipPath: 'inset(0 100% 0 0)' }}
-            >
-              Playful & Breathable
-            </h2>
-          </div>
-          <p ref={subtextRef} className="text-ink/70 font-medium text-xl mt-8 max-w-2xl mx-auto">
+          <h2 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold tracking-tight leading-[1.1] flex flex-wrap justify-center gap-x-5 md:gap-x-8" style={{ perspective: '600px' }}>
+            {headingWords.map((word, i) => (
+              <span
+                key={i}
+                ref={el => { wordsRef.current[i] = el }}
+                className="inline-block opacity-0 text-white drop-shadow-xl"
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                {word}
+              </span>
+            ))}
+          </h2>
+          <p ref={subtextRef} className="text-white/80 font-medium text-xl mt-8 max-w-2xl mx-auto opacity-0 drop-shadow-md">
             Made with skin-friendly fabrics, perfect for India's climate. Explore our vibrant new arrivals designed for everyday adventures.
           </p>
         </div>
@@ -98,7 +133,6 @@ export function CategoryTiles() {
         {/* 4-Product Grid with Professional Hover Overlays */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {featuredProducts.map((product, idx) => {
-            // Give each card a unique brand color gradient overlay for the hover state
             const gradientColors = [
               'from-sky/95 via-sky/40 to-transparent',
               'from-sunshine/95 via-sunshine/40 to-transparent',
@@ -123,27 +157,19 @@ export function CategoryTiles() {
               
               {/* Colorful Gradient Overlay on Hover */}
               <div className={`absolute inset-0 bg-gradient-to-t ${hoverGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 lg:p-8`}>
-                <div className="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                  <h3 className="font-bold text-xl text-ink mb-3 line-clamp-2">{product.name}</h3>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink/90 font-bold text-lg">{formatPrice(product.price)}</span>
-                    <span className="bg-ink text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-lg hover:scale-105 transition-transform">
-                      Shop Now
-                    </span>
-                  </div>
+                <div className="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out text-center">
+                  <h3 className="font-heading font-bold text-3xl text-ink mb-2 capitalize">{product.category}</h3>
+                  <span className="inline-block bg-ink text-white text-sm font-bold px-6 py-2 rounded-full shadow-lg mt-2">
+                    Explore
+                  </span>
                 </div>
-              </div>
-
-              {/* Default Price Tag (Hides on Hover) */}
-              <div className="absolute top-6 right-6 bg-white/90 backdrop-blur-md text-ink font-bold px-4 py-2 rounded-full text-sm shadow-sm opacity-100 group-hover:opacity-0 transition-opacity duration-300">
-                {formatPrice(product.price)}
               </div>
             </Link>
           )})}
         </div>
         
         <div className="mt-24 text-center">
-           <Link to="/shop" className="inline-flex items-center gap-3 bg-ink text-white px-10 py-5 rounded-full font-bold text-lg shadow-2xl hover:scale-105 hover:bg-sky transition-all duration-300">
+           <Link to="/shop" className="inline-flex items-center gap-3 bg-white text-ink px-10 py-5 rounded-full font-bold text-lg shadow-2xl hover:scale-105 transition-all duration-300">
              View Complete Collection <span className="text-xl">&rarr;</span>
            </Link>
         </div>

@@ -51,18 +51,6 @@ export function SiteHeader() {
             <div className="flex justify-center lg:justify-start flex-1 lg:flex-none">
               <Link to="/" className="group transition-transform hover:scale-105 flex items-center gap-1 md:gap-2">
                 <img src={logo} alt="The Tusk & Trunk" className="h-16 md:h-20 w-auto object-contain mix-blend-multiply" />
-                <div className="font-heading text-2xl md:text-3xl font-black tracking-tight pt-1">
-                  <span className="text-sky">T</span>
-                  <span className="text-coral">u</span>
-                  <span className="text-sunshine">s</span>
-                  <span className="text-mint">k</span>
-                  <span className="text-ink/40 mx-1.5 text-xl">&</span>
-                  <span className="text-coral">T</span>
-                  <span className="text-sky">r</span>
-                  <span className="text-sunshine">u</span>
-                  <span className="text-mint">n</span>
-                  <span className="text-sky">k</span>
-                </div>
               </Link>
             </div>
 
