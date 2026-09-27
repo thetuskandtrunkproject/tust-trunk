@@ -20,11 +20,11 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
   ]
 
   return (
-    <div className="flex flex-col h-full bg-white border-r border-ink/10">
+    <div className="flex flex-col h-full bg-white border-r border-ink/10 font-sans">
       <div className="p-6 flex items-center justify-between">
         <img src={logoImg} alt="The Tusk & Trunk Admin" className="h-8" />
         {onClose && (
-          <button onClick={onClose} className="lg:hidden p-2 text-ink/60 hover:text-ink">
+          <button onClick={onClose} className="lg:hidden p-2 text-ink/60 hover:text-coral transition-colors">
             <X className="w-5 h-5" />
           </button>
         )}
@@ -40,9 +40,9 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
               key={item.path}
               to={item.path}
               onClick={onClose}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${
                 isActive 
-                  ? 'bg-ink text-cloud' 
+                  ? 'bg-sky-soft text-ink shadow-sm ring-1 ring-sky/20' 
                   : 'text-ink/70 hover:bg-ink/5 hover:text-ink'
               }`}
             >
@@ -54,7 +54,7 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
       </nav>
       
       <div className="p-6 border-t border-ink/10">
-        <Link to="/" className="text-sm font-medium text-ink/60 hover:text-ink transition-colors block text-center">
+        <Link to="/" className="text-sm font-bold text-ink/60 hover:text-coral transition-colors block text-center">
           ← Back to Storefront
         </Link>
       </div>

@@ -99,7 +99,7 @@ export function HeroBannerEditor() {
         {/* Mock Hero Image/Content */}
         <div className="flex-1 min-h-[200px] bg-ink/5 rounded flex flex-col items-center justify-center p-4 text-center border border-ink/10 relative overflow-hidden">
           <div className="relative z-10">
-            <h1 className="font-fraunces text-lg text-ink mb-2 leading-tight">{data.headline || 'Headline'}</h1>
+            <h1 className="font-heading font-bold text-lg text-ink mb-2 leading-tight">{data.headline || 'Headline'}</h1>
             <p className="text-xs text-ink/70 mb-4 max-w-[200px] mx-auto">{data.subheadline || 'Subheadline'}</p>
             <span className="inline-block bg-ink text-cloud text-[10px] px-3 py-1.5 rounded-full font-medium">
               {data.ctaText || 'Button'}

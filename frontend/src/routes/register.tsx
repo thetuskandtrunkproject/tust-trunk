@@ -40,29 +40,34 @@ function RegisterPage() {
   }
 
   return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center bg-cloud px-4 py-12">
-      <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-3xl shadow-sm border border-ink/5">
+    <div className="min-h-[85vh] flex flex-col items-center justify-center bg-gradient-to-br from-mint/20 via-cloud to-sky/20 px-4 py-16 relative overflow-hidden">
+      
+      {/* Decorative Blob */}
+      <div className="absolute top-10 right-10 w-64 h-64 bg-sunshine rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+      <div className="absolute bottom-10 left-10 w-64 h-64 bg-coral rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+
+      <div className="w-full max-w-md bg-white/90 backdrop-blur-xl p-8 sm:p-10 rounded-[2.5rem] shadow-xl border border-white relative z-10">
         
-        <div className="text-center mb-8">
-          <h1 className="font-fraunces text-3xl text-ink mb-2">Create Account</h1>
-          <p className="text-ink/60">Join us to save your wishlist and track orders.</p>
+        <div className="text-center mb-10">
+          <h1 className="font-heading font-bold text-4xl text-ink mb-3">Create Account</h1>
+          <p className="text-ink/60 font-medium">Join us to save your wishlist and track orders.</p>
         </div>
 
-        <form onSubmit={onSubmit} className="flex flex-col gap-5">
+        <form onSubmit={onSubmit} className="flex flex-col gap-6">
           <div>
-            <label className="block text-sm font-medium text-ink mb-2">Email Address</label>
+            <label className="block text-sm font-bold text-ink mb-2 ml-2">Email Address</label>
             <input 
               type="email" 
               required
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full bg-cloud border border-ink/10 rounded-xl px-4 py-3 focus:outline-none focus:border-ink/50 focus:ring-1 focus:ring-ink/50 transition-all"
+              className="w-full bg-white border-2 border-ink/10 rounded-2xl px-6 py-4 text-ink font-medium placeholder:text-ink/30 focus:border-peach focus:ring-0 outline-none transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-ink mb-2">Password</label>
+            <label className="block text-sm font-bold text-ink mb-2 ml-2">Password</label>
             <div className="relative">
               <input 
                 type={showPassword ? "text" : "password"} 
@@ -70,68 +75,68 @@ function RegisterPage() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-cloud border border-ink/10 rounded-xl pl-4 pr-12 py-3 focus:outline-none focus:border-ink/50 focus:ring-1 focus:ring-ink/50 transition-all font-mono"
+                className="w-full bg-white border-2 border-ink/10 rounded-2xl pl-6 pr-14 py-4 text-ink font-medium placeholder:text-ink/30 focus:border-peach focus:ring-0 outline-none transition-colors"
               />
               <button 
                 type="button" 
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-ink/40 hover:text-ink transition-colors"
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-ink/30 hover:text-peach transition-colors"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
             
             {/* Live Checklist */}
-            <div className="mt-3 flex flex-col gap-1.5">
-              <div className={`flex items-center gap-2 text-xs ${hasMinLength ? 'text-green-600' : 'text-ink/40'}`}>
-                {hasMinLength ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+            <div className="mt-4 flex flex-col gap-2 ml-2">
+              <div className={`flex items-center gap-2 text-sm font-medium transition-all duration-300 ${hasMinLength ? 'text-mint' : 'text-ink/40'}`}>
+                {hasMinLength ? <CheckCircle2 className="w-4 h-4 animate-in zoom-in spin-in-12" /> : <Circle className="w-4 h-4" />}
                 <span>At least 8 characters</span>
               </div>
-              <div className={`flex items-center gap-2 text-xs ${hasNumber ? 'text-green-600' : 'text-ink/40'}`}>
-                {hasNumber ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+              <div className={`flex items-center gap-2 text-sm font-medium transition-all duration-300 ${hasNumber ? 'text-mint' : 'text-ink/40'}`}>
+                {hasNumber ? <CheckCircle2 className="w-4 h-4 animate-in zoom-in spin-in-12" /> : <Circle className="w-4 h-4" />}
                 <span>At least 1 number</span>
               </div>
-              <div className={`flex items-center gap-2 text-xs ${hasSpecialChar ? 'text-green-600' : 'text-ink/40'}`}>
-                {hasSpecialChar ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+              <div className={`flex items-center gap-2 text-sm font-medium transition-all duration-300 ${hasSpecialChar ? 'text-mint' : 'text-ink/40'}`}>
+                {hasSpecialChar ? <CheckCircle2 className="w-4 h-4 animate-in zoom-in spin-in-12" /> : <Circle className="w-4 h-4" />}
                 <span>At least 1 special character</span>
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-ink mb-2">Confirm Password</label>
+            <label className="block text-sm font-bold text-ink mb-2 ml-2">Confirm Password</label>
             <input 
               type={showPassword ? "text" : "password"} 
               required
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-cloud border border-ink/10 rounded-xl px-4 py-3 focus:outline-none focus:border-ink/50 focus:ring-1 focus:ring-ink/50 transition-all font-mono"
+              className="w-full bg-white border-2 border-ink/10 rounded-2xl px-6 py-4 text-ink font-medium placeholder:text-ink/30 focus:border-peach focus:ring-0 outline-none transition-colors"
             />
             {confirmPassword !== '' && !passwordsMatch && (
-              <p className="text-rust text-xs mt-2">Passwords do not match</p>
+              <p className="text-coral text-sm font-bold mt-2 ml-2">Passwords do not match</p>
             )}
           </div>
 
           <button 
             type="submit"
             disabled={!isValid}
-            className="w-full bg-ink text-cloud py-3.5 rounded-xl font-medium shadow-xl hover:bg-sky-soft hover:text-ink transition-colors mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all mt-4 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
           >
             Create Account
           </button>
         </form>
 
         <div className="flex items-center gap-4 my-8">
-          <div className="flex-1 h-px bg-ink/10"></div>
-          <span className="text-sm font-medium text-ink/40 uppercase tracking-wider">or</span>
-          <div className="flex-1 h-px bg-ink/10"></div>
+          <div className="flex-1 h-0.5 bg-ink/5"></div>
+          <span className="text-sm font-bold text-ink/30 uppercase tracking-widest">or</span>
+          <div className="flex-1 h-0.5 bg-ink/5"></div>
         </div>
 
         <button 
           onClick={onGoogleLogin}
           type="button"
-          className="w-full bg-white border border-ink/10 text-ink py-3.5 rounded-xl font-medium shadow-sm hover:bg-ink/5 transition-colors flex items-center justify-center gap-3"
+          className="w-full bg-white border-2 border-ink/10 text-ink py-4 rounded-full font-bold shadow-sm hover:border-ink/20 hover:bg-cloud transition-all flex items-center justify-center gap-3"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -142,10 +147,18 @@ function RegisterPage() {
           Continue with Google
         </button>
 
+        <button 
+          onClick={() => navigate({ to: '/' })}
+          type="button"
+          className="w-full bg-transparent border-2 border-transparent text-ink/60 py-4 rounded-full font-bold hover:text-ink hover:bg-ink/5 transition-all mt-3"
+        >
+          Continue as Guest
+        </button>
+
       </div>
       
-      <p className="mt-8 text-ink/60">
-        Already have an account? <Link to="/login" className="text-ink font-medium hover:text-sky transition-colors underline underline-offset-4">Log in</Link>
+      <p className="mt-8 text-ink/60 font-medium relative z-10">
+        Already have an account? <Link to="/login" className="text-coral font-bold hover:text-coral/80 transition-colors underline underline-offset-4 ml-1">Log in</Link>
       </p>
     </div>
   )

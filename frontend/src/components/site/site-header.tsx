@@ -4,12 +4,14 @@ import { useState } from 'react'
 import { useCart } from '@/context/cart-context'
 import { useWishlist } from '@/context/wishlist-context'
 import { CartDrawer } from '@/components/cart/cart-drawer'
+import { SearchOverlay } from '@/components/site/search-overlay'
 
 import logo from '@/assets/logo_full_hd.png'
 
 export function SiteHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
   
   const search: any = useSearch({ strict: false })
   const location = useLocation()
@@ -95,16 +97,20 @@ export function SiteHeader() {
               
               {/* Desktop Search Bar */}
               <div className="hidden xl:flex items-center border-b border-ink/20 pb-1 mr-2">
-                <input 
-                  type="text" 
-                  placeholder="What are you looking for?" 
-                  className="bg-transparent border-none outline-none text-sm w-44 text-ink placeholder:text-ink/40 focus:ring-0"
-                />
-                <button className="text-ink hover:text-sky transition-colors"><Search className="w-4 h-4" /></button>
+                <button 
+                  onClick={() => setIsSearchOpen(true)}
+                  className="flex items-center gap-2 text-ink/40 hover:text-sky transition-colors cursor-pointer text-sm w-48 justify-between"
+                >
+                  <span>What are you looking for?</span>
+                  <Search className="w-4 h-4 text-ink hover:text-sky transition-colors" />
+                </button>
               </div>
 
               {/* Mobile/Tablet Search Icon */}
-              <button className="xl:hidden text-ink hover:text-sky transition-colors p-2">
+              <button 
+                onClick={() => setIsSearchOpen(true)}
+                className="xl:hidden text-ink hover:text-sky transition-colors p-2"
+              >
                 <Search className="w-5 h-5" />
               </button>
 
@@ -169,6 +175,7 @@ export function SiteHeader() {
 
       {/* Cart Drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   )
 }

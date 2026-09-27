@@ -4,10 +4,11 @@ import { mockProducts } from '@/lib/mock-products'
 import { ImageGallery } from '@/components/product/image-gallery'
 import { Accordion, AccordionItem } from '@/components/ui/accordion'
 import { ProductCard } from '@/components/product/product-card'
+import { ReadingProgress } from '@/components/ui/reading-progress'
 import { useCart } from '@/context/cart-context'
 import { useWishlist } from '@/context/wishlist-context'
 import { useToast } from '@/context/toast-context'
-import { ChevronRight, Heart, Minus, Plus, Truck, ArrowLeftRight, ShieldCheck, X } from 'lucide-react'
+import { ChevronRight, Heart, Minus, Plus, Truck, ArrowLeftRight, ShieldCheck, X, CheckCircle2 } from 'lucide-react'
 
 export const Route = createFileRoute('/products/$slug')({
   component: ProductDetailPage,
@@ -80,6 +81,7 @@ function ProductDetailPage() {
 
   return (
     <div className="bg-cloud min-h-screen">
+      <ReadingProgress />
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 lg:px-8 py-4">
         <div className="flex items-center gap-2 text-sm text-ink/60 mb-4 md:mb-8 font-sans font-bold">
@@ -106,20 +108,19 @@ function ProductDetailPage() {
           </div>
 
           {/* Info Right */}
-          <div className="w-full lg:w-[40%] flex flex-col">
-            <p className="text-xs uppercase tracking-widest text-ink/50 mb-2 font-sans font-bold">{product.gender} • {product.category}</p>
-            <h1 className="font-heading font-bold text-4xl lg:text-6xl text-ink mb-4 leading-tight">{product.name}</h1>
-            <p className="font-sans font-bold text-2xl text-coral mb-8">{formatPrice(product.price)}</p>
+          <div className="w-full lg:w-[40%] flex flex-col pt-4">
+            <h1 className="font-sans font-bold text-3xl md:text-4xl text-ink mb-2">{product.name}</h1>
+            <p className="font-sans font-bold text-xl text-ink mb-6">{formatPrice(product.price)}</p>
 
             {/* Sizes */}
-            <div className="mb-8">
+            <div className="mb-6">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-sm font-medium text-ink">Size</span>
-                <button onClick={() => setIsSizeGuideOpen(true)} className="text-sm text-ink/60 hover:text-ink underline underline-offset-4">
+                <span className="text-sm font-bold text-ink">Size</span>
+                <button onClick={() => setIsSizeGuideOpen(true)} className="text-xs font-bold text-ink/60 hover:text-ink underline underline-offset-4">
                   Size Guide
                 </button>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2">
                 {product.sizes.map(size => {
                   const oos = isOutOfStock(size)
                   const isActive = selectedSize === size
@@ -128,9 +129,9 @@ function ProductDetailPage() {
                       key={size}
                       onClick={() => !oos && setSelectedSize(size)}
                       disabled={oos}
-                      className={`min-w-[3.5rem] px-4 py-3 border-2 rounded-full text-sm font-bold transition-all duration-300 ${
+                      className={`min-w-[4rem] px-3 py-2 border rounded-md text-sm font-bold transition-all duration-300 ${
                         oos ? 'border-ink/5 text-ink/20 cursor-not-allowed bg-cloud line-through decoration-ink/20' :
-                        isActive ? 'border-sky bg-sky text-ink scale-110 shadow-sm' : 'border-ink/10 text-ink hover:border-ink/30 hover:bg-white hover:-translate-y-1'
+                        isActive ? 'border-ink bg-ink text-white shadow-sm' : 'border-ink/20 text-ink hover:border-ink hover:bg-cloud'
                       }`}
                     >
                       {size}
@@ -139,41 +140,43 @@ function ProductDetailPage() {
                 })}
               </div>
               {selectedSize && isOutOfStock(selectedSize) && (
-                 <p className="text-sm text-blush mt-2">Out of stock in this size</p>
+                 <p className="text-sm text-watermelon mt-2 font-bold">Out of stock in this size</p>
               )}
             </div>
 
+            {/* Promo Banner */}
+            <div className="bg-[#FFF0ED] text-coral rounded-xl p-4 mb-8">
+              <p className="font-bold text-sm mb-1">5% OFF on your First Order !!</p>
+              <p className="font-medium text-sm">Free Shipping on Orders above ₹1499 !!</p>
+            </div>
+
             {/* Actions */}
-            <div className="flex items-end gap-4 mb-8">
-              <div className="w-1/3">
-                <span className="block text-sm font-medium text-ink mb-3">Quantity</span>
-                <div className="flex items-center justify-between border-2 border-ink/10 rounded-full px-4 py-3 bg-white">
-                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-ink/60 hover:text-ink hover:scale-110 transition-transform">
-                    <Minus className="w-5 h-5" />
+            <div className="flex flex-col gap-4 mb-8">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between border border-ink/20 rounded-md px-4 py-3 w-1/3 bg-white">
+                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-ink/60 hover:text-ink transition-transform">
+                    <Minus className="w-4 h-4" />
                   </button>
                   <span className="font-bold text-ink">{quantity}</span>
-                  <button onClick={() => setQuantity(quantity + 1)} className="text-ink/60 hover:text-ink hover:scale-110 transition-transform">
-                    <Plus className="w-5 h-5" />
+                  <button onClick={() => setQuantity(quantity + 1)} className="text-ink/60 hover:text-ink transition-transform">
+                    <Plus className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
 
-              <div className="flex-1 flex gap-3">
                 <button 
                   onClick={handleAddToCart}
-                  className="flex-1 bg-coral text-white py-4 rounded-full font-bold hover:opacity-90 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                  className="flex-1 bg-watermelon text-white py-3 rounded-md font-bold text-lg hover:opacity-90 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
                   Add to Cart
                 </button>
-                <button 
-                  onClick={() => toggleWishlist(product.id)}
-                  className={`p-4 border-2 rounded-full transition-all duration-300 flex items-center justify-center shrink-0 ${
-                    wishlisted ? 'bg-watermelon border-watermelon text-white scale-110 shadow-sm' : 'bg-white border-ink/10 hover:border-ink/30 hover:-translate-y-1 text-ink'
-                  }`}
-                >
-                  <Heart className={`w-6 h-6 transition-all duration-300 ${wishlisted ? 'fill-white scale-110' : ''}`} />
-                </button>
               </div>
+
+              <button 
+                onClick={handleAddToCart}
+                className="w-full bg-ink text-white py-3 rounded-md font-bold text-lg hover:opacity-90 active:scale-95 transition-all duration-300 disabled:opacity-50 shadow-sm"
+              >
+                Buy Now
+              </button>
             </div>
 
             {/* Microcopy Trust Strip */}
@@ -183,8 +186,8 @@ function ProductDetailPage() {
                 <span className="text-[10px] uppercase font-bold text-ink/70">Free Shipping</span>
               </div>
               <div className="flex flex-col items-center text-center gap-2">
-                <ArrowLeftRight className="w-5 h-5 text-sky" />
-                <span className="text-[10px] uppercase font-bold text-ink/70">Easy Returns</span>
+                <CheckCircle2 className="w-5 h-5 text-sky" />
+                <span className="text-[10px] uppercase font-bold text-ink/70">Premium Quality</span>
               </div>
               <div className="flex flex-col items-center text-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-sky" />

@@ -1,7 +1,11 @@
 import { useRef, useState, useCallback, useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
 import { gsap } from 'gsap'
+import { useGSAP } from '@gsap/react'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
+
+gsap.registerPlugin(ScrollTrigger)
 
 import hero1 from '@/assets/hero/hero1.webp'
 import hero2 from '@/assets/hero/hero2.webp'
@@ -120,32 +124,27 @@ export function Hero() {
     animateTo(index, index > current ? 'next' : 'prev')
   }, [current, animateTo])
 
-  // Progress
-  const startProgress = useCallback(() => {
-    if (progressRef.current) clearInterval(progressRef.current)
-    setProgress(0)
-    const step = 100 / (AUTOPLAY_MS / 40)
-    progressRef.current = setInterval(() => {
-      setProgress(p => (p >= 100 ? 100 : p + step))
-    }, 40)
-  }, [])
-
   // Auto-play
   useEffect(() => {
-    startProgress()
+    // Reset progress to 0 for a tiny fraction of a second, then animate to 100
+    setProgress(0)
+    const frame = requestAnimationFrame(() => {
+      setProgress(100)
+    })
+    
     timerRef.current = setInterval(next, AUTOPLAY_MS)
     return () => {
+      cancelAnimationFrame(frame)
       if (timerRef.current) clearInterval(timerRef.current)
-      if (progressRef.current) clearInterval(progressRef.current)
     }
-  }, [current, next, startProgress])
+  }, [current, next])
 
   const pauseAutoplay = () => {
     if (timerRef.current) clearInterval(timerRef.current)
-    if (progressRef.current) clearInterval(progressRef.current)
+    setProgress(0)
   }
   const resumeAutoplay = () => {
-    startProgress()
+    setProgress(100)
     timerRef.current = setInterval(next, AUTOPLAY_MS)
   }
 
@@ -161,9 +160,30 @@ export function Hero() {
     })
   }, [])
 
+  // Parallax background effect
+  useGSAP(() => {
+    const mm = gsap.matchMedia()
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      // Scale up initially slightly so we can translate without showing edges
+      gsap.set('.hero-slide img', { scale: 1.1 })
+      
+      gsap.to('.hero-slide img', {
+        yPercent: 15,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: document.documentElement,
+          start: 'top top',
+          end: '+=1000',
+          scrub: true,
+        }
+      })
+    })
+    return () => mm.revert()
+  }, { scope: containerRef })
+
   return (
     <section
-      className="relative w-full overflow-hidden"
+      className="sticky top-[80px] w-full overflow-hidden"
       onMouseEnter={pauseAutoplay}
       onMouseLeave={resumeAutoplay}
     >
@@ -172,8 +192,7 @@ export function Hero() {
         {slides.map((slide, idx) => (
           <div
             key={idx}
-            className="hero-slide absolute inset-0 will-change-transform"
-            style={{ visibility: idx === 0 ? 'visible' : 'hidden' }}
+            className={`hero-slide absolute inset-0 will-change-transform ${idx === 0 ? 'visible' : 'invisible'}`}
           >
             {/* Image */}
             <img
@@ -250,7 +269,10 @@ export function Hero() {
                 {idx === current && (
                   <div
                     className="absolute inset-y-0 left-0 bg-white rounded-full"
-                    style={{ width: `${progress}%`, transition: 'none' }}
+                    style={{ 
+                      width: `${progress}%`, 
+                      transition: progress === 0 ? 'none' : `width ${AUTOPLAY_MS}ms linear` 
+                    }}
                   ></div>
                 )}
               </button>

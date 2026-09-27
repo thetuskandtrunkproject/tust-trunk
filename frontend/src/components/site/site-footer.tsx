@@ -32,8 +32,7 @@ export function SiteFooter() {
             <ul className="space-y-4 text-ink/80 text-sm font-medium">
               <li><Link to="/contact" className="hover:text-sky transition-colors">Contact Us</Link></li>
               <li><Link to="/" className="hover:text-sky transition-colors">Shipping Info</Link></li>
-              <li><Link to="/" className="hover:text-sky transition-colors">Returns & Exchanges</Link></li>
-              <li><Link to="/" className="hover:text-sky transition-colors">FAQ</Link></li>
+              <li><Link to="/contact" className="hover:text-sky transition-colors">FAQ</Link></li>
             </ul>
           </div>
           

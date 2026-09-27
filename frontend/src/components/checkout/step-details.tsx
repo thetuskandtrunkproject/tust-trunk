@@ -7,9 +7,10 @@ interface StepDetailsProps {
   initialContact: any
   initialShipping: any
   initialSaveDefault: boolean
+  deliveryFee: number
 }
 
-export function StepDetails({ onNext, onBack, initialContact, initialShipping, initialSaveDefault }: StepDetailsProps) {
+export function StepDetails({ onNext, onBack, initialContact, initialShipping, initialSaveDefault, deliveryFee }: StepDetailsProps) {
   const [contact, setContact] = useState(initialContact)
   const [shipping, setShipping] = useState(initialShipping)
   const [saveDefault, setSaveDefault] = useState(initialSaveDefault)
@@ -142,13 +143,15 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
           </label>
         </section>
 
-        {/* Flat Delivery Notice */}
+        {/* Conditional Delivery Notice */}
         <section className="bg-sky/10 rounded-[2rem] p-6 lg:p-8 flex items-center justify-between border border-sky/20">
           <div>
             <h3 className="font-bold text-ink mb-1 text-lg">Standard Delivery</h3>
             <p className="text-sm text-ink/60 font-medium">Arriving in 5-7 business days</p>
           </div>
-          <span className="font-heading font-bold text-ink text-2xl">₹60</span>
+          <span className="font-heading font-bold text-ink text-2xl">
+            {deliveryFee === 0 ? <span className="text-mint">Free</span> : `₹${deliveryFee}`}
+          </span>
         </section>
 
         {/* Navigation */}

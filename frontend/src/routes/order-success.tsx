@@ -89,11 +89,23 @@ function OrderSuccessPage() {
           <div className="p-6 md:p-8 bg-sky-soft/20">
             <h3 className="font-bold text-lg text-ink mb-4 flex items-center gap-2">
               <Truck className="w-5 h-5 text-ink/50" />
-              Delivery & Payment
+              Payment Summary
             </h3>
             <div className="flex flex-col gap-2 text-sm text-ink/80 font-medium">
-              <p>Estimated Delivery: <span className="font-bold text-ink">Arriving in 5–7 business days</span></p>
-              <p>Total Paid: <span className="font-bold text-ink">₹{order.totalPaid?.toLocaleString('en-IN') || '0'}</span> via Razorpay</p>
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span>₹{(order.items.reduce((sum: number, item: any) => sum + ((mockProducts.find(p => p.id === item.productId)?.price || 0) * item.quantity), 0)).toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Delivery:</span>
+                <span>{order.items.reduce((sum: number, item: any) => sum + ((mockProducts.find(p => p.id === item.productId)?.price || 0) * item.quantity), 0) >= 3000 ? <span className="text-mint font-bold">Free</span> : '₹60'}</span>
+              </div>
+              <div className="flex justify-between pt-2 mt-2 border-t border-ink/10">
+                <span className="font-bold text-ink">Total Paid:</span>
+                <span className="font-bold text-ink">₹{order.totalPaid?.toLocaleString('en-IN') || '0'}</span>
+              </div>
+              <p className="text-xs text-ink/50 mt-2">Paid securely via Razorpay</p>
+              <p className="text-xs text-ink/50">Estimated Delivery: Arriving in 5–7 business days</p>
             </div>
           </div>
         </div>

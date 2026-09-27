@@ -14,7 +14,7 @@ export function AdminLayout() {
     : 'Dashboard'
 
   return (
-    <div className="flex h-screen bg-cloud overflow-hidden font-sans">
+    <div className="flex h-screen bg-cloud overflow-hidden font-sans admin-panel">
       
       {/* Desktop Sidebar */}
       <aside className="hidden lg:block w-64 h-full shrink-0 z-20">
@@ -44,20 +44,20 @@ export function AdminLayout() {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 -ml-2 text-ink/70 hover:text-ink"
+              className="lg:hidden p-2 -ml-2 text-ink/70 hover:text-sky transition-colors"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <h1 className="font-fraunces text-xl text-ink hidden sm:block">{currentPage}</h1>
+            <h1 className="font-heading font-bold text-2xl text-ink hidden sm:block">{currentPage}</h1>
           </div>
 
           <div className="flex items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-ink leading-none mb-1">Admin User</p>
-                <p className="text-xs text-ink/60 leading-none">Store Manager</p>
+                <p className="text-sm font-bold text-ink leading-none mb-1">Admin User</p>
+                <p className="text-xs font-medium text-ink/60 leading-none">Store Manager</p>
               </div>
-              <div className="w-9 h-9 rounded-full bg-sky/20 flex items-center justify-center text-sky font-bold text-sm">
+              <div className="w-10 h-10 rounded-full bg-sky-soft flex items-center justify-center text-sky font-bold text-sm">
                 AU
               </div>
             </div>
@@ -65,7 +65,7 @@ export function AdminLayout() {
         </header>
 
         {/* Main Scrollable Area */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-cloud/50">
           <div className="mx-auto max-w-7xl">
             <Outlet />
           </div>

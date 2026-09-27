@@ -67,7 +67,7 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
             <ArrowLeft className="w-5 h-5 text-ink/70" />
           </button>
           <div>
-            <h2 className="font-fraunces text-2xl text-ink">
+            <h2 className="font-heading font-bold text-2xl text-ink">
               {isEditing ? 'Edit Product' : 'Add New Product'}
             </h2>
           </div>

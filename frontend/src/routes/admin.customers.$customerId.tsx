@@ -18,7 +18,7 @@ function AdminCustomerDetailPage() {
   if (!customer) {
     return (
       <div className="py-12 text-center">
-        <h2 className="text-2xl text-ink font-fraunces mb-4">Customer not found</h2>
+        <h2 className="text-2xl text-ink font-heading font-bold mb-4">Customer not found</h2>
         <button 
           onClick={() => navigate({ to: '/admin/customers' })}
           className="text-ink hover:text-sky underline underline-offset-4"
@@ -50,7 +50,7 @@ function AdminCustomerDetailPage() {
           <ArrowLeft className="w-5 h-5 text-ink/70" />
         </button>
         <div>
-          <h2 className="font-fraunces text-2xl text-ink">{customer.name}</h2>
+          <h2 className="font-heading font-bold text-2xl text-ink">{customer.name}</h2>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-sm text-ink/70">
             <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {customer.email}</span>
             <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {customer.phone}</span>

@@ -28,7 +28,7 @@ function CheckoutPage() {
   const [shipping, setShipping] = useState({ name: '', address1: '', address2: '', city: '', state: '', pincode: '' })
   const [saveDefault, setSaveDefault] = useState(false)
   
-  const deliveryFee = 60 // Flat INR 60 delivery fee
+  const deliveryFee = subtotal >= 3000 ? 0 : 60 // Free shipping over ₹3000, else ₹60
 
   const handleNextToDetails = () => setCurrentStep(2)
   const handleBackToReview = () => setCurrentStep(1)
@@ -111,6 +111,7 @@ function CheckoutPage() {
                 initialContact={contact}
                 initialShipping={shipping}
                 initialSaveDefault={saveDefault}
+                deliveryFee={deliveryFee}
               />
             </div>
           )}

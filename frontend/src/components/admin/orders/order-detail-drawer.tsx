@@ -66,7 +66,7 @@ export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: Or
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-ink/10 shrink-0">
           <div>
-            <h2 className="font-fraunces text-xl text-ink">Order #{order.orderNumber}</h2>
+            <h2 className="font-heading font-bold text-xl text-ink">Order #{order.orderNumber}</h2>
             <p className="text-sm text-ink/60 mt-1">{formatDate(order.date)}</p>
           </div>
           <button 
@@ -189,7 +189,7 @@ export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: Or
           </div>
           <div className="flex justify-between items-center pt-4 border-t border-ink/10">
             <span className="font-medium text-ink">Total</span>
-            <span className="font-fraunces text-2xl text-ink">{formatPrice(order.total)}</span>
+            <span className="font-heading font-bold text-2xl text-ink">{formatPrice(order.total)}</span>
           </div>
         </div>
 

@@ -43,7 +43,7 @@ function AdminInventoryPage() {
       
       {/* Page Header */}
       <div className="mb-8">
-        <h2 className="font-fraunces text-2xl text-ink">Inventory</h2>
+        <h2 className="font-heading font-bold text-2xl text-ink">Inventory</h2>
         <p className="text-ink/60 text-sm mt-1">Track and adjust stock levels across all variants.</p>
       </div>
 

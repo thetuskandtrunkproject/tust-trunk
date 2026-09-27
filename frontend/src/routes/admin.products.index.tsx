@@ -86,7 +86,7 @@ function AdminProductsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between mb-8">
         <div>
-          <h2 className="font-fraunces text-2xl text-ink">Products</h2>
+          <h2 className="font-heading font-bold text-2xl text-ink">Products</h2>
           <p className="text-ink/60 text-sm mt-1">Manage your catalog, pricing, and statuses.</p>
         </div>
         <Link 

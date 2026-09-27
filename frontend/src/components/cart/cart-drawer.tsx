@@ -123,11 +123,16 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         {/* Footer */}
         {cartDetails.length > 0 && (
           <div className="border-t border-ink/10 p-6 bg-sunshine/20 shrink-0">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-2">
               <span className="text-lg text-ink font-medium">Subtotal</span>
-              <span className="text-2xl font-heading font-bold text-ink">{formatPrice(subtotal)}</span>
+              <span className="text-xl font-bold text-ink">{formatPrice(subtotal)}</span>
             </div>
-            <p className="text-xs text-ink/50 mb-4 text-center font-medium">Shipping and taxes calculated at checkout.</p>
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-lg text-ink font-medium">Delivery</span>
+              <span className="text-xl font-bold text-ink">
+                {subtotal >= 3000 ? <span className="text-mint">Free</span> : '₹60'}
+              </span>
+            </div>
             <button 
               onClick={() => {
                 onClose()

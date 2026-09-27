@@ -30,21 +30,26 @@ function VerifyAccountPage() {
   }
 
   return (
-    <div className="min-h-[70vh] bg-cloud flex flex-col items-center justify-center p-4">
-      <div className="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-ink/5 max-w-lg text-center flex flex-col items-center">
+    <div className="min-h-[85vh] flex flex-col items-center justify-center bg-gradient-to-br from-mint/20 via-cloud to-sky/20 px-4 py-16 relative overflow-hidden">
+      
+      {/* Decorative Blob */}
+      <div className="absolute top-10 right-10 w-64 h-64 bg-sunshine rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+      <div className="absolute bottom-10 left-10 w-64 h-64 bg-coral rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+
+      <div className="w-full max-w-lg bg-white/90 backdrop-blur-xl p-10 md:p-14 rounded-[2.5rem] shadow-xl border border-white relative z-10 text-center flex flex-col items-center">
         
-        <div className="relative mb-8">
-          <div className="w-20 h-20 bg-sky/10 rounded-full flex items-center justify-center">
-            <Mail className="w-10 h-10 text-sky" />
+        <div className="relative mb-10">
+          <div className="w-24 h-24 bg-sky-soft rounded-full flex items-center justify-center animate-in zoom-in spin-in-12 duration-500 shadow-inner">
+            <Mail className="w-12 h-12 text-sky" />
           </div>
-          <div className="absolute -bottom-2 -right-2 bg-cloud rounded-full p-1">
-            <CheckCircle2 className="w-6 h-6 text-green-500 fill-green-50" />
+          <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1.5 shadow-sm">
+            <CheckCircle2 className="w-8 h-8 text-mint fill-mint/20" />
           </div>
         </div>
 
-        <h1 className="font-fraunces text-3xl text-ink mb-4">Check your inbox</h1>
+        <h1 className="font-heading font-bold text-4xl text-ink mb-4">Check your inbox!</h1>
         
-        <p className="text-ink/70 mb-8 leading-relaxed">
+        <p className="text-ink/60 font-medium mb-10 leading-relaxed text-lg max-w-sm">
           We've sent a verification link to <strong className="text-ink">{email}</strong>. 
           Check your inbox — and your spam folder — to activate your account.
         </p>
@@ -52,14 +57,14 @@ function VerifyAccountPage() {
         <button 
           onClick={onResend}
           disabled={cooldown}
-          className="bg-ink text-cloud px-8 py-3.5 rounded-xl font-medium shadow-xl hover:bg-sky-soft hover:text-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-6 w-full"
+          className="bg-white border-2 border-sky text-sky px-8 py-4 rounded-full font-bold shadow-sm hover:bg-sky-soft transition-all disabled:opacity-50 disabled:hover:bg-white disabled:cursor-not-allowed mb-8 w-full"
         >
           {cooldown ? 'Wait before resending...' : 'Resend email'}
         </button>
         
         <Link 
           to="/login"
-          className="text-sm font-medium text-ink hover:text-sky transition-colors underline underline-offset-4"
+          className="text-sm font-bold text-coral hover:text-coral/80 transition-colors underline underline-offset-4"
         >
           Back to login
         </Link>
