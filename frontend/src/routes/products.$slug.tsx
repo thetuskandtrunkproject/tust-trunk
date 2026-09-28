@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { useState, useMemo, useEffect } from 'react'
-import { mockProducts } from '@/lib/mock-products'
 import { ImageGallery } from '@/components/product/image-gallery'
+import { getPublicProduct, searchPublicProducts } from '@/lib/public/catalog-api'
+import type { PublicProduct, PublicProductListItem } from '@/lib/public/catalog-api'
 import { Accordion, AccordionItem } from '@/components/ui/accordion'
 import { ProductCard } from '@/components/product/product-card'
 import { ReadingProgress } from '@/components/ui/reading-progress'
@@ -18,13 +19,43 @@ function ProductDetailPage() {
   const { slug } = Route.useParams()
   const router = useRouter()
   
-  const product = useMemo(() => mockProducts.find(p => p.slug === slug), [slug])
-  const relatedProducts = useMemo(() => {
-    if (!product) return []
-    return mockProducts
-      .filter(p => p.gender === product.gender && p.id !== product.id)
-      .slice(0, 4)
-  }, [product])
+  const [product, setProduct] = useState<PublicProduct | null>(null)
+  const [relatedProducts, setRelatedProducts] = useState<PublicProductListItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let mounted = true
+    setLoading(true)
+
+    getPublicProduct(slug)
+      .then(async (data) => {
+        if (!mounted) return
+        setProduct(data)
+
+        // Load related products
+        try {
+          const res = await searchPublicProducts({ 
+            gender: data.gender,
+            page_size: 5 // Get 5, filter out current product
+          })
+          if (mounted) {
+            setRelatedProducts(res.items.filter((p: any) => p.slug !== slug).slice(0, 4))
+          }
+        } catch (err) {
+          console.error('Failed to load related products', err)
+        }
+      })
+      .catch(err => {
+        console.error('Failed to load product', err)
+      })
+      .finally(() => {
+        if (mounted) setLoading(false)
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [slug])
 
   const [selectedSize, setSelectedSize] = useState<string>('')
   const [quantity, setQuantity] = useState(1)
@@ -41,7 +72,15 @@ function ProductDetailPage() {
       setQuantity(1)
       window.scrollTo(0, 0)
     }
-  }, [product])
+  }, [product?.id])
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-24 min-h-[60vh] flex items-center justify-center">
+        <p className="text-ink/60">Loading product...</p>
+      </div>
+    )
+  }
 
   if (!product) {
     return (
@@ -57,10 +96,21 @@ function ProductDetailPage() {
 
   const wishlisted = isWishlisted(product.id)
   
-  // Mock out-of-stock sizes (e.g. randomly disable one or two sizes for demonstration, but deterministic per product)
+  // All returned variants are active, zero-stock variants are correctly returned
   const isOutOfStock = (size: string) => {
-    return (product.id.length + size.length) % 5 === 0 // pseudo-random deterministic logic
+    const variant = product.variants.find(v => v.size === size)
+    return variant ? variant.stock <= 0 : true
   }
+
+  // Find the selected variant to get accurate pricing and IDs
+  const selectedVariant = product.variants.find(v => v.size === selectedSize)
+  // For display price before size is selected, show minimum price among variants
+  const displayPrice = selectedVariant 
+    ? selectedVariant.price 
+    : Math.min(...product.variants.map(v => v.price))
+    
+  // distinct sizes from variants
+  const productSizes = Array.from(new Set(product.variants.map(v => v.size)))
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -70,7 +120,7 @@ function ProductDetailPage() {
     
     addItem({
       productId: product.id,
-      size: selectedSize,
+      size: selectedVariant.id, // using variant ID instead of size string
       quantity
     })
     
@@ -110,7 +160,7 @@ function ProductDetailPage() {
           {/* Info Right */}
           <div className="w-full lg:w-[40%] flex flex-col pt-4">
             <h1 className="font-sans font-bold text-3xl md:text-4xl text-ink mb-2">{product.name}</h1>
-            <p className="font-sans font-bold text-xl text-ink mb-6">{formatPrice(product.price)}</p>
+            <p className="font-sans font-bold text-xl text-ink mb-6">{formatPrice(displayPrice)}</p>
 
             {/* Sizes */}
             <div className="mb-6">
@@ -121,7 +171,7 @@ function ProductDetailPage() {
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {product.sizes.map(size => {
+                {productSizes.map(size => {
                   const oos = isOutOfStock(size)
                   const isActive = selectedSize === size
                   return (
@@ -239,11 +289,12 @@ function ProductDetailPage() {
                     id={p.id}
                     slug={p.slug}
                     name={p.name}
-                    price={formatPrice(p.price)}
+                    price={formatPrice(p.min_price)}
                     img={p.images[0]}
-
+                    hoverImg={p.images[1]}
                     category={p.category}
                     tags={p.tags}
+                    sizes={p.available_sizes}
                   />
                 </div>
               ))}
@@ -329,7 +380,7 @@ function ProductDetailPage() {
           onClick={handleAddToCart}
           className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl disabled:opacity-50 active:scale-95 transition-transform"
         >
-          Add to Cart - {formatPrice(product.price * quantity)}
+          Add to Cart - {formatPrice(displayPrice * quantity)}
         </button>
       </div>
     </div>

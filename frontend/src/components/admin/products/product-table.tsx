@@ -1,10 +1,9 @@
-import { useState } from 'react'
-import { Archive, ArrowDownToLine, MoreHorizontal, PenLine, Plus, Trash2 } from 'lucide-react'
-import type { AdminProduct, ProductStatus } from '@/lib/admin/mock-admin-products'
+import { Archive, PenLine, Plus } from 'lucide-react'
+import type { AdminProductListItem } from '@/lib/admin/products-api'
 import { Link } from '@tanstack/react-router'
 
 interface ProductTableProps {
-  products: AdminProduct[]
+  products: AdminProductListItem[]
   selectedIds: string[]
   onToggleSelect: (id: string) => void
   onToggleAll: () => void
@@ -14,9 +13,8 @@ interface ProductTableProps {
 export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAll, onQuickAction }: ProductTableProps) {
   
   const allSelected = products.length > 0 && selectedIds.length === products.length
-  const formatPrice = (val: number) => `₹${val.toLocaleString('en-IN')}`
 
-  const StatusBadge = ({ status }: { status: ProductStatus }) => {
+  const StatusBadge = ({ status }: { status: string }) => {
     switch (status) {
       case 'Active': return <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">Active</span>
       case 'Draft': return <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-[#F2C94C]/20 text-[#B28A00] border border-[#F2C94C]/30">Draft</span>
@@ -42,7 +40,7 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
               <th className="px-6 py-4">Product</th>
               <th className="px-6 py-4">Category</th>
               <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Price</th>
+              <th className="px-6 py-4">Stock</th>
               <th className="px-6 py-4">Variants</th>
               <th className="px-6 py-4 text-right">Actions</th>
             </tr>
@@ -74,12 +72,13 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
                   </td>
                   <td className="px-6 py-4 text-ink/70 capitalize">{product.gender} • {product.category}</td>
                   <td className="px-6 py-4"><StatusBadge status={product.status} /></td>
-                  <td className="px-6 py-4 font-medium text-ink">{formatPrice(product.basePrice)}</td>
-                  <td className="px-6 py-4 text-ink/70">{product.variants.length}</td>
+                  <td className="px-6 py-4 font-medium text-ink">{product.total_stock}</td>
+                  <td className="px-6 py-4 text-ink/70">{product.variant_count}</td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link 
-                        to={`/admin/products/${product.id}`}
+                        to="/admin/products/$productId"
+                        params={{ productId: product.id }}
                         className="p-2 text-ink/40 hover:text-sky hover:bg-sky/10 rounded-lg transition-colors"
                         title="Edit"
                       >
@@ -128,16 +127,16 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
                     </div>
                     <div>
                       <p className="font-medium text-ink truncate mb-1">{product.name}</p>
-                      <p className="font-semibold text-ink text-sm">{formatPrice(product.basePrice)}</p>
+                      <p className="font-semibold text-ink text-sm">Stock: {product.total_stock}</p>
                     </div>
                   </div>
                   <StatusBadge status={product.status} />
                 </div>
                 
                 <div className="flex items-center justify-between pt-3 border-t border-ink/5">
-                  <span className="text-xs text-ink/60 capitalize">{product.gender} • {product.category} ({product.variants.length} var)</span>
+                  <span className="text-xs text-ink/60 capitalize">{product.gender} • {product.category} ({product.variant_count} var)</span>
                   <div className="flex gap-3">
-                    <Link to={`/admin/products/${product.id}`} className="text-xs font-medium text-sky">Edit</Link>
+                    <Link to="/admin/products/$productId" params={{ productId: product.id }} className="text-xs font-medium text-sky">Edit</Link>
                     <button onClick={() => onQuickAction(product.id, 'archive')} className="text-xs font-medium text-rust">Archive</button>
                   </div>
                 </div>

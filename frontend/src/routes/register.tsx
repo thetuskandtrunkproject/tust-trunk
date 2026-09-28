@@ -13,6 +13,9 @@ function RegisterPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   // Validation checks
   const hasMinLength = password.length >= 8
@@ -26,17 +29,26 @@ function RegisterPage() {
     e.preventDefault()
     if (!isValid) return
     
-    // UI Stub: pretend it succeeds and go to verify-account
-    await handleSignup(email, password)
-    navigate({ 
-      to: '/verify-account',
-      state: { email } 
-    })
+    setError(null)
+    setLoading(true)
+    const res = await handleSignup(email, password)
+    setLoading(false)
+    
+    if (res.success) {
+      navigate({ to: '/verify-account' })
+    } else {
+      setError(res.error || "Signup failed")
+    }
   }
 
   const onGoogleLogin = async () => {
-    await handleGoogleLogin()
-    navigate({ to: '/account' })
+    setError(null)
+    const res = await handleGoogleLogin()
+    if (res.success) {
+      navigate({ to: '/account' })
+    } else {
+      setError(res.error || "Google signup failed")
+    }
   }
 
   return (
@@ -52,6 +64,12 @@ function RegisterPage() {
           <h1 className="font-heading font-bold text-4xl text-ink mb-3">Create Account</h1>
           <p className="text-ink/60 font-medium">Join us to save your wishlist and track orders.</p>
         </div>
+
+        {error && (
+          <div className="bg-rust/10 border border-rust text-rust p-3 rounded-lg mb-6 text-sm font-medium">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={onSubmit} className="flex flex-col gap-6">
           <div>
@@ -120,10 +138,10 @@ function RegisterPage() {
 
           <button 
             type="submit"
-            disabled={!isValid}
+            disabled={!isValid || loading}
             className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all mt-4 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
           >
-            Create Account
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 

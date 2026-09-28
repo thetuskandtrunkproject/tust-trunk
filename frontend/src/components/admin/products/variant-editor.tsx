@@ -1,5 +1,5 @@
 import { Plus, Trash2 } from 'lucide-react'
-import type { AdminProductVariant } from '@/lib/admin/mock-admin-products'
+import type { AdminProductVariant } from '@/lib/admin/products-api'
 
 interface VariantEditorProps {
   variants: AdminProductVariant[]
@@ -9,11 +9,13 @@ interface VariantEditorProps {
 export function VariantEditor({ variants, onChange }: VariantEditorProps) {
   
   const handleAddVariant = () => {
-    const newVariant: AdminProductVariant = {
+    const newVariant = {
       id: `v${Date.now()}`,
       sku: '',
       size: '',
-      stock: 0
+      price: 0,
+      stock: 0,
+      is_active: true
     }
     onChange([...variants, newVariant])
   }
@@ -50,9 +52,10 @@ export function VariantEditor({ variants, onChange }: VariantEditorProps) {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-cloud border-b border-ink/10 text-xs font-medium text-ink/60 uppercase tracking-wider">
-                <th className="px-4 py-3 w-1/3">Size</th>
-                <th className="px-4 py-3 w-1/3">SKU</th>
-                <th className="px-4 py-3 w-1/3">Stock</th>
+                <th className="px-4 py-3 w-1/4">Size</th>
+                <th className="px-4 py-3 w-1/4">SKU</th>
+                <th className="px-4 py-3 w-1/4">Price (₹)</th>
+                <th className="px-4 py-3 w-1/4">Stock</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -75,6 +78,15 @@ export function VariantEditor({ variants, onChange }: VariantEditorProps) {
                       value={variant.sku}
                       onChange={(e) => handleUpdateVariant(variant.id, 'sku', e.target.value)}
                       className="w-full bg-transparent border border-ink/10 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-sky/50"
+                    />
+                  </td>
+                  <td className="p-2">
+                    <input 
+                      type="number" 
+                      min="0"
+                      value={variant.price ? variant.price / 100 : ''}
+                      onChange={(e) => handleUpdateVariant(variant.id, 'price', Math.floor(parseFloat(e.target.value || '0') * 100))}
+                      className="w-full bg-transparent border border-ink/10 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sky/50"
                     />
                   </td>
                   <td className="p-2">

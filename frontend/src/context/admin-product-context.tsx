@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState } from 'react'
+import type { ReactNode } from 'react'
 import { initialAdminProducts } from '@/lib/admin/mock-admin-products'
 import type { AdminProduct } from '@/lib/admin/mock-admin-products'
 

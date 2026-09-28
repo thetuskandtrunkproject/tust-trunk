@@ -249,7 +249,7 @@ export function CategoryTiles() {
             <Link 
               key={product.id}
               ref={el => { cardsRef.current[idx] = el }}
-              to={`/shop?category=${product.category}`} 
+              to="/shop" search={{ category: product.category }} 
               className="group block relative aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-cloud shadow-sm hover:shadow-xl transition-shadow duration-500 will-change-transform opacity-0"
             >
               {/* Image */}

@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
+import { api } from '@/lib/api'
 import { Package, Heart, MapPin, ArrowRight } from 'lucide-react'
-import { mockUser, mockOrders } from '@/lib/mock-account'
+import { mockOrders } from '@/lib/mock-account'
 import { useWishlist } from '@/context/wishlist-context'
+import { useAuth } from '@/context/auth-context'
 
 export const Route = createFileRoute('/account/')({
   component: AccountOverviewPage,
@@ -9,15 +12,28 @@ export const Route = createFileRoute('/account/')({
 
 function AccountOverviewPage() {
   const { wishlistIds } = useWishlist()
+  const { user } = useAuth()
   
   // Get most recent order
   const recentOrder = [...mockOrders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
-  const defaultAddress = mockUser.addresses.find(a => a.isDefault) || mockUser.addresses[0]
-
+  const [defaultAddress, setDefaultAddress] = useState<any>(null)
+  
+  useEffect(() => {
+    const fetchAddress = async () => {
+      try {
+        const res = await api.get('/api/v1/addresses')
+        const def = res.data.find((a: any) => a.is_default)
+        setDefaultAddress(def || null)
+      } catch (error) {
+        console.error("Failed to fetch default address")
+      }
+    }
+    fetchAddress()
+  }, [])
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="mb-10">
-        <h2 className="text-4xl font-heading font-bold text-ink mb-4">Welcome back, {mockUser.name.split(' ')[0]}!</h2>
+        <h2 className="text-4xl font-heading font-bold text-ink mb-4">Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}!</h2>
         <p className="text-ink/60 font-medium text-lg">Manage your orders, settings, and wishlist here.</p>
       </div>
 

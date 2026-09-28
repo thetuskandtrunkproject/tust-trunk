@@ -13,16 +13,30 @@ function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // UI Stub: pretend it succeeds and go to account
-    await handleLogin(email, password)
-    navigate({ to: '/account' })
+    setError(null)
+    setLoading(true)
+    const res = await handleLogin(email, password)
+    setLoading(false)
+    if (res.success) {
+      navigate({ to: '/account' })
+    } else {
+      setError(res.error || "Login failed")
+    }
   }
 
   const onGoogleLogin = async () => {
-    await handleGoogleLogin()
-    navigate({ to: '/account' })
+    setError(null)
+    const res = await handleGoogleLogin()
+    if (res.success) {
+      navigate({ to: '/account' })
+    } else {
+      setError(res.error || "Google login failed")
+    }
   }
 
   return (
@@ -38,6 +52,12 @@ function LoginPage() {
           <h1 className="font-heading font-bold text-4xl text-ink mb-3">Welcome Back!</h1>
           <p className="text-ink/60 font-medium">Log in to manage your orders and wishlist.</p>
         </div>
+
+        {error && (
+          <div className="bg-rust/10 border border-rust text-rust p-3 rounded-lg mb-6 text-sm font-medium">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={onSubmit} className="flex flex-col gap-6">
           <div>
@@ -80,9 +100,10 @@ function LoginPage() {
 
           <button 
             type="submit"
-            className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all mt-4"
+            disabled={loading}
+            className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
-            Log In
+            {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
 

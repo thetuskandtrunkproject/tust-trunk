@@ -1,8 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Save } from 'lucide-react'
-import type { AdminProduct, ProductStatus, AdminProductVariant } from '@/lib/admin/mock-admin-products'
-import { useAdminProducts } from '@/context/admin-product-context'
+import type { AdminProduct } from '@/lib/admin/products-api'
+import { 
+  createAdminProduct, 
+  updateAdminProduct, 
+  addVariant, 
+  updateVariant, 
+  deactivateVariant,
+  uploadProductImage,
+  deleteProductImage
+} from '@/lib/admin/products-api'
+import type { Category } from '@/lib/admin/categories-api'
+import { fetchCategories } from '@/lib/admin/categories-api'
 import { useToast } from '@/context/toast-context'
 import { ImageUploader } from './image-uploader'
 import { VariantEditor } from './variant-editor'
@@ -14,43 +24,142 @@ interface ProductFormProps {
 
 export function ProductForm({ initialData, isEditing }: ProductFormProps) {
   const navigate = useNavigate()
-  const { addProduct, updateProduct } = useAdminProducts()
   const { showToast } = useToast()
 
   const [formData, setFormData] = useState<AdminProduct>(initialData || {
-    id: `prod-${Date.now()}`,
+    id: '',
     name: '',
+    slug: '',
     description: '',
-    gender: 'men',
-    category: 'shirts',
+    gender: 'Women',
+    category_id: '',
+    category: '',
     status: 'Draft',
-    basePrice: 0,
     images: [],
-    variants: []
+    tags: [],
+    variants: [],
+    created_at: '',
+    updated_at: ''
   })
 
+  const [newFiles, setNewFiles] = useState<File[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [categories, setCategories] = useState<Category[]>([])
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const cats = await fetchCategories()
+        setCategories(cats)
+        if (!initialData && cats.length > 0 && !formData.category_id) {
+          setFormData(prev => ({ ...prev, category_id: cats[0].id, category: cats[0].name }))
+        }
+      } catch (e) {
+        showToast('Failed to load categories')
+      }
+    }
+    loadCategories()
+  }, [initialData])
 
   const handleChange = (field: keyof AdminProduct, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const generateSlug = (name: string) => {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (formData.variants.length === 0) {
+      showToast('You must add at least one variant')
+      return
+    }
+    
     setIsSubmitting(true)
     
-    // Simulate network delay
-    setTimeout(() => {
-      if (isEditing) {
-        updateProduct(formData)
+    try {
+      if (isEditing && initialData) {
+        // 1. Update Product details
+        await updateAdminProduct(formData.id, {
+          name: formData.name,
+          description: formData.description,
+          gender: formData.gender,
+          category_id: formData.category_id,
+          status: formData.status,
+        })
+        
+        // 2. Diff and Update Variants
+        const currentVariantIds = formData.variants.map(v => v.id)
+        for (const v of formData.variants) {
+          if (v.id.startsWith('v')) {
+            // new variant added during edit
+            await addVariant(formData.id, { sku: v.sku, size: v.size, price: v.price, stock: v.stock })
+          } else {
+            // update existing
+            await updateVariant(formData.id, v.id, { sku: v.sku, size: v.size, price: v.price, stock: v.stock })
+          }
+        }
+        
+        // deactivate removed variants
+        for (const orig of initialData.variants) {
+          if (!currentVariantIds.includes(orig.id)) {
+            await deactivateVariant(formData.id, orig.id)
+          }
+        }
+        
+        // 3. Diff and update images
+        const currentImages = formData.images
+        for (const orig of initialData.images || []) {
+          if (!currentImages.includes(orig)) {
+            await deleteProductImage(formData.id, orig)
+          }
+        }
+        
+        for (const file of newFiles) {
+          await uploadProductImage(formData.id, file)
+        }
+        
         showToast('Product updated successfully')
+        
       } else {
-        addProduct(formData)
+        // Create new product
+        const slug = generateSlug(formData.name)
+        
+        // 1. Create product and initial variants atomically
+        const payload = {
+          name: formData.name,
+          slug: slug,
+          description: formData.description,
+          gender: formData.gender,
+          category_id: formData.category_id,
+          status: formData.status,
+          variants: formData.variants.map(v => ({
+            sku: v.sku,
+            size: v.size,
+            price: v.price,
+            stock: v.stock
+          }))
+        }
+        
+        const createdProduct = await createAdminProduct(payload)
+        
+        // 2. Upload images
+        for (const file of newFiles) {
+          await uploadProductImage(createdProduct.id, file)
+        }
+        
         showToast('Product created successfully')
       }
-      setIsSubmitting(false)
+      
       navigate({ to: '/admin/products' })
-    }, 600)
+      
+    } catch (err: any) {
+      showToast(err.response?.data?.detail || 'An error occurred while saving')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -127,8 +236,15 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
           {/* Media */}
           <div className="bg-white p-6 rounded-2xl border border-ink/10 shadow-sm">
             <ImageUploader 
-              images={formData.images}
-              onChange={(images) => handleChange('images', images)}
+              existingImages={formData.images}
+              newFiles={newFiles}
+              onAddFiles={(files) => setNewFiles([...newFiles, ...files])}
+              onRemoveExisting={(url) => handleChange('images', formData.images.filter(img => img !== url))}
+              onRemoveNewFile={(idx) => {
+                const next = [...newFiles]
+                next.splice(idx, 1)
+                setNewFiles(next)
+              }}
             />
           </div>
 
@@ -170,46 +286,24 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
                 onChange={(e) => handleChange('gender', e.target.value)}
                 className="w-full bg-cloud border border-ink/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky/50"
               >
-                <option value="men">Men</option>
-                <option value="women">Women</option>
-                <option value="kids">Kids</option>
+                <option value="Women">Women</option>
+                <option value="Kids">Kids</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-ink/70 mb-2">Category</label>
               <select 
-                value={formData.category}
-                onChange={(e) => handleChange('category', e.target.value)}
+                required
+                value={formData.category_id}
+                onChange={(e) => handleChange('category_id', e.target.value)}
                 className="w-full bg-cloud border border-ink/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky/50"
               >
-                <option value="t-shirts">T-Shirts</option>
-                <option value="shirts">Shirts</option>
-                <option value="hoodies">Hoodies</option>
-                <option value="sweatshirts">Sweatshirts</option>
-                <option value="jackets">Jackets</option>
-                <option value="jeans">Jeans</option>
-                <option value="joggers">Joggers</option>
-                <option value="shorts">Shorts</option>
-                <option value="dresses">Dresses</option>
+                <option value="" disabled>Select a category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
               </select>
-            </div>
-          </div>
-
-          {/* Pricing */}
-          <div className="bg-white p-6 rounded-2xl border border-ink/10 shadow-sm space-y-4">
-            <h3 className="font-medium text-ink">Pricing</h3>
-            <div>
-              <label className="block text-sm font-medium text-ink/70 mb-2">Base Price (₹)</label>
-              <input 
-                type="number" 
-                required
-                min="0"
-                value={formData.basePrice || ''}
-                onChange={(e) => handleChange('basePrice', parseInt(e.target.value) || 0)}
-                className="w-full bg-cloud border border-ink/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky/50"
-                placeholder="0"
-              />
             </div>
           </div>
 

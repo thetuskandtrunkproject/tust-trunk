@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Save, Image as ImageIcon, Upload } from 'lucide-react'
+import { Save, Upload } from 'lucide-react'
 import { mockCmsData } from '@/lib/admin/mock-cms'
 
 export function CategoryTilesEditor() {

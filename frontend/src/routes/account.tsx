@@ -1,5 +1,7 @@
 import { createFileRoute, Outlet, Link, useLocation } from '@tanstack/react-router'
 import { User, Package, Settings, ShieldCheck } from 'lucide-react'
+import { useAuth } from '@/context/auth-context'
+import { Navigate } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/account')({
   component: AccountLayout,
@@ -14,6 +16,16 @@ function AccountLayout() {
     { label: 'Settings', path: '/account/settings', icon: Settings, exact: false },
     { label: 'Security', path: '/account/security', icon: ShieldCheck, exact: false },
   ]
+
+  const { firebaseUser, loading } = useAuth()
+
+  if (loading) {
+    return <div className="min-h-screen bg-cloud flex items-center justify-center font-bold text-ink/50">Loading...</div>
+  }
+
+  if (!firebaseUser) {
+    return <Navigate to="/login" />
+  }
 
   return (
     <div className="min-h-screen bg-cloud pt-8 pb-24">

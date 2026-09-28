@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
-import { X, ChevronDown, ChevronUp, Check } from 'lucide-react'
-import { brandColors, mockProducts } from '@/lib/mock-products'
+import { X, ChevronDown, ChevronUp, Check, Loader2 } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
+import { fetchPublicCategories } from '@/lib/public/catalog-api'
+import type { PublicCategory } from '@/lib/public/catalog-api'
 
 interface FilterSidebarProps {
   isOpen: boolean
@@ -26,6 +27,21 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
     price: true,
   })
 
+  const [categories, setCategories] = useState<PublicCategory[]>([])
+  const [loadingCats, setLoadingCats] = useState(true)
+
+  useEffect(() => {
+    fetchPublicCategories()
+      .then(res => {
+        setCategories(res)
+        setLoadingCats(false)
+      })
+      .catch(err => {
+        console.error('Failed to load categories', err)
+        setLoadingCats(false)
+      })
+  }, [])
+
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }))
   }
@@ -37,8 +53,9 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
 
   const updateSearch = (newParams: Record<string, string | undefined>) => {
     navigate({
-      search: (prev) => {
-        const next = { ...prev, ...newParams }
+      to: '/shop',
+      search: (prev: any) => {
+        const next: Record<string, any> = { ...prev, ...newParams }
         // Clean up empty params
         Object.keys(next).forEach(key => {
           if (!next[key]) delete next[key]
@@ -58,44 +75,15 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
 
   const clearAllFilters = () => {
     navigate({
-      search: (prev: any) => ({
+      to: '/shop',
+      search: (prev: Record<string, any>) => ({
         sort: prev.sort // Keep only the sort param, clear everything else
       }),
       replace: true
     })
   }
 
-  // Calculate faceted counts
-  const getGenderCount = (gender: string) => {
-    let available = mockProducts
-    if (currentFilters.category) {
-      available = available.filter(p => p.category.toLowerCase() === currentFilters.category?.toLowerCase())
-    }
-    return available.filter(p => p.gender.toLowerCase() === gender.toLowerCase()).length
-  }
-
-  const getCategoryCount = (cat: string) => {
-    let available = mockProducts
-    if (currentFilters.gender) {
-      available = available.filter(p => p.gender.toLowerCase() === currentFilters.gender?.toLowerCase())
-    }
-    return available.filter(p => p.category.toLowerCase() === cat.toLowerCase()).length
-  }
-  
-  const getSizeCount = (size: string) => {
-    let available = mockProducts
-    if (currentFilters.gender) {
-      available = available.filter(p => p.gender.toLowerCase() === currentFilters.gender?.toLowerCase())
-    }
-    if (currentFilters.category) {
-      available = available.filter(p => p.category.toLowerCase() === currentFilters.category?.toLowerCase())
-    }
-    return available.filter(p => p.sizes.includes(size)).length
-  }
-
-  const maxAllowedPrice = useMemo(() => {
-    return Math.max(...mockProducts.map(p => p.price), 1000)
-  }, [])
+  const maxAllowedPrice = 100000
   const [localMinPrice, setLocalMinPrice] = useState(0)
   const [localMaxPrice, setLocalMaxPrice] = useState(maxAllowedPrice)
 
@@ -157,8 +145,6 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
           {expandedSections.gender && (
             <div className="mt-4 flex flex-col gap-3">
               {['Women', 'Kids'].map(g => {
-                const count = getGenderCount(g)
-                if (count === 0) return null
                 return (
                   <button 
                     key={g} 
@@ -171,7 +157,6 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
                       </div>
                       <span className="text-ink/80 text-sm font-bold group-hover:text-ink">{g}</span>
                     </div>
-                    <span className="text-xs text-ink/40">({count})</span>
                   </button>
                 )
               })}
@@ -190,22 +175,21 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
           </button>
           {expandedSections.category && (
             <div className="mt-4 flex flex-col gap-3">
-              {['Tees', 'Shirts', 'Hoodies', 'Sweatshirts', 'Sweaters', 'Jeans', 'Pants', 'Shorts', 'Outerwear', 'Dresses', 'Skirts', 'Accessories'].map(cat => {
-                const count = getCategoryCount(cat)
-                if (count === 0) return null
+              {loadingCats ? (
+                <div className="flex justify-center p-4"><Loader2 className="w-5 h-5 animate-spin text-ink/40" /></div>
+              ) : categories.map(cat => {
                 return (
                   <button 
-                    key={cat} 
+                    key={cat.id} 
                     className="flex items-center justify-between cursor-pointer group w-full text-left"
-                    onClick={() => updateSearch({ category: currentFilters.category === cat ? undefined : cat })}
+                    onClick={() => updateSearch({ category: currentFilters.category === cat.slug ? undefined : cat.slug })}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300 ${currentFilters.category === cat ? 'bg-sunshine border-sunshine scale-110' : 'border-ink/20 group-hover:border-ink/50'}`}>
-                        {currentFilters.category === cat && <Check className="w-3 h-3 text-ink" />}
+                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300 ${currentFilters.category === cat.slug ? 'bg-sunshine border-sunshine scale-110' : 'border-ink/20 group-hover:border-ink/50'}`}>
+                        {currentFilters.category === cat.slug && <Check className="w-3 h-3 text-ink" />}
                       </div>
-                      <span className="text-ink/80 text-sm font-bold group-hover:text-ink">{cat}</span>
+                      <span className="text-ink/80 text-sm font-bold group-hover:text-ink">{cat.name}</span>
                     </div>
-                    <span className="text-xs text-ink/40">({count})</span>
                   </button>
                 )
               })}
@@ -226,8 +210,6 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
           <div className="mt-4 flex flex-col gap-3">
             {['XS', 'S', 'M', 'L', 'XL', 'XXL', '2Y', '4Y', '6Y', '8Y'].map(size => {
               const isActive = activeSizes.includes(size)
-              const count = getSizeCount(size)
-              if (count === 0) return null // Hide empty sizes
               return (
                 <button 
                   key={size}
@@ -240,7 +222,6 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
                     </div>
                     <span className="text-ink/80 text-sm font-bold group-hover:text-ink">{size}</span>
                   </div>
-                  <span className="text-xs text-ink/40">({count})</span>
                 </button>
               )
             })}
@@ -261,7 +242,7 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
         </button>
         {expandedSections.price && (
           <div className="flex flex-col gap-4 mt-4">
-            <p className="text-ink/60 text-sm">The highest price is Rs. {maxAllowedPrice.toLocaleString('en-IN')}</p>
+            <p className="text-ink/60 text-sm">The highest price is Rs. 100,000</p>
 
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
@@ -284,13 +265,13 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
                 <input 
                   type="text" 
                   inputMode="numeric"
-                  placeholder={maxAllowedPrice.toString()} 
+                  placeholder="100000" 
                   className="w-full bg-ink/5 border-none rounded-full px-4 py-3 text-sm font-bold text-ink focus:outline-none focus:ring-1 focus:ring-ink"
-                  value={localMaxPrice === maxAllowedPrice ? '' : localMaxPrice}
+                  value={localMaxPrice === 100000 ? '' : localMaxPrice}
                   onChange={(e) => {
                     const raw = e.target.value.replace(/[^0-9]/g, '')
-                    const val = raw === '' ? maxAllowedPrice : Number(raw)
-                    if (val >= localMinPrice && val <= maxAllowedPrice) setLocalMaxPrice(val)
+                    const val = raw === '' ? 100000 : Number(raw)
+                    if (val >= localMinPrice && val <= 100000) setLocalMaxPrice(val)
                   }}
                 />
               </div>

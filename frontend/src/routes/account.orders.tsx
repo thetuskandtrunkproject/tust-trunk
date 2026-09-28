@@ -163,7 +163,7 @@ function AccountOrdersPage() {
                               </div>
                               <div className="flex flex-col flex-1 py-1">
                                 <div className="flex justify-between items-start gap-4 mb-2">
-                                  <Link to={`/products/${product.slug}`} className="font-bold text-ink text-sm hover:text-sky transition-colors">{product.name}</Link>
+                                  <Link to="/products/$slug" params={{ slug: product.slug }} className="font-bold text-ink text-sm hover:text-sky transition-colors">{product.name}</Link>
                                   <span className="font-bold text-ink text-sm whitespace-nowrap">{formatPrice(item.priceAtPurchase * item.quantity)}</span>
                                 </div>
                                 <div className="text-xs font-medium text-ink/60 mt-auto flex gap-3">

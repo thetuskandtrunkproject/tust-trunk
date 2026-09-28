@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { useCart } from '@/context/cart-context'
 import { StepReview } from '@/components/checkout/step-review'
@@ -28,7 +28,14 @@ function CheckoutPage() {
   const [shipping, setShipping] = useState({ name: '', address1: '', address2: '', city: '', state: '', pincode: '' })
   const [saveDefault, setSaveDefault] = useState(false)
   
+  // Calculate total for payment step
+  const subtotal = items.reduce((sum, item) => {
+    const product = mockProducts.find(p => p.id === item.productId)
+    return sum + ((product?.price || 0) * item.quantity)
+  }, 0)
+  
   const deliveryFee = subtotal >= 3000 ? 0 : 60 // Free shipping over ₹3000, else ₹60
+  const totalAmount = subtotal + deliveryFee
 
   const handleNextToDetails = () => setCurrentStep(2)
   const handleBackToReview = () => setCurrentStep(1)
@@ -40,13 +47,6 @@ function CheckoutPage() {
     setCurrentStep(3)
   }
   const handleBackToDetails = () => setCurrentStep(2)
-
-  // Calculate total for payment step
-  const subtotal = items.reduce((sum, item) => {
-    const product = mockProducts.find(p => p.id === item.productId)
-    return sum + ((product?.price || 0) * item.quantity)
-  }, 0)
-  const totalAmount = subtotal + deliveryFee
 
   const handlePaymentSuccess = () => {
     const orderNumber = `ORD-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
@@ -60,9 +60,9 @@ function CheckoutPage() {
     }
 
     clearCart()
+    sessionStorage.setItem('lastOrder', JSON.stringify(orderData))
     navigate({
-      to: '/order-success',
-      state: { order: orderData }
+      to: '/order-success'
     })
   }
 

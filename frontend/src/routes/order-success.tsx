@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useLocation } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { CheckCircle2, Package, MapPin, Truck } from 'lucide-react'
 import { mockProducts } from '@/lib/mock-products'
 
@@ -7,9 +7,8 @@ export const Route = createFileRoute('/order-success')({
 })
 
 function OrderSuccessPage() {
-  const location = useLocation()
-  const state = location.state as any
-  const order = state?.order
+  const orderString = typeof window !== 'undefined' ? sessionStorage.getItem('lastOrder') : null
+  const order = orderString ? JSON.parse(orderString) : null
 
   // Friendly Fallback
   if (!order) {

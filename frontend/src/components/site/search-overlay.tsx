@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Search, X, Clock, ArrowRight } from 'lucide-react'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { mockProducts, Product } from '@/lib/mock-products'
+import { mockProducts } from '@/lib/mock-products'
+import type { Product } from '@/lib/mock-products'
 import { useDebounce } from '@/hooks/use-debounce' // let's see if this exists, if not I'll write it inline or in hooks
 
 interface SearchOverlayProps {
@@ -168,7 +169,8 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 {results.map(product => (
                   <Link
                     key={product.id}
-                    to={`/products/${product.slug}`}
+                    to="/products/$slug"
+                    params={{ slug: product.slug }}
                     onClick={onClose}
                     className="flex items-center gap-4 p-3 rounded-2xl hover:bg-white transition-colors group"
                   >
