@@ -104,7 +104,8 @@ export function CouponTable({ coupons, onToggleStatus, onDelete, onViewAnalytics
                         <ChartBar className="w-4 h-4" />
                       </button>
                       <Link 
-                        to={`/admin/coupons/${coupon.id}`}
+                        to="/admin/coupons/$couponId"
+                        params={{ couponId: coupon.id }}
                         className="text-ink/40 hover:text-ink transition-colors"
                         title="Edit"
                       >

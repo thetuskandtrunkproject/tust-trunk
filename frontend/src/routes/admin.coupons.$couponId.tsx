@@ -20,7 +20,7 @@ function AdminEditCouponPage() {
     if (found) {
       setCoupon(found)
     } else {
-      showToast("Coupon not found", "error")
+      showToast("Coupon not found")
       navigate({ to: '/admin/coupons' })
     }
   }, [couponId, navigate, showToast])

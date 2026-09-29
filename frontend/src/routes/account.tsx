@@ -25,7 +25,7 @@ function AccountLayout() {
       if (!firebaseUser) {
         navigate({ to: '/login', replace: true })
       } else if (!firebaseUser.emailVerified) {
-        navigate({ to: '/verify-account', state: { email: firebaseUser.email }, replace: true })
+        navigate({ to: '/verify-account', state: { email: firebaseUser.email } as any, replace: true })
       }
     }
   }, [loading, firebaseUser, navigate])

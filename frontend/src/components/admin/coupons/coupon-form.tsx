@@ -30,15 +30,15 @@ export function CouponForm({ initialData, onSubmit }: CouponFormProps) {
     
     // Basic validation
     if (!code.trim()) {
-      showToast("Coupon code is required", "error")
+      showToast("Coupon code is required")
       return
     }
     if (type !== 'free_shipping' && (!value || Number(value) < 0)) {
-      showToast("Please enter a valid discount amount", "error")
+      showToast("Please enter a valid discount amount")
       return
     }
     if (endDate && new Date(endDate) < new Date(startDate)) {
-      showToast("End date cannot be before start date", "error")
+      showToast("End date cannot be before start date")
       return
     }
     

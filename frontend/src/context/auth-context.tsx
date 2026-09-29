@@ -10,7 +10,7 @@ export interface AppUser {
   email: string
   full_name: string | null
   phone: string | null
-  role: 'customer' | 'admin'
+  role: 'customer' | 'admin' | 'owner'
   email_verified: boolean
   is_active: boolean
   created_at: string
