@@ -12,15 +12,15 @@ export interface AdminOrderItem {
 
 export interface AdminOrder {
   id: string
-  orderNumber: string
-  customerName: string
-  customerEmail: string
-  customerPhone: string
+  order_number: string
+  customer_name: string
+  customer_email: string
+  customer_phone: string
   date: string
   status: OrderStatus
-  paymentStatus: PaymentStatus
-  paymentMethod: string
-  shippingAddress: {
+  payment_status: PaymentStatus
+  payment_method: string
+  shipping_address: {
     name: string
     address1: string
     address2?: string
@@ -29,9 +29,9 @@ export interface AdminOrder {
     pincode: string
   }
   items: AdminOrderItem[]
-  subtotal: number
-  deliveryFee: number
-  total: number
+  subtotal_paise: number
+  delivery_fee_paise: number
+  total_paise: number
 }
 
 // Generate ~30 mock orders
@@ -87,15 +87,15 @@ const generateMockOrders = (): AdminOrder[] => {
 
     orders.push({
       id: orderNumber,
-      orderNumber,
-      customerName: name,
-      customerEmail: `${fName.toLowerCase()}.${lName.toLowerCase()}@example.com`,
-      customerPhone: `+91 98${Math.floor(Math.random() * 100000000)}`,
+      order_number: orderNumber,
+      customer_name: name,
+      customer_email: `${fName.toLowerCase()}.${lName.toLowerCase()}@example.com`,
+      customer_phone: `+91 98${Math.floor(Math.random() * 100000000)}`,
       date: date.toISOString(),
       status,
-      paymentStatus: status === 'Cancelled' ? 'Refunded' : (Math.random() > 0.1 ? 'Paid' : 'Failed'),
-      paymentMethod: methods[Math.floor(Math.random() * methods.length)],
-      shippingAddress: {
+      payment_status: status === 'Cancelled' ? 'Refunded' : (Math.random() > 0.1 ? 'Paid' : 'Failed'),
+      payment_method: methods[Math.floor(Math.random() * methods.length)],
+      shipping_address: {
         name,
         address1: `${Math.floor(Math.random() * 999) + 1} Main Street`,
         city: cities[cityIdx],
@@ -103,9 +103,9 @@ const generateMockOrders = (): AdminOrder[] => {
         pincode: `4000${Math.floor(Math.random() * 99)}`
       },
       items,
-      subtotal,
-      deliveryFee,
-      total: subtotal + deliveryFee
+      subtotal_paise: subtotal * 100,
+      delivery_fee_paise: deliveryFee * 100,
+      total_paise: (subtotal + deliveryFee) * 100
     })
   }
 

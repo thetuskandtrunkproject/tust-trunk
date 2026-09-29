@@ -4,6 +4,7 @@ import { api } from '@/lib/api'
 import { useCart } from '@/context/cart-context'
 import { useNavigate } from '@tanstack/react-router'
 import { handleResendVerification } from '@/lib/auth-actions'
+import { useAuth } from '@/context/auth-context'
 import { useToast } from '@/context/toast-context'
 
 declare global {
@@ -24,6 +25,7 @@ export function StepPayment({ onBack, contact, shipping, totalAmount }: StepPaym
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [isResending, setIsResending] = useState(false)
   const [needsVerification, setNeedsVerification] = useState(false)
+  const { user } = useAuth()
   
   const { items, clearCart } = useCart()
   const navigate = useNavigate()

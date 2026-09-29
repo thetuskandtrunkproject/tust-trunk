@@ -16,10 +16,10 @@ export interface AdminCustomer {
   name: string
   email: string
   phone: string
-  joinedDate: string
-  totalOrders: number
-  totalSpent: number
-  lastOrderDate: string | null
+  joined_date: string
+  total_orders: number
+  total_spent_paise: number
+  last_order_date: string | null
   addresses: CustomerAddress[]
 }
 
@@ -28,7 +28,7 @@ export const adminMockCustomers: AdminCustomer[] = (() => {
 
   // Process all orders to build customer profiles
   adminMockOrders.forEach(order => {
-    const email = order.customerEmail
+    const email = order.customer_email
     
     if (!customerMap.has(email)) {
       // Create new customer profile
@@ -39,21 +39,21 @@ export const adminMockCustomers: AdminCustomer[] = (() => {
 
       customerMap.set(email, {
         id: `CUST-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        name: order.customerName,
-        email: order.customerEmail,
-        phone: order.customerPhone,
-        joinedDate: joinDate.toISOString(),
-        totalOrders: 0,
-        totalSpent: 0,
-        lastOrderDate: null,
+        name: order.customer_name,
+        email: order.customer_email,
+        phone: order.customer_phone,
+        joined_date: joinDate.toISOString(),
+        total_orders: 0,
+        total_spent_paise: 0,
+        last_order_date: null,
         addresses: [
           {
             id: 'addr-1',
-            name: order.shippingAddress.name,
-            address1: order.shippingAddress.address1,
-            city: order.shippingAddress.city,
-            state: order.shippingAddress.state,
-            pincode: order.shippingAddress.pincode,
+            name: order.shipping_address.name,
+            address1: order.shipping_address.address1,
+            city: order.shipping_address.city,
+            state: order.shipping_address.state,
+            pincode: order.shipping_address.pincode,
             isDefault: true
           }
         ]
@@ -62,12 +62,12 @@ export const adminMockCustomers: AdminCustomer[] = (() => {
 
     // Update existing profile
     const customer = customerMap.get(email)!
-    customer.totalOrders += 1
-    customer.totalSpent += order.total
+    customer.total_orders += 1
+    customer.total_spent_paise += order.total_paise
     
     // Update last order date if this order is newer
-    if (!customer.lastOrderDate || new Date(order.date) > new Date(customer.lastOrderDate)) {
-      customer.lastOrderDate = order.date
+    if (!customer.last_order_date || new Date(order.date) > new Date(customer.last_order_date)) {
+      customer.last_order_date = order.date
     }
   })
 
@@ -95,10 +95,10 @@ export const adminMockCustomers: AdminCustomer[] = (() => {
         name,
         email,
         phone: `+91 98${Math.floor(Math.random() * 100000000)}`,
-        joinedDate: joinDate.toISOString(),
-        totalOrders: 0,
-        totalSpent: 0,
-        lastOrderDate: null,
+        joined_date: joinDate.toISOString(),
+        total_orders: 0,
+        total_spent_paise: 0,
+        last_order_date: null,
         addresses: []
       })
     }
@@ -106,6 +106,6 @@ export const adminMockCustomers: AdminCustomer[] = (() => {
 
   // Sort by most recent joined date
   return Array.from(customerMap.values()).sort((a, b) => 
-    new Date(b.joinedDate).getTime() - new Date(a.joinedDate).getTime()
+    new Date(b.joined_date).getTime() - new Date(a.joined_date).getTime()
   )
 })()
