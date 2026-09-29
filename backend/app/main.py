@@ -42,13 +42,17 @@ app = FastAPI(title="The Tusk and Trunk API", lifespan=lifespan)
 app.state.limiter = auth_limiter  # slowapi expects a single state.limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175"
+]
+if settings.FRONTEND_URL:
+    origins.append(settings.FRONTEND_URL)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:5175"
-    ], # Update for prod
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
