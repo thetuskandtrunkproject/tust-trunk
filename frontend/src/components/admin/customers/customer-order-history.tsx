@@ -46,10 +46,10 @@ export function CustomerOrderHistory({ orders }: CustomerOrderHistoryProps) {
                 <td className="px-6 py-4">
                   <Link 
                     to="/admin/orders" 
-                    search={{ search: order.orderNumber }} 
+                    search={{ search: order.order_number }} 
                     className="font-medium text-ink group-hover:text-sky transition-colors"
                   >
-                    {order.orderNumber}
+                    {order.order_number}
                   </Link>
                 </td>
                 <td className="px-6 py-4 text-ink/70">
@@ -62,12 +62,12 @@ export function CustomerOrderHistory({ orders }: CustomerOrderHistoryProps) {
                   {order.items.reduce((sum, item) => sum + item.quantity, 0)}
                 </td>
                 <td className="px-6 py-4 text-right font-medium text-ink">
-                  {formatPrice(order.total)}
+                  {formatPrice(order.total_paise / 100)}
                 </td>
                 <td className="px-6 py-4 text-right">
                   <Link 
                     to="/admin/orders" 
-                    search={{ search: order.orderNumber }} 
+                    search={{ search: order.order_number }} 
                     className="p-2 text-ink/40 hover:text-ink transition-colors inline-flex"
                   >
                     <ChevronRight className="w-4 h-4" />
