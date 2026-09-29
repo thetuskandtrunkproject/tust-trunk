@@ -175,7 +175,7 @@ class ProductUpdate(BaseModel):
 
 
 class ProductListItem(BaseModel):
-    """Lightweight product shape for admin list view — no full variant array."""
+    """Lightweight product shape for admin list view — optionally includes full variant array."""
     id: uuid.UUID
     name: str
     slug: str
@@ -189,6 +189,7 @@ class ProductListItem(BaseModel):
     total_stock: int
     created_at: datetime
     updated_at: datetime
+    variants: Optional[List[VariantResponse]] = None
 
     model_config = ConfigDict(from_attributes=True)
 

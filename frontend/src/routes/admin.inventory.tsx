@@ -21,14 +21,9 @@ function AdminInventoryPage() {
   useEffect(() => {
     const loadInventory = async () => {
       try {
-        // Fetch base product list
-        const listRes = await fetchAdminProducts(1, 100)
-        
-        // Fetch full details for each product (N+1 pattern explicitly approved for this scope)
-        const fullProducts = await Promise.all(
-          listRes.items.map((p: any) => fetchAdminProduct(p.id))
-        )
-        setProducts(fullProducts)
+        // Fetch product list with variants included (1 query)
+        const listRes = await fetchAdminProducts(1, 100, { include_variants: true })
+        setProducts(listRes.items)
       } catch (err: any) {
         showToast(err.response?.data?.detail || 'Failed to load inventory data')
       } finally {

@@ -22,6 +22,7 @@ from app.routers.checkout import checkout_router, orders_router
 from app.routers.orders import router as user_orders_router
 from app.routers.admin_orders import router as admin_orders_router
 from app.routers.dashboard import router as admin_dashboard_router
+from app.routers.admin_customers import router as admin_customers_router
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
@@ -75,6 +76,7 @@ app.include_router(orders_router)
 app.include_router(user_orders_router)
 app.include_router(admin_orders_router)
 app.include_router(admin_dashboard_router)
+app.include_router(admin_customers_router)
 @app.get("/health", tags=["system"])
 def health_check():
     return {"status": "ok"}

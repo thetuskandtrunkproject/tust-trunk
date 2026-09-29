@@ -1,9 +1,10 @@
+import { useState, useEffect } from 'react'
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
-import { ArrowLeft, Mail, Phone, Calendar } from 'lucide-react'
-import { adminMockCustomers } from '@/lib/admin/mock-customers'
-import { adminMockOrders } from '@/lib/admin/mock-orders'
+import { ArrowLeft, Mail, Phone, Calendar, Loader2 } from 'lucide-react'
 import { CustomerOrderHistory } from '@/components/admin/customers/customer-order-history'
 import { CustomerAddresses } from '@/components/admin/customers/customer-addresses'
+import { api } from '@/lib/api'
+import { useToast } from '@/context/toast-context'
 
 export const Route = createFileRoute('/admin/customers/$customerId')({
   component: AdminCustomerDetailPage,
@@ -12,8 +13,33 @@ export const Route = createFileRoute('/admin/customers/$customerId')({
 function AdminCustomerDetailPage() {
   const { customerId } = Route.useParams()
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
-  const customer = adminMockCustomers.find(c => c.id === customerId)
+  const [customer, setCustomer] = useState<any>(null)
+  const [customerOrders, setCustomerOrders] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [customerRes, ordersRes] = await Promise.all([
+          api.get(`/api/v1/admin/customers/${customerId}`),
+          api.get(`/api/v1/admin/orders`, { params: { customer_id: customerId } })
+        ])
+        setCustomer(customerRes.data)
+        setCustomerOrders(ordersRes.data.orders || [])
+      } catch (err: any) {
+        showToast(err.response?.data?.detail || 'Failed to load customer details')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchData()
+  }, [customerId])
+
+  if (isLoading) {
+    return <div className="py-24 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-sky" /></div>
+  }
 
   if (!customer) {
     return (
@@ -29,8 +55,7 @@ function AdminCustomerDetailPage() {
     )
   }
 
-  const customerOrders = adminMockOrders.filter(o => o.customerEmail === customer.email)
-  const averageOrderValue = customer.totalOrders > 0 ? customer.totalSpent / customer.totalOrders : 0
+  const averageOrderValue = customer.total_orders > 0 ? customer.total_spent_paise / customer.total_orders : 0
 
   const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
   const formatDate = (dateStr: string) => {
@@ -53,8 +78,8 @@ function AdminCustomerDetailPage() {
           <h2 className="font-heading font-bold text-2xl text-ink">{customer.name}</h2>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-sm text-ink/70">
             <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {customer.email}</span>
-            <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {customer.phone}</span>
-            <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Joined {formatDate(customer.joinedDate)}</span>
+            {customer.phone && <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {customer.phone}</span>}
+            <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Joined {formatDate(customer.joined_date)}</span>
           </div>
         </div>
       </div>
@@ -81,17 +106,17 @@ function AdminCustomerDetailPage() {
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-ink/60 uppercase tracking-wider mb-1">Total Spent</p>
-                <p className="text-2xl font-medium text-ink">{formatPrice(customer.totalSpent)}</p>
+                <p className="text-2xl font-medium text-ink">{formatPrice(customer.total_spent_paise / 100)}</p>
               </div>
               
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-ink/5">
                 <div>
                   <p className="text-xs text-ink/60 uppercase tracking-wider mb-1">Total Orders</p>
-                  <p className="text-lg font-medium text-ink">{customer.totalOrders}</p>
+                  <p className="text-lg font-medium text-ink">{customer.total_orders}</p>
                 </div>
                 <div>
                   <p className="text-xs text-ink/60 uppercase tracking-wider mb-1">Avg Order Value</p>
-                  <p className="text-lg font-medium text-ink">{formatPrice(Math.round(averageOrderValue))}</p>
+                  <p className="text-lg font-medium text-ink">{formatPrice(Math.round(averageOrderValue / 100))}</p>
                 </div>
               </div>
             </div>

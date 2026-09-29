@@ -97,12 +97,14 @@ def list_products(
     category: Optional[str] = Query(default=None, description='Filter by category (partial match)'),
     search: Optional[str] = Query(default=None, description='Search by product name'),
     sort: str = Query(default='updated_at_desc', description='Sort: name_asc | updated_at_desc | created_at_desc'),
+    include_variants: bool = Query(default=False, description='Include full variant objects'),
     admin: dict = Depends(_set_admin_state),
     db: Client = Depends(get_db_client),
 ):
     """
     Admin product list. Returns lightweight product objects (no full variant arrays).
     Includes variant_count and total_stock aggregated per product.
+    Optionally include full variants by setting include_variants=true.
     """
     if status and status not in ('Active', 'Draft', 'Archived'):
         raise HTTPException(status_code=422, detail="status must be one of: Active, Draft, Archived")
@@ -111,7 +113,7 @@ def list_products(
     if sort not in ('name_asc', 'updated_at_desc', 'created_at_desc'):
         raise HTTPException(status_code=422, detail="sort must be one of: name_asc, updated_at_desc, created_at_desc")
 
-    return products_service.list_products(db, page, page_size, status, gender, category, search, sort)
+    return products_service.list_products(db, page, page_size, status, gender, category, search, sort, include_variants)
 
 
 # ---------------------------------------------------------------------------

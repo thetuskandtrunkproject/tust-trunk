@@ -1,12 +1,32 @@
+import { useState, useEffect } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { adminMockCustomers } from '@/lib/admin/mock-customers'
 import { CustomerTable } from '@/components/admin/customers/customer-table'
+import { api } from '@/lib/api'
+import { useToast } from '@/context/toast-context'
 
 export const Route = createFileRoute('/admin/customers/')({
   component: AdminCustomersIndexPage,
 })
 
 function AdminCustomersIndexPage() {
+  const [customers, setCustomers] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { showToast } = useToast()
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const res = await api.get('/api/v1/admin/customers')
+        setCustomers(res.data.items || [])
+      } catch (err) {
+        showToast('Failed to load customers')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchCustomers()
+  }, [])
+
   return (
     <div className="animate-in fade-in duration-300 pb-24">
       {/* Page Header */}
@@ -17,7 +37,11 @@ function AdminCustomersIndexPage() {
         </div>
       </div>
 
-      <CustomerTable customers={adminMockCustomers} />
+      {isLoading ? (
+        <div className="py-12 text-center text-ink/50">Loading customers...</div>
+      ) : (
+        <CustomerTable customers={customers} />
+      )}
     </div>
   )
 }

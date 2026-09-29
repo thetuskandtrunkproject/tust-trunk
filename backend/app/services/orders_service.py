@@ -101,11 +101,14 @@ def get_user_order_detail(db: Client, user_id: str, order_id: str) -> dict:
         "items": items_data
     }
 
-def get_admin_orders(db: Client, search: Optional[str] = None, status: Optional[str] = None, page: int = 1, page_size: int = 25) -> dict:
+def get_admin_orders(db: Client, search: Optional[str] = None, status: Optional[str] = None, customer_id: Optional[str] = None, page: int = 1, page_size: int = 25) -> dict:
     query = db.table('orders').select('*, order_items(*, product_variants(products(images))), users(full_name, email, phone)', count='exact')
     
     if status:
         query = query.eq('status', status)
+        
+    if customer_id:
+        query = query.eq('user_id', customer_id)
     
     if search:
         query = query.or_(f"order_number.ilike.%{search}%,guest_email.ilike.%{search}%,guest_phone.ilike.%{search}%")

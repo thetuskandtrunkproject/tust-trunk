@@ -191,6 +191,7 @@ def list_products(
     category: Optional[str],
     search: Optional[str],
     sort: str,
+    include_variants: bool = False,
 ) -> dict:
     """
     Returns a paginated list of products with aggregated variant_count and
@@ -208,8 +209,6 @@ def list_products(
     if gender:
         q = q.eq('gender', gender)
     if category:
-        # Note: In a real system, you might filter by category_id directly.
-        # Since the frontend sends category_id in the future, we could filter by category_id.
         pass
     if search:
         q = q.ilike('name', f'%{search}%')
@@ -240,30 +239,38 @@ def list_products(
             'total_pages': 0,
         }
 
-    # Fetch aggregated variant data for all products on this page (one query)
+    # Fetch variant data for all products on this page (one query)
     product_ids = [p['id'] for p in products]
+    
+    variant_cols = '*' if include_variants else 'product_id, stock'
     variants_res = (
         db.table(VARIANTS_TABLE)
-        .select('product_id, stock')
+        .select(variant_cols)
         .in_('product_id', product_ids)
         .execute()
     )
     variants_raw = variants_res.data or []
 
-    # Build aggregate map: { product_id: { count, total_stock } }
+    # Build aggregate map: { product_id: { count, total_stock, variants } }
     agg: dict[str, dict] = {}
     for v in variants_raw:
         pid = v['product_id']
         if pid not in agg:
-            agg[pid] = {'variant_count': 0, 'total_stock': 0}
+            agg[pid] = {'variant_count': 0, 'total_stock': 0, 'variants': []}
         agg[pid]['variant_count'] += 1
         agg[pid]['total_stock'] += v.get('stock', 0)
+        if include_variants:
+            agg[pid]['variants'].append(v)
 
     # Attach aggregates to each product
     for p in products:
-        a = agg.get(p['id'], {'variant_count': 0, 'total_stock': 0})
+        a = agg.get(p['id'], {'variant_count': 0, 'total_stock': 0, 'variants': []})
         p['variant_count'] = a['variant_count']
         p['total_stock'] = a['total_stock']
+        if include_variants:
+            # Optionally sort variants if needed, e.g., by id or created_at
+            p['variants'] = sorted(a['variants'], key=lambda x: x.get('created_at', ''))
+            
         if 'categories' in p and p['categories']:
             p['category'] = p['categories']['name']
         else:

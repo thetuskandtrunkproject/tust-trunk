@@ -46,13 +46,13 @@ export function CustomerTable({ customers }: CustomerTableProps) {
     result.sort((a, b) => {
       let comparison = 0
       if (sortField === 'totalSpent') {
-        comparison = a.totalSpent - b.totalSpent
+        comparison = a.total_spent_paise - b.total_spent_paise
       } else if (sortField === 'lastOrderDate') {
-        const dateA = a.lastOrderDate ? new Date(a.lastOrderDate).getTime() : 0
-        const dateB = b.lastOrderDate ? new Date(b.lastOrderDate).getTime() : 0
+        const dateA = a.last_order_date ? new Date(a.last_order_date).getTime() : 0
+        const dateB = b.last_order_date ? new Date(b.last_order_date).getTime() : 0
         comparison = dateA - dateB
       } else {
-        comparison = new Date(a.joinedDate).getTime() - new Date(b.joinedDate).getTime()
+        comparison = new Date(a.joined_date).getTime() - new Date(b.joined_date).getTime()
       }
       return sortOrder === 'asc' ? comparison : -comparison
     })
@@ -133,16 +133,16 @@ export function CustomerTable({ customers }: CustomerTableProps) {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-ink/70">
-                    {formatDate(customer.joinedDate)}
+                    {formatDate(customer.joined_date)}
                   </td>
                   <td className="px-6 py-4 text-right text-ink/70">
-                    {customer.totalOrders}
+                    {customer.total_orders}
                   </td>
                   <td className="px-6 py-4 text-right font-medium text-ink">
-                    {formatPrice(customer.totalSpent)}
+                    {formatPrice(customer.total_spent_paise / 100)}
                   </td>
                   <td className="px-6 py-4 text-right text-ink/70">
-                    {formatDate(customer.lastOrderDate)}
+                    {formatDate(customer.last_order_date)}
                   </td>
                 </tr>
               ))}
@@ -173,11 +173,11 @@ export function CustomerTable({ customers }: CustomerTableProps) {
             <div className="grid grid-cols-2 gap-y-3 text-sm pt-3 border-t border-ink/5">
               <div>
                 <p className="text-xs text-ink/50 uppercase tracking-wider mb-1">Joined</p>
-                <p className="text-ink/80">{formatDate(customer.joinedDate)}</p>
+                <p className="text-ink/80">{formatDate(customer.joined_date)}</p>
               </div>
               <div className="text-right">
                 <p className="text-xs text-ink/50 uppercase tracking-wider mb-1">Total Spent</p>
-                <p className="font-medium text-ink">{formatPrice(customer.totalSpent)}</p>
+                <p className="font-medium text-ink">{formatPrice(customer.total_spent_paise / 100)}</p>
               </div>
             </div>
           </Link>
