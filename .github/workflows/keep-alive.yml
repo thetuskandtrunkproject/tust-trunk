@@ -1,0 +1,14 @@
+name: Keep Render Backend Alive
+
+on:
+  schedule:
+    # Runs every 14 minutes to prevent Render's free tier from sleeping (it sleeps after 15 mins of inactivity)
+    - cron: '*/14 * * * *'
+  workflow_dispatch: # Allows you to run it manually from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health check
+        run: curl -f https://tust-trunk.onrender.com/health
