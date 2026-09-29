@@ -24,6 +24,7 @@ export interface AdminProductListItem {
   total_stock: number
   created_at: string
   updated_at: string
+  variants?: AdminProductVariant[]
 }
 
 export interface AdminProduct {
