@@ -1,8 +1,10 @@
-import { createFileRoute, Link, useLocation } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute, useLocation, useNavigate } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
 import { useToast } from '@/context/toast-context'
 import { handleResendVerification } from '@/lib/auth-actions'
 import { Mail, CheckCircle2 } from 'lucide-react'
+import { auth } from '@/lib/firebase'
+import { useAuth } from '@/context/auth-context'
 
 export const Route = createFileRoute('/verify-account')({
   component: VerifyAccountPage,
@@ -10,9 +12,22 @@ export const Route = createFileRoute('/verify-account')({
 
 function VerifyAccountPage() {
   const location = useLocation()
+  const navigate = useNavigate()
   const state = location.state as any
   const email = state?.email || 'your email'
   
+  const { firebaseUser, loading } = useAuth()
+
+  useEffect(() => {
+    if (!loading) {
+      if (!firebaseUser) {
+        navigate({ to: '/login', replace: true })
+      } else if (firebaseUser.emailVerified) {
+        navigate({ to: '/', replace: true })
+      }
+    }
+  }, [loading, firebaseUser, navigate])
+
   const { showToast } = useToast()
   const [cooldown, setCooldown] = useState(false)
 
@@ -57,17 +72,36 @@ function VerifyAccountPage() {
         <button 
           onClick={onResend}
           disabled={cooldown}
-          className="bg-white border-2 border-sky text-sky px-8 py-4 rounded-full font-bold shadow-sm hover:bg-sky-soft transition-all disabled:opacity-50 disabled:hover:bg-white disabled:cursor-not-allowed mb-8 w-full"
+          className="bg-white border-2 border-sky text-sky px-8 py-4 rounded-full font-bold shadow-sm hover:bg-sky-soft transition-all disabled:opacity-50 disabled:hover:bg-white disabled:cursor-not-allowed mb-4 w-full"
         >
           {cooldown ? 'Wait before resending...' : 'Resend email'}
         </button>
+
+        <button 
+          onClick={async () => {
+            if (firebaseUser) {
+              await firebaseUser.reload();
+              if (firebaseUser.emailVerified) {
+                navigate({ to: '/', replace: true })
+              } else {
+                showToast("Email not verified yet. Please check your inbox.")
+              }
+            }
+          }}
+          className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all mb-8"
+        >
+          I've verified my email
+        </button>
         
-        <Link 
-          to="/login"
+        <button 
+          onClick={async () => {
+            await auth.signOut();
+            window.location.href = '/login';
+          }}
           className="text-sm font-bold text-coral hover:text-coral/80 transition-colors underline underline-offset-4"
         >
-          Back to login
-        </Link>
+          Log out & Back to login
+        </button>
 
       </div>
     </div>

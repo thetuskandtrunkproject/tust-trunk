@@ -5,6 +5,8 @@ import { useCart } from '@/context/cart-context'
 import { useWishlist } from '@/context/wishlist-context'
 import { CartDrawer } from '@/components/cart/cart-drawer'
 import { SearchOverlay } from '@/components/site/search-overlay'
+import { useAuth } from '@/context/auth-context'
+import { auth } from '@/lib/firebase'
 
 import logo from '@/assets/logo_full_hd.png'
 
@@ -18,6 +20,7 @@ export function SiteHeader() {
   
   const { cartCount } = useCart()
   const { wishlistIds } = useWishlist()
+  const { user, firebaseUser } = useAuth()
   
   const getNavClass = (path: string, exact = false) => {
     let isActive = false
@@ -118,7 +121,46 @@ export function SiteHeader() {
                 <Heart className="w-5 h-5 group-hover:fill-coral/20" />
                 {wishlistIds.length > 0 && <span className="absolute top-1 right-1 w-2 h-2 bg-coral rounded-full border-2 border-white"></span>}
               </Link>
-              <Link to="/account" className="text-ink hover:text-sky transition-colors hidden sm:block p-2"><User className="w-5 h-5" /></Link>
+              <div className="relative group hidden sm:block">
+                {firebaseUser ? (
+                  <>
+                    <Link to="/account" className="text-ink hover:text-sky transition-colors flex items-center p-2">
+                      <User className="w-5 h-5" />
+                    </Link>
+                    <div className="absolute top-full right-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-48 z-50">
+                      <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-ink/5 flex flex-col py-2">
+                        <Link to="/account" className="px-4 py-2 text-sm text-ink hover:bg-sky-soft hover:text-sky transition-colors">
+                          My Account
+                        </Link>
+                        <Link to="/account/orders" className="px-4 py-2 text-sm text-ink hover:bg-sky-soft hover:text-sky transition-colors">
+                          Order History
+                        </Link>
+                        <Link to="/account/settings" className="px-4 py-2 text-sm text-ink hover:bg-sky-soft hover:text-sky transition-colors">
+                          Settings
+                        </Link>
+                        {(user?.role === 'admin' || user?.role === 'owner') && (
+                          <Link to="/admin" className="px-4 py-2 text-sm font-bold text-sky hover:bg-sky-soft transition-colors border-t border-ink/5 mt-1 pt-3">
+                            Admin Panel
+                          </Link>
+                        )}
+                        <button 
+                          onClick={() => {
+                            auth.signOut()
+                            window.location.href = '/'
+                          }}
+                          className="px-4 py-2 text-sm text-left text-coral hover:bg-coral/10 transition-colors border-t border-ink/5 mt-1 pt-3"
+                        >
+                          Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <Link to="/login" className="text-ink hover:text-sky transition-colors flex items-center p-2">
+                    <User className="w-5 h-5" />
+                  </Link>
+                )}
+              </div>
               <button onClick={() => setIsCartOpen(true)} className="text-ink hover:text-sky transition-colors flex items-center relative p-2">
                 <ShoppingBag className="w-5 h-5" />
                 {cartCount > 0 && (

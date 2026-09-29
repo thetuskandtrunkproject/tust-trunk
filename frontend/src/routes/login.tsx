@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { handleLogin, handleGoogleLogin } from '@/lib/auth-actions'
 import { Eye, EyeOff } from 'lucide-react'
+import { useAuth } from '@/context/auth-context'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -9,12 +10,20 @@ export const Route = createFileRoute('/login')({
 
 function LoginPage() {
   const navigate = useNavigate()
+  const { firebaseUser } = useAuth()
+  
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (firebaseUser) {
+      navigate({ to: '/', replace: true })
+    }
+  }, [firebaseUser, navigate])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,9 +41,7 @@ function LoginPage() {
   const onGoogleLogin = async () => {
     setError(null)
     const res = await handleGoogleLogin()
-    if (res.success) {
-      navigate({ to: '/account' })
-    } else {
+    if (!res.success) {
       setError(res.error || "Google login failed")
     }
   }

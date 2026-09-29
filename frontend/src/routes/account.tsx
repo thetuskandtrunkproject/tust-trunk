@@ -1,7 +1,7 @@
-import { createFileRoute, Outlet, Link, useLocation } from '@tanstack/react-router'
+import { createFileRoute, Outlet, Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { User, Package, Settings, ShieldCheck } from 'lucide-react'
 import { useAuth } from '@/context/auth-context'
-import { Navigate } from '@tanstack/react-router'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute('/account')({
   component: AccountLayout,
@@ -9,6 +9,7 @@ export const Route = createFileRoute('/account')({
 
 function AccountLayout() {
   const location = useLocation()
+  const navigate = useNavigate()
   
   const navItems = [
     { label: 'Overview', path: '/account', icon: User, exact: true },
@@ -19,12 +20,18 @@ function AccountLayout() {
 
   const { firebaseUser, loading } = useAuth()
 
-  if (loading) {
-    return <div className="min-h-screen bg-cloud flex items-center justify-center font-bold text-ink/50">Loading...</div>
-  }
+  useEffect(() => {
+    if (!loading) {
+      if (!firebaseUser) {
+        navigate({ to: '/login', replace: true })
+      } else if (!firebaseUser.emailVerified) {
+        navigate({ to: '/verify-account', state: { email: firebaseUser.email }, replace: true })
+      }
+    }
+  }, [loading, firebaseUser, navigate])
 
-  if (!firebaseUser) {
-    return <Navigate to="/login" />
+  if (loading || !firebaseUser || !firebaseUser.emailVerified) {
+    return <div className="min-h-screen bg-cloud flex items-center justify-center font-bold text-ink/50">Loading...</div>
   }
 
   return (

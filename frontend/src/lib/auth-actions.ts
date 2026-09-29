@@ -1,6 +1,6 @@
 import { 
   signInWithEmailAndPassword, 
-  signInWithPopup, 
+  signInWithRedirect, 
   createUserWithEmailAndPassword, 
   sendEmailVerification,
   signOut,
@@ -32,7 +32,7 @@ export const handleLogin = async (email?: string, password?: string) => {
 
 export const handleGoogleLogin = async () => {
   try {
-    await signInWithPopup(auth, googleProvider)
+    await signInWithRedirect(auth, googleProvider)
     return { success: true }
   } catch (error: any) {
     console.error('Google login error:', error)
