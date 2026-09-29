@@ -1,18 +1,42 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Search } from 'lucide-react'
-import { useAdminProducts } from '@/context/admin-product-context'
 import { InventoryTable } from '@/components/admin/inventory/inventory-table'
+import { fetchAdminProducts, fetchAdminProduct } from '@/lib/admin/products-api'
+import { useToast } from '@/context/toast-context'
+import type { AdminProduct } from '@/lib/admin/products-api'
 
 export const Route = createFileRoute('/admin/inventory')({
   component: AdminInventoryPage,
 })
 
 function AdminInventoryPage() {
-  const { products } = useAdminProducts()
+  const [products, setProducts] = useState<AdminProduct[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { showToast } = useToast()
   
   const [searchQuery, setSearchQuery] = useState('')
   const [stockFilter, setStockFilter] = useState<'All' | 'Low' | 'Out'>('All')
+
+  useEffect(() => {
+    const loadInventory = async () => {
+      try {
+        // Fetch base product list
+        const listRes = await fetchAdminProducts(1, 100)
+        
+        // Fetch full details for each product (N+1 pattern explicitly approved for this scope)
+        const fullProducts = await Promise.all(
+          listRes.items.map((p: any) => fetchAdminProduct(p.id))
+        )
+        setProducts(fullProducts)
+      } catch (err: any) {
+        showToast(err.response?.data?.detail || 'Failed to load inventory data')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadInventory()
+  }, [])
 
   // Derived filtered data
   const filteredProducts = useMemo(() => {
@@ -37,6 +61,17 @@ function AdminInventoryPage() {
       return true
     })
   }, [products, searchQuery, stockFilter])
+
+
+  const handleStockUpdate = (productId: string, variantId: string, newStock: number) => {
+    setProducts(prev => prev.map(p => {
+      if (p.id !== productId) return p;
+      return {
+        ...p,
+        variants: p.variants.map(v => v.id === variantId ? { ...v, stock: newStock } : v)
+      }
+    }))
+  }
 
   return (
     <div className="animate-in fade-in duration-300 pb-24">
@@ -74,8 +109,13 @@ function AdminInventoryPage() {
       </div>
 
       {/* Table */}
-      <InventoryTable products={filteredProducts} />
+      {isLoading ? (
+        <div className="flex justify-center p-12"><div className="w-8 h-8 rounded-full border-4 border-ink/20 border-t-sky animate-spin"></div></div>
+      ) : (
+        <InventoryTable products={filteredProducts} onStockUpdate={handleStockUpdate} />
+      )}
 
     </div>
   )
+
 }

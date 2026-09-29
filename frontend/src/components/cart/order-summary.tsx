@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useCart } from '@/context/cart-context'
-import { mockProducts } from '@/lib/mock-products'
 import { useToast } from '@/context/toast-context'
+import { useAuth } from '@/context/auth-context'
 
 interface OrderSummaryProps {
   deliveryFee: number
@@ -9,23 +9,18 @@ interface OrderSummaryProps {
 }
 
 export function OrderSummary({ deliveryFee, onDiscountChange }: OrderSummaryProps) {
-  const { items } = useCart()
+  const { items, serverSubtotal } = useCart()
+  const { user } = useAuth()
   const { showToast } = useToast()
   
   const [promoCode, setPromoCode] = useState('')
   const [isApplying, setIsApplying] = useState(false)
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null)
 
-  // Resolve product details for each cart item
-  const cartDetails = items.map(item => {
-    const product = mockProducts.find(p => p.id === item.productId)
-    return {
-      ...item,
-      product
-    }
-  }).filter(item => item.product !== undefined)
+  // Filter out items missing product data to avoid crashes (guest cart limitation)
+  const cartDetails = items.filter(item => item.product !== undefined && item.variant !== undefined)
 
-  const subtotal = cartDetails.reduce((sum, item) => sum + (item.product!.price * item.quantity), 0)
+  const subtotal = user ? serverSubtotal : cartDetails.reduce((sum, item) => sum + (item.variant!.price * item.quantity), 0)
   
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault()
@@ -56,23 +51,30 @@ export function OrderSummary({ deliveryFee, onDiscountChange }: OrderSummaryProp
 
       {/* Line Items */}
       <div className="flex flex-col gap-4 mb-6 pb-6 border-b border-ink/10 max-h-[40vh] overflow-y-auto hide-scrollbar">
-        {cartDetails.map((item, idx) => (
-          <div key={idx} className="flex gap-4">
-            <div className="w-16 aspect-[3/4] bg-white rounded-md overflow-hidden shrink-0">
-              <img src={item.product!.images[0]} alt={item.product!.name} className="w-full h-full object-cover" />
-            </div>
-            <div className="flex flex-col flex-1 py-0.5">
-              <div className="flex justify-between items-start gap-2 mb-1">
-                <span className="font-medium text-ink text-sm line-clamp-1">{item.product!.name}</span>
-                <span className="font-medium text-ink text-sm">{formatPrice(item.product!.price * item.quantity)}</span>
+        {cartDetails.length === 0 ? (
+           <p className="text-ink/60 text-sm font-medium">Your cart is empty.</p>
+        ) : (
+          cartDetails.map((item, idx) => (
+            <div key={`${item.variant_id}-${idx}`} className={`flex gap-4 ${item.is_available === false ? 'opacity-50 grayscale' : ''}`}>
+              <div className="w-16 aspect-[3/4] bg-white rounded-md overflow-hidden shrink-0">
+                <img src={item.product!.images[0]} alt={item.product!.name} className="w-full h-full object-cover" />
               </div>
-              <div className="text-xs text-ink/60 mt-auto flex flex-col gap-0.5">
-                <span>Size: {item.size}</span>
-                <span>Qty: {item.quantity}</span>
+              <div className="flex flex-col flex-1 py-0.5">
+                <div className="flex justify-between items-start gap-2 mb-1">
+                  <span className="font-medium text-ink text-sm line-clamp-1">{item.product!.name}</span>
+                  <span className="font-medium text-ink text-sm">{formatPrice(item.variant!.price * item.quantity)}</span>
+                </div>
+                <div className="text-xs text-ink/60 mt-auto flex flex-col gap-0.5">
+                  <span>Size: {item.variant!.size}</span>
+                  <span>Qty: {item.quantity}</span>
+                  {item.is_available === false && (
+                    <span className="text-rust font-bold">No longer available</span>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Promo Code */}

@@ -119,8 +119,7 @@ function ProductDetailPage() {
     }
     
     addItem({
-      productId: product.id,
-      size: selectedVariant.id, // using variant ID instead of size string
+      variant_id: selectedVariant.id,
       quantity
     })
     

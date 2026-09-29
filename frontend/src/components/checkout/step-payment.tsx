@@ -1,28 +1,131 @@
 import { useState } from 'react'
 import { ArrowLeft, ShieldCheck, Loader2 } from 'lucide-react'
+import { api } from '@/lib/api'
+import { useCart } from '@/context/cart-context'
+import { useNavigate } from '@tanstack/react-router'
+import { handleResendVerification } from '@/lib/auth-stub'
+import { useToast } from '@/context/toast-context'
+
+declare global {
+  interface Window {
+    Razorpay: any
+  }
+}
 
 interface StepPaymentProps {
   onBack: () => void
-  onSuccess: () => void
-  onFailure: () => void
+  contact: any
+  shipping: any
   totalAmount: number
 }
 
-export function StepPayment({ onBack, onSuccess, onFailure, totalAmount }: StepPaymentProps) {
+export function StepPayment({ onBack, contact, shipping, totalAmount }: StepPaymentProps) {
   const [isProcessing, setIsProcessing] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [isResending, setIsResending] = useState(false)
+  const [needsVerification, setNeedsVerification] = useState(false)
+  
+  const { items, clearCart } = useCart()
+  const navigate = useNavigate()
+  const { showToast } = useToast()
 
-  const handleMockPayment = (outcome: 'success' | 'failure') => {
+  const handlePayment = async () => {
     setIsProcessing(true)
+    setErrorMsg(null)
+    setNeedsVerification(false)
     
-    // Simulate gateway delay
-    setTimeout(() => {
-      setIsProcessing(false)
-      if (outcome === 'success') {
-        onSuccess()
-      } else {
-        onFailure()
+    try {
+      // 1. Create order
+      const createRes = await api.post('/api/v1/checkout/create-order', {
+        items: items.map(i => ({ variant_id: i.variant_id, quantity: i.quantity })),
+        contact,
+        shipping
+      })
+      
+      const { razorpay_order_id, amount_paise, currency, key_id } = createRes.data
+      
+      // 2. Init Razorpay
+      const options = {
+        key: key_id,
+        amount: amount_paise,
+        currency: currency,
+        name: "The Tusk & Trunk",
+        description: "Order Payment",
+        order_id: razorpay_order_id,
+        handler: async function (response: any) {
+          try {
+            const verifyRes = await api.post('/api/v1/checkout/verify-payment', {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature
+            })
+            
+            // Success or requires_review
+            await clearCart()
+            navigate({
+              to: '/order-success',
+              search: { 
+                order_id: verifyRes.data.order_id,
+                order_number: verifyRes.data.order_number,
+                guest_email: user ? undefined : contact.email,
+                requires_review: verifyRes.data.requires_review
+              }
+            })
+          } catch (err: any) {
+            console.error(err)
+            navigate({ to: '/order-failed' })
+          }
+        },
+        prefill: {
+          name: shipping.name,
+          email: contact.email,
+          contact: contact.phone
+        },
+        theme: {
+          color: "#F4715A" // coral
+        },
+        modal: {
+          ondismiss: function() {
+            setIsProcessing(false)
+          }
+        }
       }
-    }, 1500)
+      
+      const rzp = new window.Razorpay(options)
+      rzp.on('payment.failed', function (response: any) {
+        console.error(response.error)
+        navigate({ to: '/order-failed' })
+      })
+      rzp.open()
+      
+    } catch (err: any) {
+      console.error(err)
+      setIsProcessing(false)
+      
+      if (err.response) {
+        if (err.response.status === 403) {
+          setNeedsVerification(true)
+          setErrorMsg("Your email is not verified. Please verify your email to continue.")
+        } else if (err.response.status === 400) {
+          setErrorMsg(`Checkout failed: ${err.response.data.detail || 'Insufficient stock or invalid items in cart. Please review your cart.'}`)
+        } else {
+          setErrorMsg("Failed to initiate checkout. Please try again.")
+        }
+      } else {
+        setErrorMsg("Network error. Please try again.")
+      }
+    }
+  }
+
+  const handleResend = async () => {
+    setIsResending(true)
+    const res = await handleResendVerification()
+    if (res.success) {
+      showToast("Verification email sent! Please check your inbox.")
+    } else {
+      showToast(res.error || "Failed to resend verification email.")
+    }
+    setIsResending(false)
   }
 
   const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
@@ -41,8 +144,23 @@ export function StepPayment({ onBack, onSuccess, onFailure, totalAmount }: StepP
           You will be redirected to the secure Razorpay portal to complete your payment of <strong className="text-ink">{formatPrice(totalAmount)}</strong>.
         </p>
 
+        {errorMsg && (
+          <div className="mb-8 p-4 bg-rust/10 text-rust font-bold rounded-xl max-w-sm mx-auto text-left">
+            <p>{errorMsg}</p>
+            {needsVerification && (
+              <button 
+                onClick={handleResend}
+                disabled={isResending}
+                className="mt-4 px-6 py-2 bg-rust text-white rounded-full hover:bg-rust/90 transition-colors disabled:opacity-50 text-sm"
+              >
+                {isResending ? 'Sending...' : 'Resend Verification Email'}
+              </button>
+            )}
+          </div>
+        )}
+
         <button 
-          onClick={() => handleMockPayment('success')}
+          onClick={handlePayment}
           disabled={isProcessing}
           className="w-full max-w-sm mx-auto bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all disabled:opacity-70 disabled:cursor-wait disabled:hover:scale-100 flex items-center justify-center gap-2 mb-12"
         >
@@ -53,26 +171,6 @@ export function StepPayment({ onBack, onSuccess, onFailure, totalAmount }: StepP
           )}
         </button>
 
-        {/* Dev Tools */}
-        <div className="border-t border-dashed border-ink/20 pt-8 mt-8">
-          <p className="text-xs uppercase font-bold tracking-widest text-ink/40 mb-4">Developer Tools (Mock Gateway)</p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <button 
-              onClick={() => handleMockPayment('success')}
-              disabled={isProcessing}
-              className="text-xs font-bold px-6 py-2.5 rounded-full border border-dashed border-sky text-sky hover:bg-sky/10 transition-colors disabled:opacity-50"
-            >
-              Simulate Success
-            </button>
-            <button 
-              onClick={() => handleMockPayment('failure')}
-              disabled={isProcessing}
-              className="text-xs font-bold px-6 py-2.5 rounded-full border border-dashed border-rust text-rust hover:bg-rust/10 transition-colors disabled:opacity-50"
-            >
-              Simulate Failure
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Navigation */}

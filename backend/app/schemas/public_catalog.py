@@ -62,3 +62,25 @@ class PublicProductDetailResponse(BaseModel):
     variants: List[PublicVariantResponse]
 
     model_config = ConfigDict(from_attributes=True)
+
+class PublicResolveProductInfo(BaseModel):
+    id: uuid.UUID
+    name: str
+    slug: str
+    images: List[str]
+
+class PublicResolveVariantInfo(BaseModel):
+    id: uuid.UUID
+    sku: str
+    size: str
+    price: int
+    stock: int
+    is_active: bool
+
+class PublicResolvedVariant(BaseModel):
+    variant: PublicResolveVariantInfo
+    product: PublicResolveProductInfo
+    is_available: bool
+
+class PublicResolveResponse(BaseModel):
+    items: List[PublicResolvedVariant]

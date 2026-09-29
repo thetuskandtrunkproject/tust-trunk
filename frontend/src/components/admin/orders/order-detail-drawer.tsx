@@ -3,7 +3,7 @@ import { X, Mail, Phone, MapPin, Package, IndianRupee } from 'lucide-react'
 import type { AdminOrder, OrderStatus } from '@/lib/admin/mock-orders'
 import { OrderStatusBadge } from './order-status-badge'
 import { OrderStatusStepper } from './order-status-stepper'
-import { mockProducts } from '@/lib/mock-products'
+
 
 interface OrderDetailDrawerProps {
   order: AdminOrder | null
@@ -66,7 +66,7 @@ export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: Or
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-ink/10 shrink-0">
           <div>
-            <h2 className="font-heading font-bold text-xl text-ink">Order #{order.orderNumber}</h2>
+            <h2 className="font-heading font-bold text-xl text-ink">Order #{order.order_number}</h2>
             <p className="text-sm text-ink/60 mt-1">{formatDate(order.date)}</p>
           </div>
           <button 
@@ -98,17 +98,17 @@ export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: Or
             <div className="space-y-3 text-sm text-ink/80">
               <div className="flex items-center gap-3 font-medium text-ink">
                 <div className="w-8 h-8 rounded-full bg-ink/10 flex items-center justify-center text-ink">
-                  {order.customerName.charAt(0)}
+                  {order.customer_name.charAt(0)}
                 </div>
-                {order.customerName}
+                {order.customer_name}
               </div>
               <div className="flex items-center gap-3 pl-1">
                 <Mail className="w-4 h-4 text-ink/40" />
-                <a href={`mailto:${order.customerEmail}`} className="hover:text-sky transition-colors">{order.customerEmail}</a>
+                <a href={`mailto:${order.customer_email}`} className="hover:text-sky transition-colors">{order.customer_email}</a>
               </div>
               <div className="flex items-center gap-3 pl-1">
                 <Phone className="w-4 h-4 text-ink/40" />
-                <a href={`tel:${order.customerPhone}`} className="hover:text-sky transition-colors">{order.customerPhone}</a>
+                <a href={`tel:${order.customer_phone || ''}`} className="hover:text-sky transition-colors">{order.customer_phone || 'N/A'}</a>
               </div>
             </div>
           </section>
@@ -120,10 +120,10 @@ export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: Or
                 <MapPin className="w-4 h-4 text-ink/40" /> Shipping
               </h3>
               <div className="text-sm text-ink/70 leading-relaxed border-l-2 border-ink/10 pl-3 ml-1">
-                <p className="font-medium text-ink">{order.shippingAddress.name}</p>
-                <p>{order.shippingAddress.address1}</p>
-                {order.shippingAddress.address2 && <p>{order.shippingAddress.address2}</p>}
-                <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.pincode}</p>
+                <p className="font-medium text-ink">{order.shipping_address?.name}</p>
+                <p>{order.shipping_address?.address1}</p>
+                {order.shipping_address?.address2 && <p>{order.shipping_address.address2}</p>}
+                <p>{order.shipping_address?.city}, {order.shipping_address?.state} {order.shipping_address?.pincode}</p>
               </div>
             </section>
 
@@ -135,9 +135,9 @@ export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: Or
               <div className="text-sm text-ink/70 space-y-2 border-l-2 border-ink/10 pl-3 ml-1">
                 <div className="flex items-center gap-2">
                   <span>Status:</span>
-                  <OrderStatusBadge type="payment" status={order.paymentStatus} />
+                  <OrderStatusBadge type="payment" status={order.payment_status} />
                 </div>
-                <p>Method: <span className="font-medium text-ink">{order.paymentMethod}</span></p>
+                <p>Method: <span className="font-medium text-ink">{order.payment_method}</span></p>
               </div>
             </section>
           </div>
@@ -148,23 +148,25 @@ export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: Or
               <Package className="w-4 h-4 text-ink/40" /> Order Items ({order.items.length})
             </h3>
             <div className="space-y-4">
-              {order.items.map((item, idx) => {
-                const product = mockProducts.find(p => p.id === item.productId)
-                if (!product) return null
+              {order.items.map((item: any, idx: number) => {
                 return (
                   <div key={idx} className="flex gap-4">
-                    <div className="w-16 aspect-[3/4] bg-cloud border border-ink/5 rounded-lg overflow-hidden shrink-0">
-                      <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                    <div className="w-16 aspect-[3/4] bg-cloud border border-ink/5 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                      {item.image_url ? (
+                        <img src={item.image_url} alt={item.product_name_snapshot} className="w-full h-full object-cover" />
+                      ) : (
+                        <Package className="w-6 h-6 text-ink/20" />
+                      )}
                     </div>
                     <div className="flex flex-col flex-1 py-1">
                       <div className="flex justify-between items-start gap-4 mb-1">
-                        <span className="font-medium text-ink text-sm leading-tight">{product.name}</span>
-                        <span className="font-medium text-ink text-sm whitespace-nowrap">{formatPrice(item.priceAtPurchase * item.quantity)}</span>
+                        <span className="font-medium text-ink text-sm leading-tight">{item.product_name_snapshot}</span>
+                        <span className="font-medium text-ink text-sm whitespace-nowrap">{formatPrice(item.price_at_purchase * item.quantity / 100)}</span>
                       </div>
                       <div className="text-xs text-ink/60 mt-auto flex flex-wrap gap-x-4 gap-y-1">
-                        <span>Size: {item.size}</span>
+                        <span>Size: {item.size_snapshot}</span>
                         <span>Qty: {item.quantity}</span>
-                        <span className="w-full text-ink/40">{formatPrice(item.priceAtPurchase)} each</span>
+                        <span className="w-full text-ink/40">{formatPrice(item.price_at_purchase / 100)} each</span>
                       </div>
                     </div>
                   </div>
@@ -180,16 +182,16 @@ export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: Or
           <div className="space-y-2 text-sm text-ink/70 mb-4">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span className="font-medium text-ink">{formatPrice(order.subtotal)}</span>
+              <span className="font-medium text-ink">{formatPrice(order.subtotal_paise / 100)}</span>
             </div>
             <div className="flex justify-between">
               <span>Delivery Fee</span>
-              <span className="font-medium text-ink">{order.deliveryFee === 0 ? 'Free' : formatPrice(order.deliveryFee)}</span>
+              <span className="font-medium text-ink">{order.delivery_fee_paise === 0 ? 'Free' : formatPrice(order.delivery_fee_paise / 100)}</span>
             </div>
           </div>
           <div className="flex justify-between items-center pt-4 border-t border-ink/10">
             <span className="font-medium text-ink">Total</span>
-            <span className="font-heading font-bold text-2xl text-ink">{formatPrice(order.total)}</span>
+            <span className="font-heading font-bold text-2xl text-ink">{formatPrice(order.total_paise / 100)}</span>
           </div>
         </div>
 

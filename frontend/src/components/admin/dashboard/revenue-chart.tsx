@@ -13,9 +13,11 @@ interface RevenueChartProps {
     date: string
     revenue: number
   }[]
+  timeRange?: string
+  onTimeRangeChange?: (val: string) => void
 }
 
-export function RevenueChart({ data }: RevenueChartProps) {
+export function RevenueChart({ data, timeRange, onTimeRangeChange }: RevenueChartProps) {
   
   const formatYAxis = (value: number) => {
     if (value >= 1000) {
@@ -41,11 +43,15 @@ export function RevenueChart({ data }: RevenueChartProps) {
   return (
     <div className="bg-white p-6 rounded-2xl border border-ink/10 shadow-sm h-full flex flex-col">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="font-medium text-ink">Revenue (Last 30 Days)</h3>
-        <select className="text-xs bg-cloud border border-ink/10 rounded-md px-2 py-1 outline-none text-ink/70">
-          <option>Last 30 Days</option>
-          <option>Last 7 Days</option>
-          <option>This Year</option>
+        <h3 className="font-medium text-ink">Revenue</h3>
+        <select 
+          value={timeRange} 
+          onChange={(e) => onTimeRangeChange?.(e.target.value)}
+          className="text-xs bg-cloud border border-ink/10 rounded-md px-2 py-1 outline-none text-ink/70"
+        >
+          <option value="30d">Last 30 Days</option>
+          <option value="7d">Last 7 Days</option>
+          <option value="1y">This Year</option>
         </select>
       </div>
       

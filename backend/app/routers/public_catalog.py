@@ -8,7 +8,8 @@ from app.core.database import get_db_client
 from app.schemas.public_catalog import (
     PublicProductListResponse,
     PublicProductDetailResponse,
-    PublicCategoryResponse
+    PublicCategoryResponse,
+    PublicResolveResponse
 )
 from app.services import public_catalog_service
 
@@ -62,3 +63,14 @@ def list_products(
 def get_product(request: Request, slug: str, db: Client = Depends(get_db_client)):
     """Fetch full public product details including active variants."""
     return public_catalog_service.get_public_product(db, slug)
+
+@router.get('/variants/resolve', response_model=PublicResolveResponse)
+@limiter.limit('60/minute')
+def resolve_variants(
+    request: Request, 
+    ids: str = Query(..., description="Comma-separated list of variant UUIDs"), 
+    db: Client = Depends(get_db_client)
+):
+    """Resolve a batch of variant IDs into display data for guest carts."""
+    return public_catalog_service.resolve_variants(db, ids)
+

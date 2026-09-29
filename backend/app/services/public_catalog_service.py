@@ -93,3 +93,53 @@ def get_public_product(db: Client, slug: str) -> dict:
     product.pop('categories', None)
     
     return product
+
+def resolve_variants(db: Client, ids_str: str) -> dict:
+    """Resolve a comma-separated list of variant UUIDs for guest carts."""
+    # Parse and limit to 50
+    ids_list = [v_id.strip() for v_id in ids_str.split(',') if v_id.strip()]
+    if not ids_list:
+        return {'items': []}
+        
+    ids_list = ids_list[:50]
+    
+    # Query product_variants joined with products
+    res = (
+        db.table('product_variants')
+        .select('*, products(*)')
+        .in_('id', ids_list)
+        .execute()
+    )
+    
+    items = []
+    for row in res.data:
+        prod = row.get('products')
+        if not prod:
+            continue
+            
+        is_available = (
+            row.get('is_active') is True
+            and row.get('stock', 0) > 0
+            and prod.get('status') == 'Active'
+        )
+            
+        items.append({
+            'is_available': is_available,
+            'variant': {
+                'id': row['id'],
+                'sku': row['sku'],
+                'size': row['size'],
+                'price': int(row['price'] / 100),
+                'stock': row['stock'],
+                'is_active': row['is_active']
+            },
+            'product': {
+                'id': prod['id'],
+                'name': prod['name'],
+                'slug': prod['slug'],
+                'images': prod.get('images', [])
+            }
+        })
+        
+    return {'items': items}
+

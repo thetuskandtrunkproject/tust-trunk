@@ -1,17 +1,20 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { adminMockOrders } from '@/lib/admin/mock-orders'
-import type { AdminOrder, OrderStatus, PaymentStatus } from '@/lib/admin/mock-orders'
+import type { OrderStatus, PaymentStatus } from '@/lib/admin/mock-orders'
 import { OrderFilters } from '@/components/admin/orders/order-filters'
 import { OrderTable } from '@/components/admin/orders/order-table'
 import { OrderDetailDrawer } from '@/components/admin/orders/order-detail-drawer'
+import { api } from '@/lib/api'
+import { useToast } from '@/context/toast-context'
 
 export const Route = createFileRoute('/admin/orders')({
   component: AdminOrdersPage,
 })
 
 function AdminOrdersPage() {
-  const [orders, setOrders] = useState<AdminOrder[]>(adminMockOrders)
+  const [orders, setOrders] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { showToast } = useToast()
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState('')
@@ -20,8 +23,22 @@ function AdminOrdersPage() {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
 
   // Drawer state
-  const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await api.get('/api/v1/admin/orders/')
+        setOrders(res.data.items || [])
+      } catch (err: any) {
+        showToast('Failed to load orders')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchOrders()
+  }, [])
 
   // Derived filtered data
   const filteredOrders = useMemo(() => {
@@ -29,9 +46,9 @@ function AdminOrdersPage() {
       // Search
       if (searchQuery) {
         const query = searchQuery.toLowerCase()
-        const matchNumber = order.orderNumber.toLowerCase().includes(query)
-        const matchName = order.customerName.toLowerCase().includes(query)
-        const matchEmail = order.customerEmail.toLowerCase().includes(query)
+        const matchNumber = order.order_number.toLowerCase().includes(query)
+        const matchName = order.customer_name.toLowerCase().includes(query)
+        const matchEmail = order.customer_email.toLowerCase().includes(query)
         if (!matchNumber && !matchName && !matchEmail) return false
       }
       
@@ -39,42 +56,50 @@ function AdminOrdersPage() {
       if (statusFilter !== 'All' && order.status !== statusFilter) return false
       
       // Payment
-      if (paymentFilter !== 'All' && order.paymentStatus !== paymentFilter) return false
+      if (paymentFilter !== 'All' && order.payment_status !== paymentFilter) return false
       
       return true
     })
   }, [orders, searchQuery, statusFilter, paymentFilter])
 
   // Handlers
-  const handleSelectOrder = (order: AdminOrder) => {
+  const handleSelectOrder = (order: any) => {
     setSelectedOrder(order)
     setIsDrawerOpen(true)
   }
 
-  const handleUpdateStatus = (orderId: string, newStatus: OrderStatus) => {
-    // Update local state (this reflects immediately in the table behind the drawer)
-    setOrders(prev => prev.map(o => {
-      if (o.id === orderId) {
-        return { 
-          ...o, 
-          status: newStatus,
-          // Auto-update payment status if cancelled
-          paymentStatus: newStatus === 'Cancelled' ? 'Refunded' : o.paymentStatus
+  const handleUpdateStatus = async (orderId: string, newStatus: OrderStatus) => {
+    try {
+      await api.patch(`/api/v1/admin/orders/${orderId}/status`, { status: newStatus })
+      
+      // Update local state (this reflects immediately in the table behind the drawer)
+      setOrders(prev => prev.map(o => {
+        if (o.id === orderId) {
+          return { 
+            ...o, 
+            status: newStatus,
+            // Auto-update payment status if cancelled
+            payment_status: newStatus === 'Cancelled' ? 'Refunded' : o.payment_status
+          }
         }
+        return o
+      }))
+      
+      // Also update the selected order in the drawer
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder((prev: any) => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            status: newStatus,
+            payment_status: newStatus === 'Cancelled' ? 'Refunded' : prev.payment_status
+          }
+        })
       }
-      return o
-    }))
-    
-    // Also update the selected order in the drawer
-    if (selectedOrder?.id === orderId) {
-      setSelectedOrder(prev => {
-        if (!prev) return prev
-        return {
-          ...prev,
-          status: newStatus,
-          paymentStatus: newStatus === 'Cancelled' ? 'Refunded' : prev.paymentStatus
-        }
-      })
+      
+      showToast('Order status updated')
+    } catch (err) {
+      showToast('Failed to update order status')
     }
   }
 

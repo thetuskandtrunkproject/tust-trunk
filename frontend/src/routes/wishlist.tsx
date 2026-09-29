@@ -21,13 +21,9 @@ function WishlistPage() {
     e.preventDefault()
     e.stopPropagation()
 
-    addItem({
-      productId: product.id,
-      size: product.sizes[0], // default to first available size
-      quantity: 1
-    })
-
-    showToast(`Moved ${product.name} to cart`)
+    // Cannot add to cart directly without knowing which variant (size) the user wants.
+    // Redirect to product page to select size.
+    window.location.href = `/products/${product.slug}`
   }
 
   const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`

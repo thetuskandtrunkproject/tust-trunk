@@ -5,3 +5,4 @@ firebase-admin>=6.5.0
 supabase>=2.9.0
 slowapi>=0.1.9
 uvicorn>=0.30.0
+requests>=2.32.0

@@ -16,7 +16,12 @@ from app.routers.products import limiter as products_limiter
 from app.routers.categories import router as categories_router
 from app.routers.public_catalog import router as public_catalog_router
 from app.routers.addresses import router as addresses_router
-
+from app.routers.cart import router as cart_router
+from app.routers.wishlist import router as wishlist_router
+from app.routers.checkout import checkout_router, orders_router
+from app.routers.orders import router as user_orders_router
+from app.routers.admin_orders import router as admin_orders_router
+from app.routers.dashboard import router as admin_dashboard_router
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
@@ -63,7 +68,13 @@ app.include_router(products_router)
 app.include_router(categories_router)
 app.include_router(public_catalog_router)
 app.include_router(addresses_router)
-
+app.include_router(cart_router)
+app.include_router(wishlist_router)
+app.include_router(checkout_router)
+app.include_router(orders_router)
+app.include_router(user_orders_router)
+app.include_router(admin_orders_router)
+app.include_router(admin_dashboard_router)
 @app.get("/health", tags=["system"])
 def health_check():
     return {"status": "ok"}

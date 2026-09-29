@@ -4,14 +4,15 @@ import { useCart } from '@/context/cart-context'
 import { StepReview } from '@/components/checkout/step-review'
 import { StepDetails } from '@/components/checkout/step-details'
 import { StepPayment } from '@/components/checkout/step-payment'
-import { mockProducts } from '@/lib/mock-products'
+import { useAuth } from '@/context/auth-context'
 
 export const Route = createFileRoute('/checkout')({
   component: CheckoutPage,
 })
 
 function CheckoutPage() {
-  const { items, clearCart } = useCart()
+  const { items, serverSubtotal } = useCart()
+  const { user } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -28,11 +29,10 @@ function CheckoutPage() {
   const [shipping, setShipping] = useState({ name: '', address1: '', address2: '', city: '', state: '', pincode: '' })
   const [saveDefault, setSaveDefault] = useState(false)
   
-  // Calculate total for payment step
-  const subtotal = items.reduce((sum, item) => {
-    const product = mockProducts.find(p => p.id === item.productId)
-    return sum + ((product?.price || 0) * item.quantity)
-  }, 0)
+  // Filter out items missing product data to avoid crashes (guest cart limitation)
+  const cartDetails = items.filter(item => item.product !== undefined && item.variant !== undefined)
+
+  const subtotal = user ? serverSubtotal : cartDetails.reduce((sum, item) => sum + (item.variant!.price * item.quantity), 0)
   
   const deliveryFee = subtotal >= 3000 ? 0 : 60 // Free shipping over ₹3000, else ₹60
   const totalAmount = subtotal + deliveryFee
@@ -47,28 +47,6 @@ function CheckoutPage() {
     setCurrentStep(3)
   }
   const handleBackToDetails = () => setCurrentStep(2)
-
-  const handlePaymentSuccess = () => {
-    const orderNumber = `ORD-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
-    const orderData = {
-      orderNumber,
-      items,
-      shipping,
-      deliveryMethod: 'standard', // static now
-      paymentMethod: 'razorpay',
-      totalPaid: totalAmount,
-    }
-
-    clearCart()
-    sessionStorage.setItem('lastOrder', JSON.stringify(orderData))
-    navigate({
-      to: '/order-success'
-    })
-  }
-
-  const handlePaymentFailure = () => {
-    navigate({ to: '/order-failed' })
-  }
 
   if (items.length === 0) return null
 
@@ -120,8 +98,8 @@ function CheckoutPage() {
             <div className="animate-in slide-in-from-right fade-in duration-500 ease-out fill-mode-both">
               <StepPayment 
                 onBack={handleBackToDetails}
-                onSuccess={handlePaymentSuccess}
-                onFailure={handlePaymentFailure}
+                contact={contact}
+                shipping={shipping}
                 totalAmount={totalAmount}
               />
             </div>

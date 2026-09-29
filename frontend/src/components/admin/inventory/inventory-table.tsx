@@ -1,15 +1,15 @@
 import { useState, Fragment } from 'react'
 import { ChevronDown, ChevronRight, AlertCircle, CheckCircle2 } from 'lucide-react'
-import type { AdminProduct } from '@/lib/admin/mock-admin-products'
-import { useAdminProducts } from '@/context/admin-product-context'
+import type { AdminProduct } from '@/lib/admin/products-api'
+import { api } from '@/lib/api'
 import { useToast } from '@/context/toast-context'
 
 interface InventoryTableProps {
   products: AdminProduct[]
+  onStockUpdate: (productId: string, variantId: string, newStock: number) => void
 }
 
-export function InventoryTable({ products }: InventoryTableProps) {
-  const { updateVariantStock } = useAdminProducts()
+export function InventoryTable({ products, onStockUpdate }: InventoryTableProps) {
   const { showToast } = useToast()
   
   // Track expanded rows (product IDs)
@@ -24,13 +24,22 @@ export function InventoryTable({ products }: InventoryTableProps) {
     })
   }
 
-  const handleStockBlur = (productId: string, variantId: string, oldStock: number, newStockStr: string) => {
+  const handleStockBlur = async (productId: string, variantId: string, oldStock: number, newStockStr: string) => {
     const newStock = parseInt(newStockStr)
     if (isNaN(newStock) || newStock < 0) return // Invalid input
     if (newStock === oldStock) return // No change
     
-    updateVariantStock(productId, variantId, newStock)
-    showToast('Stock updated')
+    // Optimistic UI update
+    onStockUpdate(productId, variantId, newStock)
+    
+    try {
+      await api.patch(`/api/v1/admin/variants/${variantId}/stock`, { stock: newStock })
+      showToast('Stock updated')
+    } catch (err) {
+      // Revert on failure
+      onStockUpdate(productId, variantId, oldStock)
+      showToast('Failed to update stock')
+    }
   }
 
   return (

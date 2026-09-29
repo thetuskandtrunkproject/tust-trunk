@@ -1,7 +1,7 @@
 import { X, Minus, Plus, Trash2 } from 'lucide-react'
 import { useCart } from '@/context/cart-context'
-import { mockProducts } from '@/lib/mock-products'
 import { Link, useRouter } from '@tanstack/react-router'
+import { useAuth } from '@/context/auth-context'
 
 interface CartDrawerProps {
   isOpen: boolean
@@ -9,21 +9,20 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
-  const { items, updateQuantity, removeItem, cartCount } = useCart()
+  const { items, updateQuantity, removeItem, cartCount, serverSubtotal } = useCart()
+  const { user } = useAuth()
   const router = useRouter()
 
   if (!isOpen) return null
 
-  // Resolve product details for each cart item
-  const cartDetails = items.map(item => {
-    const product = mockProducts.find(p => p.id === item.productId)
-    return {
-      ...item,
-      product
-    }
-  }).filter(item => item.product !== undefined) // filter out if somehow not found
+  // Since guest users don't have product details from the backend,
+  // we filter out items missing product data to avoid crashes,
+  // but this means the guest cart will not display correctly until resolved.
+  const cartDetails = items.filter(item => item.product !== undefined && item.variant !== undefined)
 
-  const subtotal = cartDetails.reduce((sum, item) => sum + (item.product!.price * item.quantity), 0)
+  // Use serverSubtotal if logged in, otherwise local computation (which will be 0 for guests without mock data)
+  const subtotal = user ? serverSubtotal : cartDetails.reduce((sum, item) => sum + (item.variant!.price * item.quantity), 0)
+  
   const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
 
   return (
@@ -47,7 +46,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 hide-scrollbar">
-          {cartDetails.length === 0 ? (
+          {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center space-y-6 bg-mint/40 rounded-[3rem] p-8 m-4">
               <p className="text-ink/60 font-medium">Your cart is currently empty.</p>
               <button 
@@ -59,7 +58,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             </div>
           ) : (
             cartDetails.map((item, idx) => (
-              <div key={`${item.productId}-${item.size}-${idx}`} className="flex gap-4 group">
+              <div key={`${item.variant_id}-${idx}`} className={`flex gap-4 group ${item.is_available === false ? 'opacity-50 grayscale' : ''}`}>
                 <div className="w-24 aspect-[3/4] bg-ink/5 rounded-2xl overflow-hidden shrink-0">
                   <img src={item.product!.images[0]} alt={item.product!.name} className="w-full h-full object-cover" />
                 </div>
@@ -74,13 +73,18 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     >
                       {item.product!.name}
                     </Link>
-                    <span className="font-medium text-ink">{formatPrice(item.product!.price)}</span>
+                    <span className="font-medium text-ink">{formatPrice(item.variant!.price)}</span>
                   </div>
                   
                   <div className="mb-3">
-                    <span className="text-xs text-ink/60 bg-ink/5 px-2 py-1 rounded-md">
-                      Size: {item.size}
+                    <span className="text-xs text-ink/60 bg-ink/5 px-2 py-1 rounded-md mr-2">
+                      Size: {item.variant!.size}
                     </span>
+                    {item.is_available === false && (
+                      <span className="text-xs text-rust font-bold bg-rust/10 px-2 py-1 rounded-md">
+                        No longer available
+                      </span>
+                    )}
                   </div>
 
                   <div className="mt-auto flex items-center justify-between">
@@ -89,25 +93,26 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       <button 
                         onClick={() => {
                           if (item.quantity > 1) {
-                            updateQuantity(item.productId, item.size, item.quantity - 1)
+                            updateQuantity(item.variant_id, item.quantity - 1)
                           }
                         }} 
                         className="text-ink/60 hover:text-ink disabled:opacity-50"
-                        disabled={item.quantity <= 1}
+                        disabled={item.quantity <= 1 || item.is_available === false}
                       >
                         <Minus className="w-4 h-4" />
                       </button>
                       <span className="text-sm font-medium text-ink">{item.quantity}</span>
                       <button 
-                        onClick={() => updateQuantity(item.productId, item.size, item.quantity + 1)} 
-                        className="text-ink/60 hover:text-ink"
+                        onClick={() => updateQuantity(item.variant_id, item.quantity + 1)} 
+                        className="text-ink/60 hover:text-ink disabled:opacity-50"
+                        disabled={item.is_available === false}
                       >
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
 
                     <button 
-                      onClick={() => removeItem(item.productId, item.size)}
+                      onClick={() => removeItem(item.variant_id)}
                       className="text-ink/40 hover:text-watermelon hover:scale-110 transition-all p-2"
                       aria-label="Remove item"
                     >
@@ -138,7 +143,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 onClose()
                 router.navigate({ to: '/checkout' })
               }}
-              className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all"
+              disabled={cartDetails.some(item => item.is_available === false)}
+              className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all disabled:opacity-50 disabled:hover:scale-100"
             >
               Checkout
             </button>

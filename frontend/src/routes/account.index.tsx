@@ -14,8 +14,7 @@ function AccountOverviewPage() {
   const { wishlistIds } = useWishlist()
   const { user } = useAuth()
   
-  // Get most recent order
-  const recentOrder = [...mockOrders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
+  const [recentOrder, setRecentOrder] = useState<any>(null)
   const [defaultAddress, setDefaultAddress] = useState<any>(null)
   
   useEffect(() => {
@@ -28,7 +27,18 @@ function AccountOverviewPage() {
         console.error("Failed to fetch default address")
       }
     }
+    const fetchRecentOrder = async () => {
+      try {
+        const res = await api.get('/api/v1/orders')
+        if (res.data.orders && res.data.orders.length > 0) {
+          setRecentOrder(res.data.orders[0])
+        }
+      } catch (err) {
+        console.error("Failed to fetch recent order", err)
+      }
+    }
     fetchAddress()
+    fetchRecentOrder()
   }, [])
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -50,19 +60,21 @@ function AccountOverviewPage() {
           
           {recentOrder ? (
             <div className="flex-1 flex flex-col">
-              <p className="text-sm font-bold text-ink/60 mb-2">Order #{recentOrder.orderNumber}</p>
+              <p className="text-sm font-bold text-ink/60 mb-2">Order #{recentOrder.order_number}</p>
               <div className="flex items-center gap-2 mb-6">
                 <span className={`w-3 h-3 rounded-full ${
                   recentOrder.status === 'Delivered' ? 'bg-mint' :
                   recentOrder.status === 'Processing' ? 'bg-sunshine' :
-                  recentOrder.status === 'Cancelled' ? 'bg-rust' : 'bg-sky'
+                  recentOrder.status === 'Cancelled' ? 'bg-rust' :
+                  recentOrder.status === 'requires_review' ? 'bg-rust/50' : 'bg-sky'
                 }`}></span>
-                <span className="font-bold text-ink">{recentOrder.status}</span>
+                <span className="font-bold text-ink">{recentOrder.status === 'requires_review' ? 'Action Required' : recentOrder.status}</span>
               </div>
               <Link to="/account/orders" className="mt-auto text-sm font-bold text-ink hover:text-sky transition-colors flex items-center gap-2 w-fit bg-white/50 px-4 py-2 rounded-full">
                 View order details <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
+
           ) : (
             <div className="flex-1 flex flex-col justify-center">
               <p className="text-sm font-medium text-ink/60 mb-4">You have no recent orders.</p>
