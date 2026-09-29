@@ -113,7 +113,7 @@ function ProductDetailPage() {
   const productSizes = Array.from(new Set(product.variants.map(v => v.size)))
 
   const handleAddToCart = () => {
-    if (!selectedSize) {
+    if (!selectedSize || !selectedVariant) {
       showToast("Please select a size")
       return
     }
