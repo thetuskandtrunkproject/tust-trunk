@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useToast } from '@/context/toast-context'
 import { Shield, Key, LogOut } from 'lucide-react'
-import { handleChangePassword, handleRevokeAllSessions } from '@/lib/auth-stub'
+import { handleChangePassword, handleRevokeAllSessions } from '@/lib/auth-actions'
 import { useAuth } from '@/context/auth-context'
 
 export const Route = createFileRoute('/account/security')({

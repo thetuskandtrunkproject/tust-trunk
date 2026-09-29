@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { handleLogin, handleGoogleLogin } from '@/lib/auth-stub'
+import { handleLogin, handleGoogleLogin } from '@/lib/auth-actions'
 import { Eye, EyeOff } from 'lucide-react'
 
 export const Route = createFileRoute('/login')({

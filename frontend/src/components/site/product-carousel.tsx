@@ -1,8 +1,8 @@
 import { ProductCard } from '@/components/product/product-card'
-import { mockProducts } from '@/lib/mock-products'
 import { Link } from '@tanstack/react-router'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
+import { api } from '@/lib/api'
 import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -10,8 +10,21 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 export function ProductCarousel() {
-  // Get up to 6 'new' products for the carousel
-  const products = mockProducts.filter(p => p.tags.includes('new')).slice(0, 6)
+  const [products, setProducts] = useState<any[]>([])
+
+  useEffect(() => {
+    const fetchNew = async () => {
+      try {
+        const res = await api.get('/api/v1/public/products', { 
+          params: { sort: 'newest', page_size: 6 } 
+        })
+        setProducts(res.data.items || [])
+      } catch (err) {
+        console.error("Failed to load new products", err)
+      }
+    }
+    fetchNew()
+  }, [])
   
   const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
   const containerRef = useRef<HTMLElement>(null)

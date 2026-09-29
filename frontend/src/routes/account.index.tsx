@@ -2,7 +2,6 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Package, Heart, MapPin, ArrowRight } from 'lucide-react'
-import { mockOrders } from '@/lib/mock-account'
 import { useWishlist } from '@/context/wishlist-context'
 import { useAuth } from '@/context/auth-context'
 

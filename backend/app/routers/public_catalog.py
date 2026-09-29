@@ -64,6 +64,16 @@ def get_product(request: Request, slug: str, db: Client = Depends(get_db_client)
     """Fetch full public product details including active variants."""
     return public_catalog_service.get_public_product(db, slug)
 
+@router.get('/products/resolve', response_model=PublicProductListResponse)
+@limiter.limit('60/minute')
+def resolve_products(
+    request: Request,
+    ids: str = Query(..., description="Comma-separated list of product UUIDs"),
+    db: Client = Depends(get_db_client)
+):
+    """Resolve a batch of product IDs into display data for guest wishlists."""
+    return public_catalog_service.resolve_products(db, ids)
+
 @router.get('/variants/resolve', response_model=PublicResolveResponse)
 @limiter.limit('60/minute')
 def resolve_variants(

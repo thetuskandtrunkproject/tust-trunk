@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Search, X, Clock, ArrowRight } from 'lucide-react'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { mockProducts } from '@/lib/mock-products'
-import type { Product } from '@/lib/mock-products'
+import { api } from '@/lib/api'
 import { useDebounce } from '@/hooks/use-debounce' // let's see if this exists, if not I'll write it inline or in hooks
 
 interface SearchOverlayProps {
@@ -44,15 +43,25 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
 
   if (!isOpen) return null
 
-  // Live filter results
-  let results: Product[] = []
-  if (debouncedQuery.trim().length > 0) {
-    const lowerQuery = debouncedQuery.toLowerCase()
-    results = mockProducts.filter(p => 
-      p.name.toLowerCase().includes(lowerQuery) || 
-      p.category.toLowerCase().includes(lowerQuery)
-    ).slice(0, 6)
-  }
+  const [results, setResults] = useState<any[]>([])
+
+  useEffect(() => {
+    const fetchSearch = async () => {
+      if (debouncedQuery.trim().length > 0) {
+        try {
+          const res = await api.get('/api/v1/public/products', {
+            params: { search: debouncedQuery, page_size: 6 }
+          })
+          setResults(res.data.items || [])
+        } catch (err) {
+          console.error("Search failed", err)
+        }
+      } else {
+        setResults([])
+      }
+    }
+    fetchSearch()
+  }, [debouncedQuery])
 
   const handleSearchSubmit = (searchQuery: string) => {
     if (!searchQuery.trim()) return

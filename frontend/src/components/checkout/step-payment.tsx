@@ -3,7 +3,7 @@ import { ArrowLeft, ShieldCheck, Loader2 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useCart } from '@/context/cart-context'
 import { useNavigate } from '@tanstack/react-router'
-import { handleResendVerification } from '@/lib/auth-stub'
+import { handleResendVerification } from '@/lib/auth-actions'
 import { useToast } from '@/context/toast-context'
 
 declare global {

@@ -1,10 +1,11 @@
+import { useState, useEffect } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useWishlist } from '@/context/wishlist-context'
 import { useCart } from '@/context/cart-context'
 import { useToast } from '@/context/toast-context'
-import { mockProducts } from '@/lib/mock-products'
+import { api } from '@/lib/api'
 import { ProductCard } from '@/components/product/product-card'
-import { ShoppingBag, HeartCrack } from 'lucide-react'
+import { ShoppingBag, HeartCrack, Loader2 } from 'lucide-react'
 
 export const Route = createFileRoute('/wishlist')({
   component: WishlistPage,
@@ -15,7 +16,29 @@ function WishlistPage() {
   const { addItem } = useCart()
   const { showToast } = useToast()
 
-  const wishlistedProducts = mockProducts.filter(p => wishlistIds.includes(p.id))
+  const [wishlistedProducts, setWishlistedProducts] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      if (wishlistIds.length === 0) {
+        setWishlistedProducts([])
+        return
+      }
+      try {
+        setIsLoading(true)
+        const res = await api.get('/api/v1/public/products/resolve', {
+          params: { ids: wishlistIds.join(',') }
+        })
+        setWishlistedProducts(res.data.items || [])
+      } catch (err) {
+        showToast('Failed to load wishlist items')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadProducts()
+  }, [wishlistIds])
 
   const handleMoveToCart = (e: React.MouseEvent, product: any) => {
     e.preventDefault()

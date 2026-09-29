@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
-import { mockProducts } from '@/lib/mock-products'
-import { useRef } from 'react'
+import { useRef, useEffect, useState } from 'react'
+import { api } from '@/lib/api'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -9,15 +9,21 @@ gsap.registerPlugin(ScrollTrigger)
 
 export function CategoryTiles() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const waveWrapRef = useRef<HTMLDivElement>(null)
   const cardsRef = useRef<(HTMLAnchorElement | null)[]>([])
-  const wordsRef = useRef<(HTMLSpanElement | null)[]>([])
-  const subtextRef = useRef<HTMLParagraphElement>(null)
+  
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([])
 
-  // Get 4 featured products for the cards
-  const featuredProducts = mockProducts.filter(p => p.id.startsWith('k')).slice(0, 4)
-
-  const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const res = await api.get('/api/v1/public/products', { params: { page_size: 4 } })
+        setFeaturedProducts(res.data.items || [])
+      } catch (err) {
+        console.error("Failed to load featured products", err)
+      }
+    }
+    fetchFeatured()
+  }, [])
 
   // Split heading into individual words for GSAP text animation
   const headingWords = ['Playful', '&', 'Breathable']

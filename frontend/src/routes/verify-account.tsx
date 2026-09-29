@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useLocation } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useToast } from '@/context/toast-context'
-import { handleResendVerification } from '@/lib/auth-stub'
+import { handleResendVerification } from '@/lib/auth-actions'
 import { Mail, CheckCircle2 } from 'lucide-react'
 
 export const Route = createFileRoute('/verify-account')({

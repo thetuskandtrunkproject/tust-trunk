@@ -143,3 +143,53 @@ def resolve_variants(db: Client, ids_str: str) -> dict:
         
     return {'items': items}
 
+def resolve_products(db: Client, ids_str: str) -> dict:
+    """Resolve a comma-separated list of product UUIDs for guest wishlists."""
+    ids_list = [p_id.strip() for p_id in ids_str.split(',') if p_id.strip()]
+    if not ids_list:
+        return {'items': [], 'total': 0, 'page': 1, 'page_size': 50, 'total_pages': 0}
+        
+    ids_list = ids_list[:50]
+    
+    # Query products joined with categories and variants
+    res = (
+        db.table('products')
+        .select('*, categories!inner(name), product_variants(price, stock, is_active)')
+        .in_('id', ids_list)
+        .eq('status', 'Active')
+        .eq('categories.is_active', True)
+        .execute()
+    )
+    
+    items = []
+    for product in res.data:
+        # Determine current_price based on active variants with stock
+        active_variants = [
+            v for v in product.get('product_variants', [])
+            if v.get('is_active') is True and v.get('stock', 0) > 0
+        ]
+        
+        # Determine price (lowest among active variants)
+        current_price = 0
+        if active_variants:
+            current_price = int(min(v.get('price', 0) for v in active_variants) / 100)
+            
+        items.append({
+            'id': product['id'],
+            'name': product['name'],
+            'slug': product['slug'],
+            'category': product['categories']['name'],
+            'price': current_price,
+            'images': product.get('images', []),
+            'tags': product.get('tags', []),
+            'is_available': len(active_variants) > 0
+        })
+        
+    return {
+        'items': items,
+        'total': len(items),
+        'page': 1,
+        'page_size': len(items) if items else 50,
+        'total_pages': 1
+    }
+
