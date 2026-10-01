@@ -60,7 +60,15 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 type="tel" 
                 required
                 value={contact.phone}
-                onChange={e => setContact({...contact, phone: e.target.value})}
+                onChange={e => {
+                  const val = e.target.value.replace(/\D/g, '')
+                  if (val.length <= 10) {
+                    setContact({...contact, phone: val})
+                  }
+                }}
+                maxLength={10}
+                pattern="[0-9]{10}"
+                title="Please enter a valid 10-digit phone number"
                 className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
               />
             </div>
@@ -126,7 +134,15 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 type="text" 
                 required
                 value={shipping.pincode}
-                onChange={e => setShipping({...shipping, pincode: e.target.value})}
+                onChange={e => {
+                  const val = e.target.value.replace(/\D/g, '')
+                  if (val.length <= 6) {
+                    setShipping({...shipping, pincode: val})
+                  }
+                }}
+                maxLength={6}
+                pattern="[0-9]{6}"
+                title="Please enter a valid 6-digit PIN code"
                 className="w-full md:w-1/2 bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
               />
             </div>
