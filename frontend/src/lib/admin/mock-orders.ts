@@ -1,6 +1,6 @@
 import { mockProducts } from '../mock-products'
 
-export type OrderStatus = 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled'
+export type OrderStatus = 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled' | 'requires_review'
 export type PaymentStatus = 'Paid' | 'Failed' | 'Refunded' | 'Pending'
 
 export interface AdminOrderItem {

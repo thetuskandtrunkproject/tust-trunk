@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Save, Plus } from 'lucide-react'
+import { ArrowLeft, Save, Plus, Loader2 } from 'lucide-react'
 import type { AdminProduct } from '@/lib/admin/products-api'
 import { 
   createAdminProduct, 
@@ -113,12 +113,12 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
           if (v.id.startsWith('v')) {
             await addVariant(formData.id, { sku: v.sku, size: v.size, price: finalPrice, stock: v.stock, sale_price: finalSalePrice || undefined })
           } else {
-            await updateVariant(v.id, { sku: v.sku, size: v.size, price: finalPrice, stock: v.stock, sale_price: finalSalePrice || undefined })
+            await updateVariant(formData.id, v.id, { sku: v.sku, size: v.size, price: finalPrice, stock: v.stock, sale_price: finalSalePrice || undefined })
           }
         }
         for (const orig of initialData.variants) {
           if (!currentVariantIds.includes(orig.id)) {
-            await deactivateVariant(orig.id)
+            await deactivateVariant(formData.id, orig.id)
           }
         }
         for (const file of newFiles) {
@@ -200,7 +200,7 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
             disabled={isSubmitting}
             className="bg-[#005bd3] hover:bg-[#004c99] text-white px-4 py-1.5 rounded-md font-medium text-[14px] flex items-center gap-2 shadow-sm transition-colors disabled:opacity-50"
           >
-            {isSubmitting ? <AdminSpinner /> : <Save className="w-4 h-4" />}
+            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Save
           </button>
         </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { X, Check, Trash2, PenLine, Plus, Search, Layers, ArrowLeftRight } from 'lucide-react'
+import { X, Check, Trash2, PenLine, Plus, Search, Layers, ArrowLeftRight, Loader2 } from 'lucide-react'
 import type { Category } from '@/lib/admin/categories-api'
 import { fetchCategories, createCategory, updateCategory, deleteCategory } from '@/lib/admin/categories-api'
 import type { AdminProductListItem } from '@/lib/admin/products-api'
@@ -20,6 +20,15 @@ export function CategoryManagerPanel({ onClose }: CategoryManagerPanelProps) {
   const [isAdding, setIsAdding] = useState(false)
   const [newName, setNewName] = useState('')
   const [newGender, setNewGender] = useState('Unisex')
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Edit State
+  const [editCatId, setEditCatId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editGender, setEditGender] = useState('Unisex')
+
+  // Delete State
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   
   // Products State
   const [products, setProducts] = useState<AdminProductListItem[]>([])
@@ -66,11 +75,13 @@ export function CategoryManagerPanel({ onClose }: CategoryManagerPanelProps) {
   }, [search])
 
   const handleCreate = async () => {
-    if (!newName) return
+    const cleanName = newName.trim()
+    if (!cleanName) return
+    setIsSaving(true)
     try {
       await createCategory({
-        name: newName,
-        slug: newName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        name: cleanName,
+        slug: cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
         description: '',
         gender: newGender,
         is_active: true
@@ -80,18 +91,57 @@ export function CategoryManagerPanel({ onClose }: CategoryManagerPanelProps) {
       setIsAdding(false)
       loadData()
     } catch (err: any) {
-      showToast(err.response?.data?.detail || 'Failed to create category', 'error')
+      let errorMsg = 'Failed to create category'
+      if (err.response?.data?.detail) {
+        if (typeof err.response.data.detail === 'string') {
+          errorMsg = err.response.data.detail
+        } else if (Array.isArray(err.response.data.detail)) {
+          errorMsg = err.response.data.detail[0].msg
+        }
+      }
+      showToast(errorMsg, 'error')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleUpdate = async (id: string) => {
+    const cleanName = editName.trim()
+    if (!cleanName) return
+    setIsSaving(true)
+    try {
+      await updateCategory(id, {
+        name: cleanName,
+        slug: cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
+        gender: editGender
+      })
+      showToast('Category updated')
+      setEditCatId(null)
+      loadData()
+    } catch (err: any) {
+      let errorMsg = 'Failed to update category'
+      if (err.response?.data?.detail) {
+        if (typeof err.response.data.detail === 'string') {
+          errorMsg = err.response.data.detail
+        } else if (Array.isArray(err.response.data.detail)) {
+          errorMsg = err.response.data.detail[0].msg
+        }
+      }
+      showToast(errorMsg, 'error')
+    } finally {
+      setIsSaving(false)
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this category?')) return
     try {
       await deleteCategory(id)
       showToast('Category deleted')
+      setDeleteConfirmId(null)
       loadData()
     } catch (err: any) {
       showToast(err.response?.data?.detail || 'Cannot delete category (might have products)', 'error')
+      setDeleteConfirmId(null)
     }
   }
 
@@ -125,9 +175,16 @@ export function CategoryManagerPanel({ onClose }: CategoryManagerPanelProps) {
   }, [products, filterCatId])
 
   const allSelected = displayedProducts.length > 0 && selectedIds.length === displayedProducts.length
+  
   const handleToggleAll = () => {
     if (allSelected) setSelectedIds([])
     else setSelectedIds(displayedProducts.map(p => p.id))
+  }
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    )
   }
 
   return (
@@ -167,31 +224,78 @@ export function CategoryManagerPanel({ onClose }: CategoryManagerPanelProps) {
                 ) : (
                   categories.map(cat => (
                     <div key={cat.id} className="flex items-center justify-between p-3 hover:bg-[#F4F6F8] rounded-lg transition-colors group">
-                      <div className="flex items-center gap-3">
-                        <span className="text-[14px] font-bold text-[#005bd3] bg-[#E1F3FA] px-2 py-0.5 rounded-md">{cat.name}</span>
-                        <span className="text-[13px] text-[#6D7175]">({cat.product_count} products)</span>
-                        <span className="text-[11px] font-bold text-[#8C9196] border border-[#E3E3E3] px-1.5 py-0.5 rounded uppercase">{cat.gender}</span>
-                      </div>
-                      <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 text-[#5C5F62] hover:bg-black/5 hover:text-[#202223] rounded-lg transition-colors">
-                          <PenLine className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleDelete(cat.id)} className="p-2 text-[#5C5F62] hover:bg-[#FEECEB] hover:text-[#D82C0D] rounded-lg transition-colors ml-1">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                      
+                      {editCatId === cat.id ? (
+                        <div className="flex-1 flex items-center gap-3 animate-in fade-in">
+                          <input 
+                            type="text" 
+                            value={editName} 
+                            onChange={e => setEditName(e.target.value)} 
+                            placeholder="Category name"
+                            className="flex-1 h-8 px-2 text-[13px] border-2 border-[#005bd3] rounded-lg focus:outline-none ring-2 ring-[#005bd3]/10"
+                            autoFocus
+                          />
+                          <select 
+                            value={editGender}
+                            onChange={e => setEditGender(e.target.value)}
+                            className="h-8 px-2 text-[13px] border border-[#C9CCCF] rounded-lg bg-white focus:outline-none"
+                          >
+                            <option value="Kids">Kids</option>
+                            <option value="Women">Women</option>
+                            <option value="Unisex">Unisex</option>
+                          </select>
+                          <button onClick={() => handleUpdate(cat.id)} disabled={isSaving} className="p-1.5 bg-[#005bd3] text-white rounded-lg hover:bg-[#004c99] disabled:opacity-50">
+                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                          </button>
+                          <button onClick={() => setEditCatId(null)} disabled={isSaving} className="p-1.5 text-[#5C5F62] hover:bg-black/5 rounded-lg disabled:opacity-50">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-3">
+                            <span className="text-[14px] font-bold text-[#005bd3] bg-[#E1F3FA] px-2 py-0.5 rounded-md">{cat.name}</span>
+                            <span className="text-[13px] text-[#6D7175]">({cat.product_count} products)</span>
+                            <span className="text-[11px] font-bold text-[#8C9196] border border-[#E3E3E3] px-1.5 py-0.5 rounded uppercase">{cat.gender}</span>
+                          </div>
+                          
+                          {deleteConfirmId === cat.id ? (
+                            <div className="flex items-center gap-2 animate-in fade-in">
+                              <span className="text-[12px] font-medium text-[#6D7175]">Delete?</span>
+                              <button onClick={() => handleDelete(cat.id)} className="text-[12px] font-bold text-white bg-[#D82C0D] hover:bg-red-700 px-2.5 py-1 rounded shadow-sm">Yes</button>
+                              <button onClick={() => setDeleteConfirmId(null)} className="text-[12px] font-bold text-[#202223] bg-white border border-[#C9CCCF] hover:bg-gray-50 px-2.5 py-1 rounded shadow-sm">No</button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button 
+                                onClick={() => {
+                                  setEditCatId(cat.id)
+                                  setEditName(cat.name)
+                                  setEditGender(cat.gender)
+                                }} 
+                                className="p-2 text-[#5C5F62] hover:bg-black/5 hover:text-[#202223] rounded-lg transition-colors"
+                              >
+                                <PenLine className="w-4 h-4" />
+                              </button>
+                              <button onClick={() => setDeleteConfirmId(cat.id)} className="p-2 text-[#5C5F62] hover:bg-[#FEECEB] hover:text-[#D82C0D] rounded-lg transition-colors ml-1">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
                   ))
                 )}
                 
                 {isAdding && (
-                  <div className="p-3 flex items-center gap-3 animate-in fade-in">
+                  <div className="p-3 flex items-center gap-3 animate-in fade-in bg-[#E1F3FA]/20 rounded-lg mt-1">
                     <input 
                       type="text" 
                       value={newName} 
                       onChange={e => setNewName(e.target.value)} 
                       placeholder="Category name"
-                      className="flex-1 h-9 px-3 text-[13px] border-2 border-[#005bd3] rounded-lg focus:outline-none ring-4 ring-[#005bd3]/10"
+                      className="flex-1 h-9 px-3 text-[13px] border-2 border-[#005bd3] rounded-lg focus:outline-none ring-4 ring-[#005bd3]/10 bg-white"
                       autoFocus
                     />
                     <select 
@@ -203,10 +307,10 @@ export function CategoryManagerPanel({ onClose }: CategoryManagerPanelProps) {
                       <option value="Women">Women</option>
                       <option value="Unisex">Unisex</option>
                     </select>
-                    <button onClick={handleCreate} className="p-2 bg-[#005bd3] text-white rounded-lg hover:bg-[#004c99]">
-                      <Check className="w-4 h-4" />
+                    <button onClick={handleCreate} disabled={isSaving} className="p-2 bg-[#005bd3] text-white rounded-lg hover:bg-[#004c99] disabled:opacity-50">
+                      {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                     </button>
-                    <button onClick={() => setIsAdding(false)} className="p-2 text-[#5C5F62] hover:bg-black/5 rounded-lg">
+                    <button onClick={() => setIsAdding(false)} disabled={isSaving} className="p-2 text-[#5C5F62] hover:bg-black/5 rounded-lg disabled:opacity-50">
                       <X className="w-4 h-4" />
                     </button>
                   </div>

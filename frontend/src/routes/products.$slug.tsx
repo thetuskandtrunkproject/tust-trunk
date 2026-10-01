@@ -301,41 +301,7 @@ function ProductDetailPage() {
           </div>
         )}
 
-        {/* Reviews Scaffold */}
-        <div className="mb-24 border-t border-ink/10 pt-16 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out fill-mode-both" style={{ animationDelay: '150ms' }}>
-          <div className="flex flex-col md:flex-row gap-12">
-            <div className="md:w-1/3">
-              <h2 className="font-heading font-bold text-4xl text-ink mb-4">Customer Reviews</h2>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex text-sunshine">
-                  {[1,2,3,4,5].map(star => <span key={star} className="text-2xl">★</span>)}
-                </div>
-                <span className="font-bold text-ink text-2xl">4.8</span>
-              </div>
-              <p className="text-ink/60 mb-6 font-sans font-bold">Based on 124 reviews</p>
-              <button className="w-full border-2 border-ink text-ink font-bold py-4 rounded-full hover:bg-ink hover:text-white transition-colors">
-                Write a Review
-              </button>
-            </div>
-            
-            <div className="md:w-2/3 flex flex-col gap-6">
-              {[1, 2, 3].map(review => (
-                <div key={review} className="bg-cloud p-8 rounded-[2rem] border border-ink/5">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="font-bold text-ink">Sarah M.</span>
-                    <span className="text-sm text-ink/40 font-bold">2 weeks ago</span>
-                  </div>
-                  <div className="flex text-sunshine text-lg mb-4">
-                    {[1,2,3,4,5].map(star => <span key={star}>★</span>)}
-                  </div>
-                  <p className="text-ink/80 text-base leading-relaxed font-sans font-medium">
-                    Absolutely love the fit and quality. I've washed it several times and it holds up perfectly. Highly recommend!
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+
       </div>
 
       {/* Size Guide Modal */}

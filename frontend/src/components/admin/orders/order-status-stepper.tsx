@@ -19,7 +19,7 @@ export function OrderStatusStepper({ status, onStatusChange }: OrderStatusSteppe
         <p className="text-sm text-rust/70 mb-4 max-w-xs">This order has been cancelled and cannot be processed further.</p>
         
         <button 
-          onClick={() => onStatusChange('Pending')}
+          onClick={() => onStatusChange('Processing')}
           className="text-sm font-medium text-ink bg-white border border-ink/10 px-4 py-2 rounded-lg hover:bg-ink/5 transition-colors"
         >
           Restore to Pending

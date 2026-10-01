@@ -45,8 +45,8 @@ def list_customers(db: Client) -> dict:
             'last_order_date': u_agg['last_order_date']
         })
     
-    # Sort by joined_date descending
-    result.sort(key=lambda x: x['joined_date'], reverse=True)
+    # Sort by joined_date descending, handling None gracefully
+    result.sort(key=lambda x: x['joined_date'] or '', reverse=True)
     return {'items': result}
 
 def get_customer_detail(db: Client, customer_id: str) -> dict:

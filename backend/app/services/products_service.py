@@ -175,7 +175,7 @@ def create_product(db: Client, data: ProductCreate, admin_user: dict) -> dict:
         raise HTTPException(status_code=500, detail='Failed to create product variants — no data returned')
 
     product['variants'] = variants_res.data
-    return product
+    return get_product(db, product_id)
 
 
 # ---------------------------------------------------------------------------
@@ -322,12 +322,12 @@ def update_product(db: Client, product_id: str, data: ProductUpdate) -> dict:
         )
     except Exception as e:
         logger.error(f'Failed to update product {product_id}: {e}')
-        raise HTTPException(status_code=500, detail='Failed to update product')
+        raise HTTPException(status_code=500, detail=f'Failed to update product: {str(e)}')
 
     if not res.data:
         raise HTTPException(status_code=404, detail='Product not found')
 
-    return _attach_variants(db, res.data[0])
+    return get_product(db, product_id)
 
 
 # ---------------------------------------------------------------------------
@@ -356,7 +356,7 @@ def archive_product(db: Client, product_id: str) -> dict:
     if not res.data:
         raise HTTPException(status_code=404, detail='Product not found')
 
-    return _attach_variants(db, res.data[0])
+    return get_product(db, product_id)
 
 
 # ---------------------------------------------------------------------------
@@ -501,7 +501,7 @@ def upload_product_image(db: Client, product_id: str, file_bytes: bytes, storage
         logger.error(f'Failed to update product images array for {product_id}: {e}')
         raise HTTPException(status_code=500, detail='Image uploaded to storage but failed to update product record')
 
-    return res.data[0]
+    return get_product(db, product_id)
 
 
 # ---------------------------------------------------------------------------
@@ -556,7 +556,7 @@ def delete_product_image(db: Client, product_id: str, image_url: str) -> dict:
         except Exception as e:
             logger.warning(f'Storage delete failed for {storage_path} (continuing anyway): {e}')
 
-    return res.data[0]
+    return get_product(db, product_id)
 
 
 # ---------------------------------------------------------------------------

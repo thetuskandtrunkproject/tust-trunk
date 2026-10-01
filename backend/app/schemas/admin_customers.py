@@ -14,7 +14,7 @@ class AddressItem(BaseModel):
     is_default: bool
 
 class CustomerListItem(BaseModel):
-    id: str  # firebase_uid
+    id: str  # database UUID (users.id)
     name: str
     email: str
     phone: Optional[str] = None
