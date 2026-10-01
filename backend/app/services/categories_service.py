@@ -11,9 +11,24 @@ CATEGORIES_TABLE = 'categories'
 
 
 def list_categories(db: Client) -> list:
-    """Return all categories."""
-    res = db.table(CATEGORIES_TABLE).select('*').order('name').execute()
-    return res.data or []
+    """Return all categories with product counts."""
+    # Since Supabase counts in relationships can be tricky via python client without exact syntax, 
+    # we'll fetch categories then products grouped by category, or just fetch all active products and count in memory for now.
+    res_cats = db.table(CATEGORIES_TABLE).select('*').order('name').execute()
+    cats = res_cats.data or []
+    
+    if cats:
+        res_prods = db.table('products').select('category_id').execute()
+        counts = {}
+        for p in (res_prods.data or []):
+            cid = p.get('category_id')
+            if cid:
+                counts[cid] = counts.get(cid, 0) + 1
+        
+        for c in cats:
+            c['product_count'] = counts.get(c['id'], 0)
+            
+    return cats
 
 
 def get_category(db: Client, category_id: str) -> dict:

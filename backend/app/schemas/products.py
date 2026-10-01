@@ -12,6 +12,7 @@ class VariantCreate(BaseModel):
     sku: str
     size: str
     price: int  # in paise
+    sale_price: Optional[int] = None
     stock: int = 0
 
     @field_validator('sku')
@@ -50,6 +51,7 @@ class VariantUpdate(BaseModel):
     sku: Optional[str] = None
     size: Optional[str] = None
     price: Optional[int] = None
+    sale_price: Optional[int] = None
     stock: Optional[int] = None
     is_active: Optional[bool] = None
 
@@ -92,6 +94,7 @@ class VariantResponse(BaseModel):
     sku: str
     size: str
     price: int
+    sale_price: Optional[int] = None
     stock: int
     is_active: bool
     created_at: datetime
@@ -237,3 +240,23 @@ class ImageDeleteRequest(BaseModel):
         if not v:
             raise ValueError('image_url must not be empty')
         return v
+
+# ---------------------------------------------------------------------------
+# Bulk action schemas
+# ---------------------------------------------------------------------------
+
+class BulkMoveCategoryRequest(BaseModel):
+    product_ids: List[uuid.UUID]
+    category_id: uuid.UUID
+
+class BulkStatusUpdateRequest(BaseModel):
+    product_ids: List[uuid.UUID]
+    status: Literal['Active', 'Draft', 'Archived']
+
+class BulkDeleteRequest(BaseModel):
+    product_ids: List[uuid.UUID]
+
+class BulkSalePriceRequest(BaseModel):
+    product_ids: List[uuid.UUID]
+    sale_price: Optional[int] = None  # None removes the sale price
+

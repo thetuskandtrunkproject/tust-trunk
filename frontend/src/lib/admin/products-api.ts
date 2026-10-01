@@ -5,6 +5,7 @@ export interface AdminProductVariant {
   sku: string
   size: string
   price: number
+  sale_price?: number
   stock: number
   is_active: boolean
   product_id?: string
@@ -99,4 +100,25 @@ export const deleteProductImage = async (productId: string, imageUrl: string) =>
     data: { image_url: imageUrl }
   })
   return data as AdminProduct
+}
+
+// Bulk Actions
+export const bulkMoveCategory = async (productIds: string[], categoryId: string) => {
+  const { data } = await api.post('/api/v1/admin/products/bulk/category', { product_ids: productIds, category_id: categoryId })
+  return data
+}
+
+export const bulkUpdateStatus = async (productIds: string[], status: string) => {
+  const { data } = await api.post('/api/v1/admin/products/bulk/status', { product_ids: productIds, status })
+  return data
+}
+
+export const bulkDeleteProducts = async (productIds: string[]) => {
+  const { data } = await api.post('/api/v1/admin/products/bulk/delete', { product_ids: productIds })
+  return data
+}
+
+export const bulkUpdateSalePrice = async (productIds: string[], salePrice: number | null) => {
+  const { data } = await api.post('/api/v1/admin/products/bulk/sale-price', { product_ids: productIds, sale_price: salePrice })
+  return data
 }

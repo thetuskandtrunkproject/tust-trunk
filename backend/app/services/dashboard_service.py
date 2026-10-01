@@ -26,11 +26,13 @@ def get_dashboard_metrics(db: Client, time_range: str = '30d') -> dict:
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     yesterday_start = today_start - timedelta(days=1)
     
-    # 1. Today & Yesterday Revenue
+    # 1. Revenue Metrics
+    this_year_start = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    
     res_recent = (
         db.table('orders')
         .select('created_at, total_paise')
-        .gte('created_at', yesterday_start.isoformat())
+        .gte('created_at', this_year_start.isoformat())
         .neq('status', 'Cancelled')
         .neq('status', 'requires_review')
         .execute()
@@ -38,8 +40,25 @@ def get_dashboard_metrics(db: Client, time_range: str = '30d') -> dict:
     
     today_revenue = 0
     yesterday_revenue = 0
+    this_week_revenue = 0
+    this_month_revenue = 0
+    this_year_revenue = 0
+    
+    # Calculate boundaries
+    week_start = today_start - timedelta(days=today_start.weekday()) # Monday
+    month_start = today_start.replace(day=1)
+
     for o in res_recent.data:
         dt = datetime.fromisoformat(o['created_at'].replace('Z', '+00:00'))
+        
+        this_year_revenue += o['total_paise']
+        
+        if dt >= month_start:
+            this_month_revenue += o['total_paise']
+            
+        if dt >= week_start:
+            this_week_revenue += o['total_paise']
+            
         if dt >= today_start:
             today_revenue += o['total_paise']
         elif dt >= yesterday_start and dt < today_start:
@@ -194,6 +213,9 @@ def get_dashboard_metrics(db: Client, time_range: str = '30d') -> dict:
     return {
         "todayRevenue": today_revenue,
         "yesterdayRevenue": yesterday_revenue,
+        "thisWeekRevenue": this_week_revenue,
+        "thisMonthRevenue": this_month_revenue,
+        "thisYearRevenue": this_year_revenue,
         "totalOrdersMonth": total_orders_month,
         "pendingOrders": pending_orders,
         "lowStockCount": low_stock_count,

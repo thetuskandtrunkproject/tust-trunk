@@ -4,17 +4,20 @@ import { AdminCard } from '@/components/admin/ui/primitives'
 interface RevenueCardsProps {
   todayRevenue: number
   yesterdayRevenue: number
-  totalOrdersMonth: number
-  pendingOrders: number
-  lowStockCount: number
+  thisWeekRevenue: number
+  thisMonthRevenue: number
+  thisYearRevenue: number
+  totalOrdersMonth?: number
+  pendingOrders?: number
+  lowStockCount?: number
 }
 
 export function RevenueCards({ 
   todayRevenue, 
   yesterdayRevenue, 
-  totalOrdersMonth, 
-  pendingOrders, 
-  lowStockCount 
+  thisWeekRevenue,
+  thisMonthRevenue,
+  thisYearRevenue
 }: RevenueCardsProps) {
   
   const formatPrice = (val: number) => `₹${val.toLocaleString('en-IN')}`
@@ -30,60 +33,58 @@ export function RevenueCards({
       {/* Today's Revenue */}
       <AdminCard className="flex flex-col">
         <div className="flex justify-between items-start mb-2">
-          <span className="text-sm font-medium text-ink/60">Today's Revenue</span>
-          <div className="p-2 bg-sky/10 rounded-lg text-sky">
+          <span className="text-[13px] font-medium text-[#5C5F62]">Today's Revenue</span>
+          <div className="p-1.5 bg-[#F4F6F8] rounded-md text-[#5C5F62]">
             <IndianRupee className="w-4 h-4" />
           </div>
         </div>
         <div className="flex items-end gap-3 mt-auto pt-4">
-          <span className="text-2xl font-semibold text-ink">{formatPrice(todayRevenue)}</span>
+          <span className="text-[24px] font-semibold text-[#202223] tracking-tight">{formatPrice(todayRevenue)}</span>
           {yesterdayRevenue > 0 && (
-            <span className={`flex items-center text-xs font-medium pb-1 ${isRevenueUp ? 'text-emerald-600' : 'text-red-500'}`}>
+            <span className={`flex items-center text-[12px] font-medium pb-1 ${isRevenueUp ? 'text-[#007F5F]' : 'text-[#D82C0D]'}`}>
               {isRevenueUp ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
-              {Math.abs(revenueChange).toFixed(1)}% vs yesterday
+              {Math.abs(revenueChange).toFixed(1)}% from prior day
             </span>
           )}
         </div>
       </AdminCard>
 
-      {/* Orders This Month */}
+      {/* This Week */}
       <AdminCard className="flex flex-col">
         <div className="flex justify-between items-start mb-2">
-          <span className="text-sm font-medium text-ink/60">Orders (30 Days)</span>
-          <div className="p-2 bg-ink/5 rounded-lg text-ink/70">
-            <Package className="w-4 h-4" />
+          <span className="text-[13px] font-medium text-[#5C5F62]">This Week</span>
+          <div className="p-1.5 bg-[#F4F6F8] rounded-md text-[#5C5F62]">
+            <IndianRupee className="w-4 h-4" />
           </div>
         </div>
         <div className="flex items-end gap-3 mt-auto pt-4">
-          <span className="text-2xl font-semibold text-ink">{totalOrdersMonth.toLocaleString('en-IN')}</span>
+          <span className="text-[24px] font-semibold text-[#202223] tracking-tight">{formatPrice(thisWeekRevenue)}</span>
         </div>
       </AdminCard>
 
-      {/* Pending Orders */}
+      {/* This Month */}
       <AdminCard className="flex flex-col">
         <div className="flex justify-between items-start mb-2">
-          <span className="text-sm font-medium text-ink/60">Pending Fulfillment</span>
-          <div className="p-2 bg-amber-50 rounded-lg text-amber-600">
-            <Package className="w-4 h-4" />
+          <span className="text-[13px] font-medium text-[#5C5F62]">This Month</span>
+          <div className="p-1.5 bg-[#F4F6F8] rounded-md text-[#5C5F62]">
+            <IndianRupee className="w-4 h-4" />
           </div>
         </div>
         <div className="flex items-end gap-3 mt-auto pt-4">
-          <span className="text-2xl font-semibold text-ink">{pendingOrders}</span>
-          <span className="text-xs font-medium text-ink/60 pb-1">Need shipping</span>
+          <span className="text-[24px] font-semibold text-[#202223] tracking-tight">{formatPrice(thisMonthRevenue)}</span>
         </div>
       </AdminCard>
 
-      {/* Low Stock Alerts */}
+      {/* This Year */}
       <AdminCard className="flex flex-col">
         <div className="flex justify-between items-start mb-2">
-          <span className="text-sm font-medium text-ink/60">Low Stock Items</span>
-          <div className="p-2 bg-red-50 rounded-lg text-red-500">
-            <AlertTriangle className="w-4 h-4" />
+          <span className="text-[13px] font-medium text-[#5C5F62]">This Year</span>
+          <div className="p-1.5 bg-[#F4F6F8] rounded-md text-[#D82C0D]">
+            <IndianRupee className="w-4 h-4" />
           </div>
         </div>
         <div className="flex items-end gap-3 mt-auto pt-4">
-          <span className={`text-2xl font-semibold ${lowStockCount > 0 ? 'text-red-500' : 'text-ink'}`}>{lowStockCount}</span>
-          {lowStockCount > 0 && <span className="text-xs font-medium text-red-400 pb-1">Require attention</span>}
+          <span className="text-[24px] font-semibold text-[#202223] tracking-tight">{formatPrice(thisYearRevenue)}</span>
         </div>
       </AdminCard>
 

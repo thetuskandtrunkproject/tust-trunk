@@ -3,6 +3,7 @@ import { Download, FileText, FileSpreadsheet, Loader2, AlertCircle } from 'lucid
 import { fetchAdminOrders, type AdminOrderItem } from '@/lib/admin/orders-api'
 // @ts-ignore
 import html2pdf from 'html2pdf.js'
+import { AdminCard, AdminButton, AdminPageHeader, AdminDatePicker } from '@/components/admin/ui/primitives'
 
 export function OrderReport() {
   const [startDate, setStartDate] = useState('')
@@ -83,40 +84,37 @@ export function OrderReport() {
   const unpaidCount = totalOrders - paidCount
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-ink/10 shadow-sm">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-6 border-b border-ink/5">
+    <AdminCard className="h-full">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-6 border-b border-[#E3E3E3]">
         <div>
-          <h2 className="font-heading font-bold text-xl text-ink">Order Report</h2>
-          <p className="text-ink/60 text-sm mt-1">Generate and export reports based on date ranges</p>
+          <h2 className="font-semibold text-[18px] text-[#202223]">Order Report</h2>
+          <p className="text-[#6D7175] text-[13px] mt-1">Generate and export reports based on date ranges</p>
         </div>
         
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <label className="block text-xs font-bold text-ink/60 mb-1 uppercase tracking-wider">Start Date</label>
-            <input 
-              type="date" 
+            <label className="block text-[12px] font-semibold text-[#5C5F62] mb-1">Start Date</label>
+            <AdminDatePicker 
               value={startDate}
-              onChange={e => setStartDate(e.target.value)}
-              className="bg-cloud border border-ink/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky/50"
+              onChange={setStartDate}
+              placeholder="dd-mm-yyyy"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-ink/60 mb-1 uppercase tracking-wider">End Date</label>
-            <input 
-              type="date" 
+            <label className="block text-[12px] font-semibold text-[#5C5F62] mb-1">End Date</label>
+            <AdminDatePicker 
               value={endDate}
-              onChange={e => setEndDate(e.target.value)}
-              className="bg-cloud border border-ink/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky/50"
+              onChange={setEndDate}
+              placeholder="dd-mm-yyyy"
             />
           </div>
-          <button 
+          <AdminButton 
             onClick={handleGenerate}
             disabled={loading}
-            className="bg-ink text-cloud px-5 py-2 rounded-lg font-bold hover:bg-sky hover:text-white transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2 h-[38px]"
+            icon={loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
             Generate
-          </button>
+          </AdminButton>
         </div>
       </div>
 
@@ -133,49 +131,43 @@ export function OrderReport() {
       {hasGenerated && (
         <div className="animate-in fade-in duration-300">
           <div className="flex items-center justify-end gap-3 mb-4">
-            <button 
-              onClick={exportCSV}
-              className="px-4 py-2 text-sm font-bold text-ink/70 bg-cloud hover:text-ink hover:bg-ink/5 rounded-lg transition-colors flex items-center gap-2"
-            >
-              <FileSpreadsheet className="w-4 h-4" /> Export CSV
-            </button>
-            <button 
-              onClick={exportPDF}
-              className="px-4 py-2 text-sm font-bold text-sky bg-sky/10 hover:bg-sky/20 rounded-lg transition-colors flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" /> Download PDF
-            </button>
+            <AdminButton variant="secondary" onClick={exportCSV} icon={<FileSpreadsheet className="w-4 h-4" />}>
+              Export CSV
+            </AdminButton>
+            <AdminButton variant="secondary" onClick={exportPDF} icon={<Download className="w-4 h-4 text-[#005bd3]" />}>
+              Download PDF
+            </AdminButton>
           </div>
 
-          <div ref={reportRef} className="bg-white p-6 rounded-xl border border-ink/10">
+          <div ref={reportRef} className="bg-white p-6 rounded-xl border border-[#E3E3E3]">
             <div className="text-center mb-8">
-              <h1 className="font-heading font-bold text-2xl text-ink">Order Report</h1>
-              <p className="text-ink/60 mt-1">Period: {startDate} to {endDate}</p>
+              <h1 className="font-semibold text-[22px] text-[#202223]">Order Report</h1>
+              <p className="text-[#6D7175] text-[14px] mt-1">Period: {startDate} to {endDate}</p>
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-cloud/50 p-4 rounded-xl text-center">
-                <p className="text-xs font-bold text-ink/50 uppercase tracking-wider mb-1">Total Orders</p>
-                <p className="text-2xl font-bold text-ink">{totalOrders}</p>
+              <div className="bg-[#F4F6F8] p-4 rounded-xl text-center border border-[#E3E3E3]">
+                <p className="text-[12px] font-semibold text-[#5C5F62] mb-1">Total Orders</p>
+                <p className="text-[20px] font-semibold text-[#202223]">{totalOrders}</p>
               </div>
-              <div className="bg-cloud/50 p-4 rounded-xl text-center">
-                <p className="text-xs font-bold text-ink/50 uppercase tracking-wider mb-1">Total Revenue</p>
-                <p className="text-2xl font-bold text-sky">₹{totalRevenue.toLocaleString('en-IN')}</p>
+              <div className="bg-[#F4F6F8] p-4 rounded-xl text-center border border-[#E3E3E3]">
+                <p className="text-[12px] font-semibold text-[#5C5F62] mb-1">Total Revenue</p>
+                <p className="text-[20px] font-semibold text-[#005bd3]">₹{totalRevenue.toLocaleString('en-IN')}</p>
               </div>
-              <div className="bg-cloud/50 p-4 rounded-xl text-center">
-                <p className="text-xs font-bold text-ink/50 uppercase tracking-wider mb-1">Paid Orders</p>
-                <p className="text-2xl font-bold text-forest">{paidCount}</p>
+              <div className="bg-[#E1F3FA] p-4 rounded-xl text-center border border-[#B3E1F7]">
+                <p className="text-[12px] font-semibold text-[#006E8B] mb-1">Paid Orders</p>
+                <p className="text-[20px] font-semibold text-[#006E8B]">{paidCount}</p>
               </div>
-              <div className="bg-cloud/50 p-4 rounded-xl text-center">
-                <p className="text-xs font-bold text-ink/50 uppercase tracking-wider mb-1">Unpaid / Failed</p>
-                <p className="text-2xl font-bold text-coral">{unpaidCount}</p>
+              <div className="bg-[#FFC4B0] p-4 rounded-xl text-center border border-[#F4A88E]">
+                <p className="text-[12px] font-semibold text-[#D82C0D] mb-1">Unpaid / Failed</p>
+                <p className="text-[20px] font-semibold text-[#D82C0D]">{unpaidCount}</p>
               </div>
             </div>
 
             {orders.length > 0 ? (
-              <table className="w-full text-left border-collapse text-sm">
+              <table className="w-full text-left border-collapse text-[13px]">
                 <thead>
-                  <tr className="border-b border-ink/10 text-ink/60 font-medium">
+                  <tr className="border-b border-[#E3E3E3] text-[#5C5F62] font-semibold">
                     <th className="pb-3 pr-4">Order #</th>
                     <th className="pb-3 pr-4">Customer</th>
                     <th className="pb-3 pr-4">Date</th>
@@ -186,25 +178,25 @@ export function OrderReport() {
                 </thead>
                 <tbody>
                   {orders.map((o) => (
-                    <tr key={o.id} className="border-b border-ink/5">
-                      <td className="py-3 pr-4 font-medium">{o.order_number}</td>
-                      <td className="py-3 pr-4 text-ink/80">{o.customer_name || 'Guest'}</td>
-                      <td className="py-3 pr-4 text-ink/60">{new Date(o.date).toLocaleDateString()}</td>
-                      <td className="py-3 pr-4">{o.status}</td>
-                      <td className="py-3 pr-4">{o.payment_status}</td>
-                      <td className="py-3 text-right font-medium text-sky">₹{(o.total_paise / 100).toLocaleString('en-IN')}</td>
+                    <tr key={o.id} className="border-b border-[#E3E3E3]">
+                      <td className="py-3 pr-4 font-medium text-[#202223]">{o.order_number}</td>
+                      <td className="py-3 pr-4 text-[#6D7175]">{o.customer_name || 'Guest'}</td>
+                      <td className="py-3 pr-4 text-[#6D7175]">{new Date(o.date).toLocaleDateString()}</td>
+                      <td className="py-3 pr-4 text-[#202223]">{o.status}</td>
+                      <td className="py-3 pr-4 text-[#202223]">{o.payment_status}</td>
+                      <td className="py-3 text-right font-semibold text-[#202223]">₹{(o.total_paise / 100).toLocaleString('en-IN')}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             ) : (
-              <div className="text-center py-12 text-ink/50 font-medium">
+              <div className="text-center py-12 text-[#6D7175] font-medium text-[13px]">
                 No orders found in this date range.
               </div>
             )}
           </div>
         </div>
       )}
-    </div>
+    </AdminCard>
   )
 }

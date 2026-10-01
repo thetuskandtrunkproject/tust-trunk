@@ -34,89 +34,103 @@ export function VariantEditor({ variants, onChange }: VariantEditorProps) {
     onChange(variants.filter(v => v.id !== id))
   }
 
+  const inputClassName = "w-full bg-white border border-[#D1D5DB] text-[#111827] rounded-md px-2 py-1.5 text-[13px] focus:outline-none focus:ring-1 focus:ring-[#005bd3] focus:border-[#005bd3] transition-colors"
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="font-medium text-ink">Variants</h3>
+    <div className="font-sans">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-[16px] font-semibold text-[#111827]">Variants</h2>
         <button 
           type="button"
           onClick={handleAddVariant}
-          className="text-sm font-medium text-sky hover:text-sky/80 flex items-center gap-1"
+          className="text-[13px] font-medium text-[#005bd3] hover:text-[#004c99] transition-colors flex items-center gap-1"
         >
-          <Plus className="w-4 h-4" /> Add Option
+          <Plus className="w-4 h-4" /> Add options
         </button>
       </div>
 
-      <div className="bg-white border border-ink/10 rounded-2xl overflow-hidden shadow-sm">
+      <div className="border border-[#E5E7EB] rounded-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-cloud border-b border-ink/10 text-xs font-medium text-ink/60 uppercase tracking-wider">
-                <th className="px-4 py-3 w-1/4">Size</th>
-                <th className="px-4 py-3 w-1/4">SKU</th>
-                <th className="px-4 py-3 w-1/4">Price (₹)</th>
-                <th className="px-4 py-3 w-1/4">Stock</th>
-                <th className="px-4 py-3"></th>
+              <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB] text-[12px] font-medium text-[#6B7280]">
+                <th className="px-3 py-2 w-1/4">Size</th>
+                <th className="px-3 py-2 w-1/4">SKU</th>
+                <th className="px-3 py-2 w-1/4">Inventory</th>
+                <th className="px-3 py-2 w-1/4">Price (₹)</th>
+                <th className="px-3 py-2 w-[40px]"></th>
               </tr>
             </thead>
-            <tbody className="text-sm">
-              {variants.map((variant) => (
-                <tr key={variant.id} className="border-b border-ink/5 last:border-0">
-                  <td className="p-2">
-                    <input 
-                      type="text" 
-                      placeholder="e.g. M"
-                      value={variant.size}
-                      onChange={(e) => handleUpdateVariant(variant.id, 'size', e.target.value)}
-                      className="w-full bg-transparent border border-ink/10 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sky/50"
-                    />
-                  </td>
-                  <td className="p-2">
-                    <input 
-                      type="text" 
-                      placeholder="SKU"
-                      value={variant.sku}
-                      onChange={(e) => handleUpdateVariant(variant.id, 'sku', e.target.value)}
-                      className="w-full bg-transparent border border-ink/10 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-sky/50"
-                    />
-                  </td>
-                  <td className="p-2">
-                    <input 
-                      type="number" 
-                      min="0"
-                      value={variant.price ? variant.price / 100 : ''}
-                      onChange={(e) => handleUpdateVariant(variant.id, 'price', Math.floor(parseFloat(e.target.value || '0') * 100))}
-                      className="w-full bg-transparent border border-ink/10 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sky/50"
-                    />
-                  </td>
-                  <td className="p-2">
-                    <input 
-                      type="number" 
-                      min="0"
-                      value={variant.stock}
-                      onChange={(e) => handleUpdateVariant(variant.id, 'stock', parseInt(e.target.value) || 0)}
-                      className="w-full bg-transparent border border-ink/10 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:border-sky/50"
-                    />
-                  </td>
-                  <td className="p-2 text-right pr-4">
-                    <button 
-                      type="button"
-                      onClick={() => handleRemoveVariant(variant.id)}
-                      className="p-1.5 text-ink/40 hover:text-rust hover:bg-rust/10 rounded-md transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+            <tbody className="divide-y divide-[#E5E7EB] bg-white">
+              {variants.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center">
+                    <span className="text-[13px] text-[#6B7280]">
+                      This product has no variants.
+                    </span>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                variants.map((v) => (
+                  <tr key={v.id} className="hover:bg-[#F9FAFB] transition-colors">
+                    <td className="px-3 py-2">
+                      <input 
+                        type="text"
+                        required
+                        value={v.size}
+                        onChange={(e) => handleUpdateVariant(v.id, 'size', e.target.value)}
+                        placeholder="e.g. S, M"
+                        className={inputClassName}
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <input 
+                        type="text"
+                        required
+                        value={v.sku}
+                        onChange={(e) => handleUpdateVariant(v.id, 'sku', e.target.value)}
+                        placeholder="SKU"
+                        className={inputClassName}
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <input 
+                        type="number"
+                        required
+                        min="0"
+                        value={v.stock}
+                        onChange={(e) => handleUpdateVariant(v.id, 'stock', parseInt(e.target.value) || 0)}
+                        placeholder="0"
+                        className={inputClassName}
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <input 
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={v.price ? (v.price / 100).toString() : ''}
+                        onChange={(e) => handleUpdateVariant(v.id, 'price', Math.round(parseFloat(e.target.value) * 100) || 0)}
+                        placeholder="Default"
+                        className={inputClassName}
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <button 
+                        type="button"
+                        onClick={() => handleRemoveVariant(v.id)}
+                        className="p-1 text-[#9CA3AF] hover:text-[#EF4444] rounded transition-colors"
+                        title="Remove Variant"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-        {variants.length === 0 && (
-          <div className="p-8 text-center text-ink/50 text-sm">
-            No variants added yet. Products without variants can't be purchased.
-          </div>
-        )}
       </div>
     </div>
   )

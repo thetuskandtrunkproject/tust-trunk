@@ -557,3 +557,46 @@ def delete_product_image(db: Client, product_id: str, image_url: str) -> dict:
             logger.warning(f'Storage delete failed for {storage_path} (continuing anyway): {e}')
 
     return res.data[0]
+
+
+# ---------------------------------------------------------------------------
+# Bulk Actions
+# ---------------------------------------------------------------------------
+
+def bulk_move_category(db: Client, product_ids: list[str], category_id: str) -> dict:
+    try:
+        db.table(PRODUCTS_TABLE).update({'category_id': category_id}).in_('id', product_ids).execute()
+        return {"status": "success"}
+    except Exception as e:
+        logger.error(f'Failed to bulk move category: {e}')
+        raise HTTPException(status_code=500, detail='Failed to move products')
+
+
+def bulk_update_status(db: Client, product_ids: list[str], status: str) -> dict:
+    try:
+        db.table(PRODUCTS_TABLE).update({'status': status}).in_('id', product_ids).execute()
+        return {"status": "success"}
+    except Exception as e:
+        logger.error(f'Failed to bulk update status: {e}')
+        raise HTTPException(status_code=500, detail='Failed to update products')
+
+
+def bulk_delete_products(db: Client, product_ids: list[str]) -> dict:
+    try:
+        # DB constraints will fail if orders exist for these products. We assume simple deletes for now.
+        db.table(VARIANTS_TABLE).delete().in_('product_id', product_ids).execute()
+        db.table(PRODUCTS_TABLE).delete().in_('id', product_ids).execute()
+        return {"status": "success"}
+    except Exception as e:
+        logger.error(f'Failed to bulk delete products: {e}')
+        raise HTTPException(status_code=500, detail='Failed to delete products')
+
+
+def bulk_update_sale_price(db: Client, product_ids: list[str], sale_price: int | None) -> dict:
+    try:
+        db.table(VARIANTS_TABLE).update({'sale_price': sale_price}).in_('product_id', product_ids).execute()
+        return {"status": "success"}
+    except Exception as e:
+        logger.error(f'Failed to bulk update sale price: {e}')
+        raise HTTPException(status_code=500, detail='Failed to update sale price')
+

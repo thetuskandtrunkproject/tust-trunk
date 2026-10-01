@@ -9,7 +9,7 @@ interface AdminCardProps {
 
 export function AdminCard({ children, className = '', padding = true }: AdminCardProps) {
   return (
-    <div className={`bg-white rounded-xl border border-ink/10 shadow-sm ${padding ? 'p-6' : ''} ${className}`}>
+    <div className={`bg-white rounded-xl shadow-sm border border-[#E3E3E3] ${padding ? 'p-5' : ''} ${className}`}>
       {children}
     </div>
   )
@@ -28,19 +28,22 @@ interface AdminSearchInputProps {
 export function AdminSearchInput({ value, onChange, placeholder = 'Search...', className = '' }: AdminSearchInputProps) {
   return (
     <div className={`relative ${className}`}>
-      <Search className="w-4 h-4 text-ink/40 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+      <Search className="w-4 h-4 text-[#5C5F62] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
       <input
         type="text"
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-cloud border border-ink/10 rounded-full pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-sky/40 focus:ring-2 focus:ring-sky/10 transition-all placeholder:text-ink/40"
+        className="w-full bg-white border border-[#C9CCCF] text-[#202223] rounded-lg pl-9 pr-3 h-[36px] text-[13px] shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-[#005bd3] focus:border-transparent transition-all placeholder:text-[#8C9196]"
       />
     </div>
   )
 }
 
 /* ─── AdminSelect ─── */
+import React, { useState, useRef, useEffect } from 'react'
+import { ChevronDown, Check } from 'lucide-react'
+
 interface AdminSelectProps {
   value: string
   onChange: (value: string) => void
@@ -49,19 +52,64 @@ interface AdminSelectProps {
 }
 
 export function AdminSelect({ value, onChange, children, className = '' }: AdminSelectProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const options = React.Children.toArray(children).map(child => {
+    if (React.isValidElement(child) && child.type === 'option') {
+      return { value: child.props.value, label: child.props.children }
+    }
+    return null
+  }).filter(Boolean) as { value: string, label: ReactNode }[]
+
+  const selectedOption = options.find(opt => opt.value === String(value)) || options.find(opt => opt.label === value)
+
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className={`bg-cloud border border-ink/10 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-sky/40 focus:ring-2 focus:ring-sky/10 transition-all appearance-none cursor-pointer pr-8 min-w-[130px] ${className}`}
-      style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'right 0.75rem center',
-      }}
-    >
-      {children}
-    </select>
+    <div className={`relative ${className}`} ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between bg-white border border-[#C9CCCF] text-[#202223] rounded-full px-4 h-[36px] text-[13px] shadow-sm hover:border-[#8C9196] focus:outline-none focus:ring-2 focus:ring-[#005bd3] transition-all min-w-[130px]"
+      >
+        <span className="truncate pr-2 font-medium">{selectedOption?.label || value}</span>
+        <ChevronDown className={`w-4 h-4 text-[#5C5F62] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-1 w-full min-w-[160px] bg-white border border-[#E3E3E3] rounded-xl shadow-lg z-50 py-1 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          {options.map((opt) => {
+            const isSelected = opt.value === String(value)
+            return (
+              <div
+                key={opt.value}
+                onClick={() => {
+                  onChange(opt.value)
+                  setIsOpen(false)
+                }}
+                className={`flex items-center justify-between px-4 py-2 text-[13px] font-medium cursor-pointer transition-colors mx-1 rounded-lg ${
+                  isSelected 
+                    ? 'bg-[#E1F3FA] text-[#005bd3]' 
+                    : 'text-[#5C5F62] hover:bg-black/5 hover:text-[#202223]'
+                }`}
+              >
+                <span className="truncate">{opt.label}</span>
+                {isSelected && <Check className="w-4 h-4 text-[#005bd3] ml-2 shrink-0" />}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -94,11 +142,11 @@ const STATUS_MAP: Record<string, StatusVariant> = {
 }
 
 const VARIANT_CLASSES: Record<StatusVariant, string> = {
-  success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  warning: 'bg-amber-50 text-amber-700 border-amber-200',
-  danger:  'bg-red-50 text-red-700 border-red-200',
-  neutral: 'bg-slate-100 text-slate-600 border-slate-200',
-  info:    'bg-sky-50 text-sky-700 border-sky-200',
+  success: 'bg-[#AEE9D1] text-[#007F5F]', // Shopify success
+  warning: 'bg-[#FFEA8A] text-[#8A6116]', // Shopify warning
+  danger:  'bg-[#FFC4B0] text-[#D82C0D]', // Shopify critical
+  neutral: 'bg-[#E3E5E7] text-[#202223]', // Shopify basic
+  info:    'bg-[#E1F3FA] text-[#006E8B]', // Shopify info
 }
 
 interface StatusBadgeProps {
@@ -109,7 +157,7 @@ interface StatusBadgeProps {
 export function StatusBadge({ status, variant }: StatusBadgeProps) {
   const resolvedVariant = variant || STATUS_MAP[status] || 'neutral'
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${VARIANT_CLASSES[resolvedVariant]}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-semibold tracking-tight ${VARIANT_CLASSES[resolvedVariant]}`}>
       {status}
     </span>
   )
@@ -126,16 +174,16 @@ interface AdminThumbnailProps {
 }
 
 const SIZES = {
-  sm: 'w-8 h-8',
-  md: 'w-10 h-10',
-  lg: 'w-12 h-12',
+  sm: 'w-8 h-8 rounded-[4px]',
+  md: 'w-10 h-10 rounded-md',
+  lg: 'w-12 h-12 rounded-lg',
 }
 
 export function AdminThumbnail({ src, alt = '', size = 'md' }: AdminThumbnailProps) {
   const [imgError, setImgError] = useImgState(false)
 
   return (
-    <div className={`${SIZES[size]} bg-cloud rounded-lg overflow-hidden shrink-0 border border-ink/5 flex items-center justify-center`}>
+    <div className={`${SIZES[size]} bg-[#F4F6F8] shrink-0 border border-[#E3E3E3] flex items-center justify-center overflow-hidden`}>
       {src && !imgError ? (
         <img
           src={src}
@@ -144,7 +192,7 @@ export function AdminThumbnail({ src, alt = '', size = 'md' }: AdminThumbnailPro
           onError={() => setImgError(true)}
         />
       ) : (
-        <ImageIcon className="w-4 h-4 text-ink/20" />
+        <ImageIcon className="w-4 h-4 text-[#8C9196]" />
       )}
     </div>
   )
@@ -156,10 +204,10 @@ import { type ButtonHTMLAttributes } from 'react'
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
 
 const BUTTON_CLASSES: Record<ButtonVariant, string> = {
-  primary:   'bg-ink text-cloud hover:bg-sky hover:text-white shadow-sm',
-  secondary: 'bg-cloud text-ink/70 border border-ink/10 hover:bg-ink/5 hover:text-ink',
-  ghost:     'text-ink/50 hover:text-ink hover:bg-ink/5',
-  danger:    'text-red-600 hover:text-red-700 hover:bg-red-50',
+  primary:   'bg-[#303030] text-white hover:bg-[#1A1A1A] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_1px_2px_rgba(0,0,0,0.05)] border border-transparent',
+  secondary: 'bg-white text-[#202223] border border-[#C9CCCF] hover:bg-[#F4F6F8] shadow-[0_1px_2px_rgba(0,0,0,0.05)]',
+  ghost:     'text-[#5C5F62] hover:bg-[#F4F6F8] hover:text-[#202223]',
+  danger:    'bg-white text-[#D82C0D] border border-[#C9CCCF] hover:bg-[#FBF1ED] shadow-[0_1px_2px_rgba(0,0,0,0.05)]',
 }
 
 interface AdminButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -174,8 +222,8 @@ export function AdminButton({ variant = 'primary', icon, children, className = '
     <button
       {...props}
       className={`
-        inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-sm transition-colors
-        ${isIconOnly ? 'p-2' : 'px-4 py-2.5'}
+        inline-flex items-center justify-center gap-2 rounded-lg font-medium text-[13px] transition-colors
+        ${isIconOnly ? 'p-1.5' : 'px-4 h-[36px]'}
         ${BUTTON_CLASSES[variant]}
         disabled:opacity-50 disabled:cursor-not-allowed
         ${className}
@@ -196,10 +244,10 @@ interface AdminPageHeaderProps {
 
 export function AdminPageHeader({ title, description, actions }: AdminPageHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between mb-8">
+    <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between mb-6">
       <div>
-        <h2 className="font-heading font-bold text-2xl text-ink">{title}</h2>
-        {description && <p className="text-ink/60 text-sm mt-1">{description}</p>}
+        <h2 className="font-semibold text-[22px] tracking-tight text-[#202223]">{title}</h2>
+        {description && <p className="text-[#6D7175] text-[14px] mt-0.5">{description}</p>}
       </div>
       {actions && <div className="flex items-center gap-3">{actions}</div>}
     </div>
@@ -214,9 +262,9 @@ interface AdminFilterBarProps {
 
 export function AdminFilterBar({ children, className = '' }: AdminFilterBarProps) {
   return (
-    <AdminCard className={`!p-4 mb-6 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center ${className}`}>
+    <div className={`bg-white rounded-xl shadow-sm border border-[#E3E3E3] p-4 mb-5 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center ${className}`}>
       {children}
-    </AdminCard>
+    </div>
   )
 }
 
@@ -229,21 +277,21 @@ interface AdminTableShellProps {
 
 export function AdminTableShell({ children, emptyMessage = 'No data found.', isEmpty }: AdminTableShellProps) {
   return (
-    <AdminCard padding={false} className="overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm border border-[#E3E3E3] overflow-hidden">
       <div className="overflow-x-auto">
         {children}
       </div>
       {isEmpty && (
-        <div className="p-12 text-center text-ink/50 font-medium">{emptyMessage}</div>
+        <div className="p-12 text-center text-[#6D7175] text-[13px] font-medium">{emptyMessage}</div>
       )}
-    </AdminCard>
+    </div>
   )
 }
 
 /* ─── AdminTh / AdminTd helpers ─── */
 export function AdminTh({ children, className = '', ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) {
   return (
-    <th className={`px-6 py-4 text-xs font-semibold text-ink/50 uppercase tracking-wider ${className}`} {...props}>
+    <th className={`px-5 py-3 text-[13px] font-semibold text-[#5C5F62] bg-[#F9FAFB] border-b border-[#E3E3E3] ${className}`} {...props}>
       {children}
     </th>
   )
@@ -251,7 +299,7 @@ export function AdminTh({ children, className = '', ...props }: React.ThHTMLAttr
 
 export function AdminTd({ children, className = '', ...props }: React.TdHTMLAttributes<HTMLTableCellElement>) {
   return (
-    <td className={`px-6 py-4 ${className}`} {...props}>
+    <td className={`px-5 py-3 text-[14px] text-[#202223] border-b border-[#E3E3E3] ${className}`} {...props}>
       {children}
     </td>
   )
@@ -261,7 +309,10 @@ export function AdminTd({ children, className = '', ...props }: React.TdHTMLAttr
 export function AdminSpinner() {
   return (
     <div className="flex justify-center p-12">
-      <div className="w-8 h-8 rounded-full border-[3px] border-ink/10 border-t-sky animate-spin" />
+      <div className="w-8 h-8 rounded-full border-[3px] border-[#E3E3E3] border-t-[#005bd3] animate-spin" />
     </div>
   )
 }
+
+/* ─── AdminDatePicker ─── */
+export { AdminDatePicker } from './admin-date-picker'

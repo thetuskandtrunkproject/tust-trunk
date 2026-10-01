@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, field_validator
-from typing import Optional, List
+from typing import Optional, List, Literal
 from datetime import datetime
 import uuid
 import re
@@ -8,6 +8,7 @@ class CategoryCreate(BaseModel):
     name: str
     slug: str
     description: str = ''
+    gender: Literal['Kids', 'Women', 'Unisex'] = 'Unisex'
     is_active: bool = True
 
     @field_validator('name')
@@ -33,6 +34,7 @@ class CategoryUpdate(BaseModel):
     name: Optional[str] = None
     slug: Optional[str] = None
     description: Optional[str] = None
+    gender: Optional[Literal['Kids', 'Women', 'Unisex']] = None
     is_active: Optional[bool] = None
 
     @field_validator('name')
@@ -59,7 +61,9 @@ class CategoryResponse(BaseModel):
     name: str
     slug: str
     description: str
+    gender: str = 'Unisex'
     is_active: bool
+    product_count: int = 0
     created_at: datetime
     updated_at: datetime
 

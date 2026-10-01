@@ -16,6 +16,10 @@ from app.schemas.products import (
     VariantUpdate,
     VariantResponse,
     ImageDeleteRequest,
+    BulkMoveCategoryRequest,
+    BulkStatusUpdateRequest,
+    BulkDeleteRequest,
+    BulkSalePriceRequest,
 )
 from app.dependencies.auth import get_current_admin
 from app.core.database import get_db_client
@@ -247,6 +251,53 @@ ALLOWED_IMAGE_TYPES = {'image/webp'}
 MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 
 
+# ---------------------------------------------------------------------------
+# Bulk Actions
+# ---------------------------------------------------------------------------
+
+@router.post('/bulk/category')
+def bulk_move_category(
+    data: BulkMoveCategoryRequest,
+    admin: dict = Depends(_set_admin_state),
+    db: Client = Depends(get_db_client),
+):
+    """Move multiple products to a new category."""
+    return products_service.bulk_move_category(db, [str(pid) for pid in data.product_ids], str(data.category_id))
+
+
+@router.post('/bulk/status')
+def bulk_update_status(
+    data: BulkStatusUpdateRequest,
+    admin: dict = Depends(_set_admin_state),
+    db: Client = Depends(get_db_client),
+):
+    """Change status for multiple products."""
+    return products_service.bulk_update_status(db, [str(pid) for pid in data.product_ids], data.status)
+
+
+@router.post('/bulk/delete')
+def bulk_delete_products(
+    data: BulkDeleteRequest,
+    admin: dict = Depends(_set_admin_state),
+    db: Client = Depends(get_db_client),
+):
+    """Delete multiple products."""
+    return products_service.bulk_delete_products(db, [str(pid) for pid in data.product_ids])
+
+
+@router.post('/bulk/sale-price')
+def bulk_update_sale_price(
+    data: BulkSalePriceRequest,
+    admin: dict = Depends(_set_admin_state),
+    db: Client = Depends(get_db_client),
+):
+    """Set or remove sale price for multiple products."""
+    return products_service.bulk_update_sale_price(db, [str(pid) for pid in data.product_ids], data.sale_price)
+
+
+# ---------------------------------------------------------------------------
+# POST /api/v1/admin/products/{product_id}/images
+# ---------------------------------------------------------------------------
 @router.post('/{product_id}/images', response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit('30/minute')
 async def upload_image(

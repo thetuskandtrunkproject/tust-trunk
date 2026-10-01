@@ -20,6 +20,8 @@ function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'All'>('All')
   const [paymentFilter, setPaymentFilter] = useState<PaymentStatus | 'All'>('All')
+  const [timeFilter, setTimeFilter] = useState<'Recent (24h)' | 'In Process' | 'All Time'>('All Time')
+  const [dateFilter, setDateFilter] = useState('')
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
 
   // Drawer state
@@ -61,9 +63,24 @@ function AdminOrdersPage() {
       // Payment
       if (paymentFilter !== 'All' && order.payment_status !== paymentFilter) return false
       
+      // Date Filter
+      if (dateFilter) {
+        const orderDateStr = new Date(order.created_at).toISOString().split('T')[0]
+        if (orderDateStr !== dateFilter) return false
+      }
+
+      // Time Pills Filter
+      if (timeFilter === 'Recent (24h)') {
+        const orderDate = new Date(order.created_at).getTime()
+        const now = new Date().getTime()
+        if (now - orderDate > 24 * 60 * 60 * 1000) return false
+      } else if (timeFilter === 'In Process') {
+        if (!['Pending', 'Processing'].includes(order.status)) return false
+      }
+      
       return true
     })
-  }, [orders, searchQuery, statusFilter, paymentFilter])
+  }, [orders, searchQuery, statusFilter, paymentFilter, timeFilter, dateFilter])
 
   // Handlers
   const handleSelectOrder = (order: any) => {
@@ -116,6 +133,10 @@ function AdminOrdersPage() {
         setStatusFilter={setStatusFilter}
         paymentFilter={paymentFilter}
         setPaymentFilter={setPaymentFilter}
+        timeFilter={timeFilter}
+        setTimeFilter={setTimeFilter}
+        dateFilter={dateFilter}
+        setDateFilter={setDateFilter}
         resultCount={filteredOrders.length}
         isMobileFiltersOpen={isMobileFiltersOpen}
         setIsMobileFiltersOpen={setIsMobileFiltersOpen}

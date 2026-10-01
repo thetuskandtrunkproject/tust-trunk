@@ -2,10 +2,9 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect, useRef } from 'react'
 import { RevenueCards } from '@/components/admin/dashboard/revenue-cards'
 import { RevenueChart } from '@/components/admin/dashboard/revenue-chart'
-import { TopProductsWidget } from '@/components/admin/dashboard/top-products-widget'
 import { RecentActivityFeed } from '@/components/admin/dashboard/recent-activity-feed'
 import { OrderReport } from '@/components/admin/dashboard/order-report'
-import { AdminSpinner } from '@/components/admin/ui/primitives'
+import { AdminSpinner, AdminPageHeader } from '@/components/admin/ui/primitives'
 import { api } from '@/lib/api'
 import { useToast } from '@/context/toast-context'
 
@@ -67,32 +66,32 @@ function AdminDashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-24">
+    <div className="flex flex-col gap-6 pb-24">
       
+      <AdminPageHeader 
+        title="Dashboard" 
+        description="Here's what's happening with your store today."
+      />
+
       {/* Top Stat Cards */}
       <RevenueCards 
         todayRevenue={dashboard.todayRevenue / 100}
         yesterdayRevenue={dashboard.yesterdayRevenue / 100}
-        totalOrdersMonth={dashboard.totalOrdersMonth}
-        pendingOrders={dashboard.pendingOrders}
-        lowStockCount={dashboard.lowStockCount}
+        thisWeekRevenue={dashboard.thisWeekRevenue / 100}
+        thisMonthRevenue={dashboard.thisMonthRevenue / 100}
+        thisYearRevenue={dashboard.thisYearRevenue / 100}
       />
 
       {/* Main Grid Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Chart Area (takes up 2 columns on desktop) */}
-        <div className="lg:col-span-2">
+        {/* Chart Area (takes up full width) */}
+        <div className="lg:col-span-3">
           <RevenueChart 
             data={dashboard.revenueData.map((d: any) => ({ ...d, revenue: d.revenue / 100 }))} 
             timeRange={timeRange}
             onTimeRangeChange={setTimeRange}
           />
-        </div>
-        
-        {/* Top Products (takes up 1 column on desktop) */}
-        <div className="lg:col-span-1">
-          <TopProductsWidget products={dashboard.topProducts.map((p: any) => ({ ...p, revenue: p.revenue / 100 }))} />
         </div>
         
       </div>

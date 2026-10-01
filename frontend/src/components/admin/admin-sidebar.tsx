@@ -22,17 +22,23 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
   ]
 
   return (
-    <div className="flex flex-col h-full bg-white border-r border-ink/10 font-sans">
-      <div className="p-6 flex items-center justify-between">
-        <img src={logoImg} alt="The Tusk & Trunk Admin" className="h-8" />
+    <div className="flex flex-col h-full bg-[#EBEBEB] font-sans">
+      <div className="p-4 flex items-center justify-between border-b border-[#E3E3E3]/50">
+        <div className="flex items-center gap-2.5">
+          <img src={logoImg} alt="The Tusk & Trunk" className="h-8 opacity-90" />
+          <div className="flex flex-col">
+            <span className="font-bold text-[14px] tracking-tight text-[#202223] leading-none mb-1">Tusk & Trunk</span>
+            <span className="text-[10px] font-bold text-[#005bd3] tracking-widest leading-none bg-[#E1F3FA] px-1.5 py-0.5 rounded inline-block w-fit">ADMIN</span>
+          </div>
+        </div>
         {onClose && (
-          <button onClick={onClose} className="lg:hidden p-2 text-ink/60 hover:text-coral transition-colors">
+          <button onClick={onClose} className="lg:hidden p-1.5 text-[#5C5F62] hover:bg-[#E3E3E3] rounded-md transition-colors">
             <X className="w-5 h-5" />
           </button>
         )}
       </div>
 
-      <nav className="flex-1 px-4 py-6 overflow-y-auto space-y-1">
+      <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-0.5">
         {navItems.map((item) => {
           const isActive = location.pathname.startsWith(item.path)
           const Icon = item.icon
@@ -42,21 +48,24 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
               key={item.path}
               to={item.path}
               onClick={onClose}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium transition-colors ${
                 isActive 
-                  ? 'bg-sky-soft text-ink shadow-sm ring-1 ring-sky/20' 
-                  : 'text-ink/70 hover:bg-ink/5 hover:text-ink'
+                  ? 'bg-white text-[#202223] shadow-sm' 
+                  : 'text-[#5C5F62] hover:bg-[#E3E3E3] hover:text-[#202223]'
               }`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? 'text-sky' : 'text-ink/50'}`} />
+              <Icon className={`w-4 h-4 ${isActive ? 'text-[#202223]' : 'text-[#5C5F62]'}`} />
               {item.name}
             </Link>
           )
         })}
       </nav>
       
-      <div className="p-6 border-t border-ink/10">
-        <Link to="/" className="text-sm font-bold text-ink/60 hover:text-coral transition-colors block text-center">
+      <div className="p-4">
+        <Link 
+          to="/" 
+          className="flex items-center justify-center w-full py-2 rounded-md text-[13px] font-medium text-[#5C5F62] hover:bg-[#E3E3E3] transition-colors"
+        >
           ← Back to Storefront
         </Link>
       </div>

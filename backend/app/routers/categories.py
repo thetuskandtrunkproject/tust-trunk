@@ -6,7 +6,7 @@ from app.services import categories_service
 from app.dependencies.auth import get_current_admin
 from app.core.database import get_db_client
 
-router = APIRouter(prefix="/admin/categories", tags=["Admin Categories"])
+router = APIRouter(prefix="/api/v1/admin/categories", tags=["Admin Categories"])
 
 @router.get("", response_model=List[CategoryResponse])
 def list_categories(

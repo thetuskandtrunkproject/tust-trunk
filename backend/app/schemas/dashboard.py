@@ -22,6 +22,9 @@ class ActivityItem(BaseModel):
 class DashboardResponse(BaseModel):
     todayRevenue: int
     yesterdayRevenue: int
+    thisWeekRevenue: int
+    thisMonthRevenue: int
+    thisYearRevenue: int
     totalOrdersMonth: int
     pendingOrders: int
     lowStockCount: int
