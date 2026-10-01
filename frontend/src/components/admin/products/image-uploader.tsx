@@ -12,7 +12,16 @@ export function ImageUploader({ existingImages, newFiles, onAddFiles, onRemoveEx
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      onAddFiles(Array.from(e.target.files))
+      const allFiles = Array.from(e.target.files)
+      const validFiles = allFiles.filter(f => f.type === 'image/webp' || f.name.toLowerCase().endsWith('.webp'))
+      
+      if (validFiles.length < allFiles.length) {
+        alert("Only WEBP format is supported. Other formats were ignored.")
+      }
+      
+      if (validFiles.length > 0) {
+        onAddFiles(validFiles)
+      }
     }
   }
 
@@ -53,7 +62,7 @@ export function ImageUploader({ existingImages, newFiles, onAddFiles, onRemoveEx
         ))}
 
         <label className="cursor-pointer aspect-[3/4] border-2 border-dashed border-ink/20 rounded-xl flex flex-col items-center justify-center text-ink/40 hover:text-sky hover:border-sky hover:bg-sky/5 transition-colors group">
-          <input type="file" multiple accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} className="hidden" />
+          <input type="file" multiple accept="image/webp" onChange={handleFileChange} className="hidden" />
           <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3 group-hover:bg-sky group-hover:text-white transition-colors">
             <ImagePlus className="w-5 h-5" />
           </div>

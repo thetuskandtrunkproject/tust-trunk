@@ -243,7 +243,7 @@ def deactivate_variant(
 # Upload an image for a product
 # ---------------------------------------------------------------------------
 
-ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
+ALLOWED_IMAGE_TYPES = {'image/webp'}
 MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 
 
@@ -252,7 +252,7 @@ MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 async def upload_image(
     request: Request,
     product_id: str,
-    file: UploadFile = File(..., description='Image file (jpg/png/webp, max 5MB)'),
+    file: UploadFile = File(..., description='Image file (webp, max 5MB)'),
     admin: dict = Depends(_set_admin_state),
     db: Client = Depends(get_db_client),
 ):
@@ -261,7 +261,7 @@ async def upload_image(
     the resulting public URL to the product's images array.
 
     Path pattern: products/{product_id}/{uuid4}-{original_filename}
-    Accepted types: image/jpeg, image/png, image/webp
+    Accepted types: image/webp
     Max size: 5MB
 
     This endpoint is additive — it never replaces existing images.
@@ -270,7 +270,7 @@ async def upload_image(
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid file type '{file.content_type}'. Allowed: jpg, png, webp"
+            detail=f"Invalid file type '{file.content_type}'. Allowed: webp"
         )
 
     file_bytes = await file.read()
@@ -283,10 +283,8 @@ async def upload_image(
         )
 
     # Re-validate content type by reading magic bytes (defense in depth)
-    # JPEG: FF D8 FF  |  PNG: 89 50 4E 47  |  WebP: RIFF....WEBP
+    # WebP: RIFF....WEBP
     if not (
-        file_bytes[:3] == b'\xff\xd8\xff' or  # JPEG
-        file_bytes[:4] == b'\x89PNG' or         # PNG
         (file_bytes[:4] == b'RIFF' and file_bytes[8:12] == b'WEBP')  # WebP
     ):
         raise HTTPException(
