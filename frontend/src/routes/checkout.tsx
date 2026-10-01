@@ -9,7 +9,7 @@ import { useAuth } from '@/context/auth-context'
 
 export const Route = createFileRoute('/checkout')({
   component: CheckoutPage,
-  validateSearch: (search: Record<string, unknown>) => {
+  validateSearch: (search: Record<string, unknown>): { buyNow?: string; qty?: number } => {
     return {
       buyNow: search.buyNow as string | undefined,
       qty: search.qty ? Number(search.qty) : undefined,

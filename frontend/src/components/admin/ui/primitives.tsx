@@ -67,7 +67,8 @@ export function AdminSelect({ value, onChange, children, className = '' }: Admin
 
   const options = React.Children.toArray(children).map(child => {
     if (React.isValidElement(child) && child.type === 'option') {
-      return { value: child.props.value, label: child.props.children }
+      const element = child as React.ReactElement<any>;
+      return { value: element.props.value, label: element.props.children }
     }
     return null
   }).filter(Boolean) as { value: string, label: ReactNode }[]

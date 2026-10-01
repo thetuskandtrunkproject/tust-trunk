@@ -57,7 +57,7 @@ export function CouponTable({ coupons, onToggleStatus, onDelete, onViewAnalytics
                   {coupon.scope === 'store_wide' ? 'Store-wide' : coupon.scope.replace('_', ' ')}
                 </AdminTd>
                 <AdminTd className="text-ink/70">
-                  {coupon.validUntil ? new Date(coupon.validUntil).toLocaleDateString('en-IN', {
+                  {coupon.endDate ? new Date(coupon.endDate).toLocaleDateString('en-IN', {
                     month: 'short', day: 'numeric', year: 'numeric'
                   }) : 'Forever'}
                 </AdminTd>

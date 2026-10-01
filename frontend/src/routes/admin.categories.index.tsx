@@ -19,7 +19,7 @@ function CategoriesPage() {
   
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [formData, setFormData] = useState({ name: '', slug: '', description: '', is_active: true })
+  const [formData, setFormData] = useState({ name: '', slug: '', description: '', gender: 'Women', is_active: true })
 
   const loadCategories = async () => {
     setLoading(true)
@@ -40,10 +40,10 @@ function CategoriesPage() {
   const handleOpenModal = (cat?: Category) => {
     if (cat) {
       setEditingId(cat.id)
-      setFormData({ name: cat.name, slug: cat.slug, description: cat.description, is_active: cat.is_active })
+      setFormData({ name: cat.name, slug: cat.slug, description: cat.description, gender: cat.gender, is_active: cat.is_active })
     } else {
       setEditingId(null)
-      setFormData({ name: '', slug: '', description: '', is_active: true })
+      setFormData({ name: '', slug: '', description: '', gender: 'Women', is_active: true })
     }
     setIsModalOpen(true)
   }
@@ -60,7 +60,7 @@ function CategoriesPage() {
         await updateCategory(editingId, formData)
         showToast('Category updated successfully')
       } else {
-        await createCategory(formData)
+        await createCategory({ ...formData, gender: 'Women' })
         showToast('Category created successfully')
       }
       setIsModalOpen(false)
@@ -208,6 +208,18 @@ function CategoriesPage() {
                   className="w-full bg-cloud border border-ink/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky/50"
                   placeholder="e.g. t-shirts"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-ink/70 mb-1">Gender</label>
+                <select
+                  value={formData.gender}
+                  onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
+                  className="w-full bg-cloud border border-ink/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky/50"
+                >
+                  <option value="Women">Women</option>
+                  <option value="Kids">Kids</option>
+                  <option value="Unisex">Unisex</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-ink/70 mb-1">Description</label>
