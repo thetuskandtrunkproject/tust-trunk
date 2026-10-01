@@ -115,7 +115,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (unresolvedIds.length === 0) return
       
       try {
-        const res = await api.get(`/api/v1/public/variants/resolve?ids=${unresolvedIds.join(',')}`)
+        const res = await api.get(`/public/variants/resolve?ids=${unresolvedIds.join(',')}`)
         const resolvedData = res.data.items
         
         if (!mounted) return

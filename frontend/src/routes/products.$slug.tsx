@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Link, useRouter, useNavigate } from '@tanstack/react-router'
 import { useState, useMemo, useEffect } from 'react'
 import { ImageGallery } from '@/components/product/image-gallery'
 import { getPublicProduct, searchPublicProducts } from '@/lib/public/catalog-api'
@@ -18,6 +18,7 @@ export const Route = createFileRoute('/products/$slug')({
 function ProductDetailPage() {
   const { slug } = Route.useParams()
   const router = useRouter()
+  const navigate = useNavigate()
   
   const [product, setProduct] = useState<PublicProduct | null>(null)
   const [relatedProducts, setRelatedProducts] = useState<PublicProductListItem[]>([])
@@ -126,6 +127,21 @@ function ProductDetailPage() {
     showToast(`Added ${quantity} ${quantity > 1 ? 'items' : 'item'} to your cart`)
   }
 
+  const handleBuyNow = () => {
+    if (!selectedSize || !selectedVariant) {
+      showToast("Please select a size")
+      return
+    }
+    
+    navigate({ 
+      to: '/checkout',
+      search: {
+        buyNow: selectedVariant.id,
+        qty: quantity
+      }
+    })
+  }
+
   const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
 
   return (
@@ -221,7 +237,7 @@ function ProductDetailPage() {
               </div>
 
               <button 
-                onClick={handleAddToCart}
+                onClick={handleBuyNow}
                 className="w-full bg-ink text-white py-3 rounded-md font-bold text-lg hover:opacity-90 active:scale-95 transition-all duration-300 disabled:opacity-50 shadow-sm"
               >
                 Buy Now

@@ -18,16 +18,18 @@ interface StepPaymentProps {
   contact: any
   shipping: any
   totalAmount: number
+  items: any[]
+  isBuyNowFlow?: boolean
 }
 
-export function StepPayment({ onBack, contact, shipping, totalAmount }: StepPaymentProps) {
+export function StepPayment({ onBack, contact, shipping, totalAmount, items, isBuyNowFlow }: StepPaymentProps) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [isResending, setIsResending] = useState(false)
   const [needsVerification, setNeedsVerification] = useState(false)
   const { user } = useAuth()
   
-  const { items, clearCart } = useCart()
+  const { clearCart } = useCart()
   const navigate = useNavigate()
   const { showToast } = useToast()
 
@@ -63,7 +65,9 @@ export function StepPayment({ onBack, contact, shipping, totalAmount }: StepPaym
             })
             
             // Success or requires_review
-            await clearCart()
+            if (!isBuyNowFlow) {
+              await clearCart()
+            }
             navigate({
               to: '/order-success',
               search: { 

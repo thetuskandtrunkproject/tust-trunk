@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { useCart } from '@/context/cart-context'
+import { api } from '@/lib/api'
 import { StepReview } from '@/components/checkout/step-review'
 import { StepDetails } from '@/components/checkout/step-details'
 import { StepPayment } from '@/components/checkout/step-payment'
@@ -8,19 +9,87 @@ import { useAuth } from '@/context/auth-context'
 
 export const Route = createFileRoute('/checkout')({
   component: CheckoutPage,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      buyNow: search.buyNow as string | undefined,
+      qty: search.qty ? Number(search.qty) : undefined,
+    }
+  }
 })
 
 function CheckoutPage() {
-  const { items, serverSubtotal } = useCart()
+  const { buyNow, qty } = Route.useSearch()
+  const { items: cartItems, serverSubtotal: cartSubtotal } = useCart()
   const { user } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
-    // If cart is empty, redirect to shop
-    if (items.length === 0) {
+    // If cart is empty AND we are not in a buy-now flow, redirect to shop
+    if (cartItems.length === 0 && !buyNow) {
       navigate({ to: '/shop', replace: true })
     }
-  }, [items, navigate])
+  }, [cartItems.length, buyNow, navigate])
+
+  const [buyNowItem, setBuyNowItem] = useState<any>(null)
+  const [isLoadingBuyNow, setIsLoadingBuyNow] = useState(!!buyNow)
+
+  useEffect(() => {
+    if (buyNow && qty) {
+      const fetchBuyNow = async () => {
+        try {
+          const res = await api.get(`/public/variants/resolve?ids=${buyNow}`)
+          const item = res.data.items.find((i: any) => i.variant.id === buyNow)
+          if (item) {
+            setBuyNowItem({
+              variant_id: item.variant.id,
+              quantity: qty,
+              product: item.product,
+              variant: item.variant,
+              is_available: item.is_available
+            })
+          }
+        } catch(e) {
+          console.error("Failed to load buy now item", e)
+        } finally {
+          setIsLoadingBuyNow(false)
+        }
+      }
+      fetchBuyNow()
+    } else {
+      setIsLoadingBuyNow(false)
+    }
+  }, [buyNow, qty])
+
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      if (!user) return
+      
+      // Auto-fill email from user profile immediately
+      setContact(prev => ({ ...prev, email: user.email || '' }))
+      
+      try {
+        const res = await api.get('/api/v1/addresses')
+        const def = res.data.find((a: any) => a.is_default) || res.data[0]
+        if (def) {
+          setShipping({
+            name: def.name || '',
+            address1: def.address1 || '',
+            address2: def.address2 || '',
+            city: def.city || '',
+            state: def.state || '',
+            pincode: def.pincode || ''
+          })
+          setContact(prev => ({
+            ...prev,
+            phone: def.phone || prev.phone
+          }))
+        }
+      } catch (err) {
+        console.error("Failed to load saved addresses")
+      }
+    }
+    fetchAddresses()
+  }, [user])
 
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1)
   
@@ -30,9 +99,17 @@ function CheckoutPage() {
   const [saveDefault, setSaveDefault] = useState(false)
   
   // Filter out items missing product data to avoid crashes (guest cart limitation)
+  const items = buyNowItem ? [buyNowItem] : cartItems
+  const isBuyNowFlow = !!buyNowItem
+
   const cartDetails = items.filter(item => item.product !== undefined && item.variant !== undefined)
 
-  const subtotal = user ? serverSubtotal : cartDetails.reduce((sum, item) => sum + (item.variant!.price * item.quantity), 0)
+  let subtotal = 0
+  if (isBuyNowFlow && buyNowItem) {
+    subtotal = buyNowItem.variant.price * buyNowItem.quantity
+  } else {
+    subtotal = user ? cartSubtotal : cartDetails.reduce((sum, item) => sum + (item.variant!.price * item.quantity), 0)
+  }
   
   const deliveryFee = subtotal >= 3000 ? 0 : 60 // Free shipping over ₹3000, else ₹60
   const totalAmount = subtotal + deliveryFee
@@ -48,7 +125,11 @@ function CheckoutPage() {
   }
   const handleBackToDetails = () => setCurrentStep(2)
 
-  if (items.length === 0) return null
+  if (isLoadingBuyNow) {
+    return <div className="min-h-screen bg-cloud pt-24 text-center">Loading checkout...</div>
+  }
+
+  if (items.length === 0 && !buyNow) return null
 
   return (
     <div className="min-h-screen bg-cloud pt-8 pb-24">
@@ -77,7 +158,7 @@ function CheckoutPage() {
         <div className="overflow-hidden">
           {currentStep === 1 && (
             <div className="animate-in slide-in-from-right fade-in duration-500 ease-out fill-mode-both">
-              <StepReview onNext={handleNextToDetails} deliveryFee={deliveryFee} />
+              <StepReview onNext={handleNextToDetails} deliveryFee={deliveryFee} items={items} subtotal={subtotal} />
             </div>
           )}
           
@@ -101,6 +182,8 @@ function CheckoutPage() {
                 contact={contact}
                 shipping={shipping}
                 totalAmount={totalAmount}
+                items={items}
+                isBuyNowFlow={isBuyNowFlow}
               />
             </div>
           )}

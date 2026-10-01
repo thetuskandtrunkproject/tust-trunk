@@ -1,21 +1,17 @@
-import { useCart } from '@/context/cart-context'
 import { ArrowRight } from 'lucide-react'
-import { useAuth } from '@/context/auth-context'
 
 interface StepReviewProps {
   onNext: () => void
   deliveryFee: number
+  items: any[]
+  subtotal: number
 }
 
-export function StepReview({ onNext, deliveryFee }: StepReviewProps) {
-  const { items, serverSubtotal } = useCart()
-  const { user } = useAuth()
-
+export function StepReview({ onNext, deliveryFee, items, subtotal }: StepReviewProps) {
   // Guest carts missing product data will be filtered out to avoid crashes,
   // but guests should be logged in to sync and render correctly.
   const cartDetails = items.filter(item => item.product !== undefined && item.variant !== undefined)
 
-  const subtotal = user ? serverSubtotal : cartDetails.reduce((sum, item) => sum + (item.variant!.price * item.quantity), 0)
   const total = subtotal + deliveryFee
 
   const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
