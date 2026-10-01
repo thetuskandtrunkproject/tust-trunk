@@ -1,4 +1,5 @@
 import { Package, AlertTriangle, UserPlus, Truck, CreditCard } from 'lucide-react'
+import { AdminCard } from '@/components/admin/ui/primitives'
 
 interface ActivityItem {
   id: number
@@ -16,10 +17,10 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
   const getIcon = (type: string) => {
     switch (type) {
       case 'order': return <Package className="w-4 h-4 text-sky" />
-      case 'alert': return <AlertTriangle className="w-4 h-4 text-rust" />
-      case 'customer': return <UserPlus className="w-4 h-4 text-green-600" />
+      case 'alert': return <AlertTriangle className="w-4 h-4 text-red-500" />
+      case 'customer': return <UserPlus className="w-4 h-4 text-emerald-600" />
       case 'shipping': return <Truck className="w-4 h-4 text-ink/60" />
-      case 'payment': return <CreditCard className="w-4 h-4 text-rust" />
+      case 'payment': return <CreditCard className="w-4 h-4 text-red-500" />
       default: return <Package className="w-4 h-4 text-ink/50" />
     }
   }
@@ -27,16 +28,16 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
   const getBgColor = (type: string) => {
     switch (type) {
       case 'order': return 'bg-sky/10'
-      case 'alert': return 'bg-rust/10'
-      case 'customer': return 'bg-green-100'
+      case 'alert': return 'bg-red-50'
+      case 'customer': return 'bg-emerald-50'
       case 'shipping': return 'bg-ink/5'
-      case 'payment': return 'bg-rust/10'
+      case 'payment': return 'bg-red-50'
       default: return 'bg-ink/5'
     }
   }
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-ink/10 shadow-sm">
+    <AdminCard>
       <h3 className="font-medium text-ink mb-6">Recent Activity</h3>
       
       <div className="relative border-l-2 border-ink/5 ml-4 space-y-8 pb-4">
@@ -58,6 +59,6 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
       <button className="w-full mt-2 py-3 rounded-xl border border-ink/10 text-sm font-medium text-ink/70 hover:bg-ink/5 hover:text-ink transition-colors">
         View All Activity
       </button>
-    </div>
+    </AdminCard>
   )
 }

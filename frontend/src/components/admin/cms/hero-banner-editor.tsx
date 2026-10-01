@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Save } from 'lucide-react'
 import { mockCmsData } from '@/lib/admin/mock-cms'
+import { AdminCard, AdminButton } from '@/components/admin/ui/primitives'
 
 export function HeroBannerEditor() {
   const [data, setData] = useState(mockCmsData.hero)
@@ -9,7 +10,6 @@ export function HeroBannerEditor() {
 
   const handleSave = () => {
     setIsSaving(true)
-    // Mock save delay
     setTimeout(() => {
       setIsSaving(false)
       setShowToast(true)
@@ -18,7 +18,7 @@ export function HeroBannerEditor() {
   }
 
   return (
-    <div className="bg-white border border-ink/10 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row">
+    <AdminCard padding={false} className="overflow-hidden flex flex-col md:flex-row">
       {/* Editor Form */}
       <div className="flex-1 p-6 border-b md:border-b-0 md:border-r border-ink/10">
         <div className="flex items-center justify-between mb-6">
@@ -26,14 +26,13 @@ export function HeroBannerEditor() {
             <h3 className="font-medium text-ink">Hero Banner</h3>
             <p className="text-sm text-ink/60">Edit the main homepage banner</p>
           </div>
-          <button
+          <AdminButton
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-2 bg-ink text-cloud px-4 py-2 rounded-lg text-sm font-medium hover:bg-sky-soft hover:text-ink transition-colors disabled:opacity-50"
+            icon={<Save className="w-4 h-4" />}
           >
-            <Save className="w-4 h-4" />
             {isSaving ? 'Saving...' : 'Save'}
-          </button>
+          </AdminButton>
         </div>
 
         <div className="space-y-4">
@@ -114,6 +113,6 @@ export function HeroBannerEditor() {
           </div>
         )}
       </div>
-    </div>
+    </AdminCard>
   )
 }

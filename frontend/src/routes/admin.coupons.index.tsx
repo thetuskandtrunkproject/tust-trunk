@@ -1,9 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { Plus } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 import { CouponTable } from '@/components/admin/coupons/coupon-table'
 import { CouponAnalyticsDrawer } from '@/components/admin/coupons/coupon-analytics-drawer'
 import { type Coupon, MOCK_COUPONS, MOCK_REDEMPTIONS, getCouponStatus } from '@/lib/admin/mock-coupons'
 import { useToast } from '@/context/toast-context'
+import { AdminPageHeader, AdminButton } from '@/components/admin/ui/primitives'
 
 export const Route = createFileRoute('/admin/coupons/')({
   component: AdminCouponsPage,
@@ -32,19 +35,18 @@ function AdminCouponsPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500 pb-24">
       
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-ink mb-2">Coupons</h1>
-          <p className="text-ink/60 font-medium">
-            Active: {activeCount} · Expired: {expiredCount}
-          </p>
-        </div>
-      </div>
+      <AdminPageHeader 
+        title="Coupons"
+        description={`Active: ${activeCount} · Expired: ${expiredCount}`}
+        actions={
+          <AdminButton icon={<Plus className="w-4 h-4" />}>
+            <Link to="/admin/coupons/new">New Coupon</Link>
+          </AdminButton>
+        }
+      />
 
-      {/* Table */}
       <CouponTable 
         coupons={coupons}
         onToggleStatus={handleToggleStatus}
@@ -52,7 +54,6 @@ function AdminCouponsPage() {
         onViewAnalytics={setSelectedAnalyticsCoupon}
       />
 
-      {/* Analytics Drawer */}
       <CouponAnalyticsDrawer 
         coupon={selectedAnalyticsCoupon}
         redemptions={MOCK_REDEMPTIONS}

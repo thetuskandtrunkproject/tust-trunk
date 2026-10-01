@@ -27,17 +27,20 @@ function AdminOrdersPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   useEffect(() => {
+    const controller = new AbortController()
     const fetchOrders = async () => {
       try {
-        const res = await api.get('/api/v1/admin/orders/')
-        setOrders(res.data.items || [])
+        const res = await api.get('/api/v1/admin/orders', { signal: controller.signal })
+        setOrders(res.data.orders || [])
       } catch (err: any) {
+        if (err.name === 'CanceledError' || controller.signal.aborted) return
         showToast('Failed to load orders')
       } finally {
-        setIsLoading(false)
+        if (!controller.signal.aborted) setIsLoading(false)
       }
     }
     fetchOrders()
+    return () => controller.abort()
   }, [])
 
   // Derived filtered data

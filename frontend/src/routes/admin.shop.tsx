@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Save, RotateCcw, ImagePlus } from 'lucide-react'
 import { useToast } from '@/context/toast-context'
 import { MOCK_SHOP_SETTINGS, type ShopSettings } from '@/lib/admin/mock-shop-settings'
+import { AdminPageHeader, AdminButton } from '@/components/admin/ui/primitives'
 import logoImg from '@/assets/logo_full_hd.png'
 
 export const Route = createFileRoute('/admin/shop')({
@@ -42,33 +43,20 @@ function AdminShopSettingsPage() {
 
   return (
     <div className="pb-24 animate-in fade-in duration-300 max-w-5xl">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="font-heading font-bold text-3xl text-ink">Shop Settings</h1>
-          <p className="text-ink/60 mt-1">Manage core business information, tax, and shipping rules</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={handleReset}
-            className="px-6 py-2.5 rounded-xl font-bold text-ink/60 hover:text-ink hover:bg-ink/5 transition-colors flex items-center gap-2"
-          >
-            <RotateCcw className="w-4 h-4" /> Reset
-          </button>
-          <button 
-            onClick={handleSave}
-            disabled={isSaving}
-            className="bg-ink text-cloud px-6 py-2.5 rounded-xl font-bold hover:bg-sky hover:text-white transition-colors flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed min-w-[200px] justify-center"
-          >
-            {isSaving ? (
-              <div className="w-5 h-5 border-2 border-cloud/30 border-t-cloud rounded-full animate-spin"></div>
-            ) : (
-              <>
-                <Save className="w-4 h-4" /> Save Company Details
-              </>
-            )}
-          </button>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Shop Settings"
+        description="Manage core business information, tax, and shipping rules"
+        actions={
+          <>
+            <AdminButton variant="ghost" onClick={handleReset} icon={<RotateCcw className="w-4 h-4" />}>
+              Reset
+            </AdminButton>
+            <AdminButton onClick={handleSave} disabled={isSaving} icon={isSaving ? undefined : <Save className="w-4 h-4" />}>
+              {isSaving ? 'Saving...' : 'Save Company Details'}
+            </AdminButton>
+          </>
+        }
+      />
 
       <div className="space-y-8">
         {/* 1. Core Information */}

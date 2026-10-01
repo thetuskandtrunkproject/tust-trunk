@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
 import { Link } from '@tanstack/react-router'
-import { Search, ArrowDown, ArrowUp } from 'lucide-react'
+import { ArrowDown, ArrowUp } from 'lucide-react'
 import type { AdminCustomer } from '@/lib/admin/mock-customers'
+import { AdminFilterBar, AdminSearchInput, AdminTableShell, AdminTh, AdminTd } from '@/components/admin/ui/primitives'
 
 interface CustomerTableProps {
   customers: AdminCustomer[]
@@ -20,7 +21,7 @@ export function CustomerTable({ customers }: CustomerTableProps) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
     } else {
       setSortField(field)
-      setSortOrder('desc') // Default to desc for new sorts
+      setSortOrder('desc')
     }
   }
 
@@ -32,7 +33,6 @@ export function CustomerTable({ customers }: CustomerTableProps) {
   const filteredAndSortedCustomers = useMemo(() => {
     let result = [...customers]
 
-    // Search
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       result = result.filter(c => 
@@ -42,7 +42,6 @@ export function CustomerTable({ customers }: CustomerTableProps) {
       )
     }
 
-    // Sort
     result.sort((a, b) => {
       let comparison = 0
       if (sortField === 'totalSpent') {
@@ -72,47 +71,42 @@ export function CustomerTable({ customers }: CustomerTableProps) {
   return (
     <div className="space-y-6">
       
-      {/* Search & Filters Bar */}
-      <div className="bg-white border border-ink/10 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row gap-4 justify-between">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-ink/40 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
-            type="text" 
-            placeholder="Search customers..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-cloud border border-ink/10 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-sky/50"
-          />
-        </div>
-      </div>
+      <AdminFilterBar>
+        <AdminSearchInput 
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search customers..."
+          className="flex-1 max-w-md"
+        />
+      </AdminFilterBar>
 
       {/* Table (Desktop) */}
-      <div className="hidden md:block bg-white border border-ink/10 rounded-2xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
+      <div className="hidden md:block">
+        <AdminTableShell isEmpty={filteredAndSortedCustomers.length === 0} emptyMessage="No customers matching the criteria.">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-cloud border-b border-ink/10 text-xs font-medium text-ink/60 uppercase tracking-wider">
-                <th className="px-6 py-4">Customer</th>
-                <th className="px-6 py-4">Contact</th>
-                <th 
-                  className="px-6 py-4 cursor-pointer hover:text-ink transition-colors"
+              <tr className="bg-cloud/50 border-b border-ink/10">
+                <AdminTh>Customer</AdminTh>
+                <AdminTh>Contact</AdminTh>
+                <AdminTh 
+                  className="cursor-pointer hover:text-ink transition-colors"
                   onClick={() => handleSort('joinedDate')}
                 >
                   Joined <SortIcon field="joinedDate" />
-                </th>
-                <th className="px-6 py-4 text-right">Orders</th>
-                <th 
-                  className="px-6 py-4 text-right cursor-pointer hover:text-ink transition-colors"
+                </AdminTh>
+                <AdminTh className="text-right">Orders</AdminTh>
+                <AdminTh 
+                  className="text-right cursor-pointer hover:text-ink transition-colors"
                   onClick={() => handleSort('totalSpent')}
                 >
                   Total Spent <SortIcon field="totalSpent" />
-                </th>
-                <th 
-                  className="px-6 py-4 text-right cursor-pointer hover:text-ink transition-colors"
+                </AdminTh>
+                <AdminTh 
+                  className="text-right cursor-pointer hover:text-ink transition-colors"
                   onClick={() => handleSort('lastOrderDate')}
                 >
                   Last Order <SortIcon field="lastOrderDate" />
-                </th>
+                </AdminTh>
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -121,37 +115,34 @@ export function CustomerTable({ customers }: CustomerTableProps) {
                   key={customer.id} 
                   className="border-b border-ink/5 hover:bg-ink/[0.02] transition-colors group cursor-pointer"
                 >
-                  <td className="px-6 py-4">
+                  <AdminTd>
                     <Link to="/admin/customers/$customerId" params={{ customerId: customer.id }} className="block">
                       <span className="font-medium text-ink group-hover:text-sky transition-colors">{customer.name}</span>
                     </Link>
-                  </td>
-                  <td className="px-6 py-4">
+                  </AdminTd>
+                  <AdminTd>
                     <div className="flex flex-col gap-1">
                       <span className="text-ink/80">{customer.email}</span>
                       <span className="text-xs text-ink/50">{customer.phone}</span>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 text-ink/70">
+                  </AdminTd>
+                  <AdminTd className="text-ink/70">
                     {formatDate(customer.joined_date)}
-                  </td>
-                  <td className="px-6 py-4 text-right text-ink/70">
+                  </AdminTd>
+                  <AdminTd className="text-right text-ink/70">
                     {customer.total_orders}
-                  </td>
-                  <td className="px-6 py-4 text-right font-medium text-ink">
+                  </AdminTd>
+                  <AdminTd className="text-right font-medium text-ink">
                     {formatPrice(customer.total_spent_paise / 100)}
-                  </td>
-                  <td className="px-6 py-4 text-right text-ink/70">
+                  </AdminTd>
+                  <AdminTd className="text-right text-ink/70">
                     {formatDate(customer.last_order_date)}
-                  </td>
+                  </AdminTd>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-        {filteredAndSortedCustomers.length === 0 && (
-          <div className="p-12 text-center text-ink/50">No customers matching the criteria.</div>
-        )}
+        </AdminTableShell>
       </div>
 
       {/* Cards (Mobile) */}

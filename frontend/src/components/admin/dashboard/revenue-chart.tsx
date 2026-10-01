@@ -7,6 +7,7 @@ import {
   Tooltip, 
   ResponsiveContainer 
 } from 'recharts'
+import { AdminCard, AdminSelect } from '@/components/admin/ui/primitives'
 
 interface RevenueChartProps {
   data: {
@@ -41,21 +42,21 @@ export function RevenueChart({ data, timeRange, onTimeRangeChange }: RevenueChar
   }
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-ink/10 shadow-sm h-full flex flex-col">
+    <AdminCard className="h-full flex flex-col">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="font-medium text-ink">Revenue</h3>
-        <select 
-          value={timeRange} 
-          onChange={(e) => onTimeRangeChange?.(e.target.value)}
-          className="text-xs bg-cloud border border-ink/10 rounded-md px-2 py-1 outline-none text-ink/70"
+        <h3 className="font-semibold text-ink">Revenue</h3>
+        <AdminSelect 
+          value={timeRange || '30d'} 
+          onChange={(val) => onTimeRangeChange?.(val)}
+          className="!min-w-0 !text-xs !py-1.5 !px-3"
         >
           <option value="30d">Last 30 Days</option>
           <option value="7d">Last 7 Days</option>
           <option value="1y">This Year</option>
-        </select>
+        </AdminSelect>
       </div>
       
-      <div className="w-full h-[300px] mt-4">
+      <div className="w-full h-[300px] mt-2">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}
@@ -96,6 +97,6 @@ export function RevenueChart({ data, timeRange, onTimeRangeChange }: RevenueChar
           </AreaChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </AdminCard>
   )
 }
