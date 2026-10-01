@@ -4,6 +4,7 @@ import { RevenueCards } from '@/components/admin/dashboard/revenue-cards'
 import { RevenueChart } from '@/components/admin/dashboard/revenue-chart'
 import { TopProductsWidget } from '@/components/admin/dashboard/top-products-widget'
 import { RecentActivityFeed } from '@/components/admin/dashboard/recent-activity-feed'
+import { OrderReport } from '@/components/admin/dashboard/order-report'
 import { api } from '@/lib/api'
 import { useToast } from '@/context/toast-context'
 
@@ -74,7 +75,7 @@ function AdminDashboardPage() {
       {/* Bottom Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          {/* We'll leave this empty for now, or it could hold an Orders table later */}
+          <OrderReport />
         </div>
         
         <div className="lg:col-span-1">

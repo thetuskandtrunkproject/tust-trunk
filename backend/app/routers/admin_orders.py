@@ -33,13 +33,15 @@ def list_admin_orders(
     search: Optional[str] = Query(None, description="Search by order number, guest email, or guest phone"),
     status: Optional[str] = Query(None, description="Filter by status"),
     customer_id: Optional[str] = Query(None, description="Filter by customer ID"),
+    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
     page: int = Query(1, ge=1),
     page_size: int = Query(25, ge=1, le=100),
     current_admin: dict = Depends(get_and_attach_admin),
     db: Client = Depends(get_db_client)
 ):
     """List all orders for admin, paginated and filterable."""
-    return orders_service.get_admin_orders(db, search, status, customer_id, page, page_size)
+    return orders_service.get_admin_orders(db, search, status, customer_id, start_date, end_date, page, page_size)
 
 @router.get("/{order_id}", response_model=AdminOrderResponse)
 @admin_orders_limiter.limit("60/minute")

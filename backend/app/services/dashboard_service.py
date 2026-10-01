@@ -94,7 +94,7 @@ def get_dashboard_metrics(db: Client, time_range: str = '30d') -> dict:
     # Initialize empty buckets for every day to ensure continuous chart
     revenue_by_date = {}
     for i in range(days_lookback):
-        d = (start_date + timedelta(days=i)).strftime('%b %-d') # e.g. "Sep 15"
+        d = (start_date + timedelta(days=i)).strftime('%b %d').replace(' 0', ' ') # e.g. "Sep 15"
         revenue_by_date[d] = 0
         
     products_agg = {}
@@ -102,7 +102,7 @@ def get_dashboard_metrics(db: Client, time_range: str = '30d') -> dict:
     for order in res_chart.data:
         # Accumulate revenue by date
         dt = datetime.fromisoformat(order['created_at'].replace('Z', '+00:00'))
-        date_label = dt.strftime('%b %-d')
+        date_label = dt.strftime('%b %d').replace(' 0', ' ')
         if date_label in revenue_by_date:
             revenue_by_date[date_label] += order['total_paise']
             

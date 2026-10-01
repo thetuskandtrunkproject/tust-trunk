@@ -101,7 +101,16 @@ def get_user_order_detail(db: Client, user_id: str, order_id: str) -> dict:
         "items": items_data
     }
 
-def get_admin_orders(db: Client, search: Optional[str] = None, status: Optional[str] = None, customer_id: Optional[str] = None, page: int = 1, page_size: int = 25) -> dict:
+def get_admin_orders(
+    db: Client, 
+    search: Optional[str] = None, 
+    status: Optional[str] = None, 
+    customer_id: Optional[str] = None, 
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    page: int = 1, 
+    page_size: int = 25
+) -> dict:
     query = db.table('orders').select('*, order_items(*, product_variants(products(images))), users(full_name, email, phone)', count='exact')
     
     if status:
@@ -112,6 +121,12 @@ def get_admin_orders(db: Client, search: Optional[str] = None, status: Optional[
     
     if search:
         query = query.or_(f"order_number.ilike.%{search}%,guest_email.ilike.%{search}%,guest_phone.ilike.%{search}%")
+
+    if start_date:
+        query = query.gte('created_at', f"{start_date}T00:00:00Z")
+        
+    if end_date:
+        query = query.lte('created_at', f"{end_date}T23:59:59.999Z")
 
     offset = (page - 1) * page_size
     res = query.order('created_at', desc=True).range(offset, offset + page_size - 1).execute()
