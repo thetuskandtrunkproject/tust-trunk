@@ -26,7 +26,7 @@ export function ProductCarousel() {
     fetchNew()
   }, [])
   
-  const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
+  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
   const containerRef = useRef<HTMLElement>(null)
   const scrollerRef = useRef<HTMLDivElement>(null)
 

@@ -98,6 +98,9 @@ function CheckoutPage() {
   const [shipping, setShipping] = useState({ name: '', address1: '', address2: '', city: '', state: '', pincode: '' })
   const [saveDefault, setSaveDefault] = useState(false)
   
+  const [couponCode, setCouponCode] = useState<string | null>(null)
+  const [discountPaise, setDiscountPaise] = useState(0)
+  
   // Filter out items missing product data to avoid crashes (guest cart limitation)
   const items = buyNowItem ? [buyNowItem] : cartItems
   const isBuyNowFlow = !!buyNowItem
@@ -112,7 +115,9 @@ function CheckoutPage() {
   }
   
   const deliveryFee = subtotal >= 3000 ? 0 : 60 // Free shipping over ₹3000, else ₹60
-  const totalAmount = subtotal + deliveryFee
+  const discountAmount = discountPaise / 100
+  const totalAmount = subtotal + deliveryFee - discountAmount
+
 
   const handleNextToDetails = () => setCurrentStep(2)
   const handleBackToReview = () => setCurrentStep(1)
@@ -158,7 +163,18 @@ function CheckoutPage() {
         <div className="overflow-hidden">
           {currentStep === 1 && (
             <div className="animate-in slide-in-from-right fade-in duration-500 ease-out fill-mode-both">
-              <StepReview onNext={handleNextToDetails} deliveryFee={deliveryFee} items={items} subtotal={subtotal} />
+              <StepReview 
+                onNext={handleNextToDetails} 
+                deliveryFee={deliveryFee} 
+                items={items} 
+                subtotal={subtotal} 
+                couponCode={couponCode}
+                discountAmount={discountAmount}
+                onApplyCoupon={(code, discount) => {
+                  setCouponCode(code)
+                  setDiscountPaise(discount * 100)
+                }}
+              />
             </div>
           )}
           
@@ -184,6 +200,7 @@ function CheckoutPage() {
                 totalAmount={totalAmount}
                 items={items}
                 isBuyNowFlow={isBuyNowFlow}
+                couponCode={couponCode}
               />
             </div>
           )}

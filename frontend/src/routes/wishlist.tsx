@@ -49,7 +49,7 @@ function WishlistPage() {
     window.location.href = `/products/${product.slug}`
   }
 
-  const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
+  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
 
   return (
     <div className="container mx-auto px-4 lg:px-8 py-12 md:py-16 min-h-[70vh]">

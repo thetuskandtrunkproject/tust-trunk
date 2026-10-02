@@ -9,6 +9,8 @@ import { ReadingProgress } from '@/components/ui/reading-progress'
 import { useCart } from '@/context/cart-context'
 import { useWishlist } from '@/context/wishlist-context'
 import { useToast } from '@/context/toast-context'
+import { useAuth } from '@/context/auth-context'
+import { api } from '@/lib/api'
 import { ChevronRight, Heart, Minus, Plus, Truck, ShieldCheck, CheckCircle2, Tag, Zap, Award, Package } from 'lucide-react'
 
 // Import checkout logos
@@ -32,7 +34,10 @@ function ProductDetailPage() {
   const [relatedProducts, setRelatedProducts] = useState<PublicProductListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [showReviewForm, setShowReviewForm] = useState(false)
-  const [reviewForm, setReviewForm] = useState({ rating: 5, name: '', text: '' })
+  const [reviewForm, setReviewForm] = useState({ rating: 5, name: '', email: '', text: '' })
+  const [reviews, setReviews] = useState<any[]>([])
+  const { user } = useAuth()
+
 
   useEffect(() => {
     let mounted = true
@@ -42,6 +47,13 @@ function ProductDetailPage() {
       .then(async (data) => {
         if (!mounted) return
         setProduct(data)
+        
+        // Fetch reviews using data.id
+        api.get(`/api/v1/products/${data.id}/reviews`)
+          .then(res => {
+            if (mounted) setReviews(res.data)
+          })
+          .catch(err => console.error("Failed to fetch reviews", err))
 
         // Load related products
         try {
@@ -81,8 +93,15 @@ function ProductDetailPage() {
       setSelectedSize('')
       setQuantity(1)
       window.scrollTo(0, 0)
+      if (user) {
+        setReviewForm(prev => ({
+          ...prev,
+          name: user.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : prev.name,
+          email: user.email || prev.email
+        }))
+      }
     }
-  }, [product?.id])
+  }, [product?.id, user])
 
   if (loading) {
     return (
@@ -167,7 +186,7 @@ function ProductDetailPage() {
     })
   }
 
-  const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
+  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
 
   // Generate product tags
   const productTags = [
@@ -437,9 +456,13 @@ function ProductDetailPage() {
                 <div className="flex text-sunshine">
                   {[1,2,3,4,5].map(star => <span key={star} className="text-2xl">★</span>)}
                 </div>
-                <span className="font-bold text-ink text-2xl">4.8</span>
+                <span className="font-bold text-ink text-2xl">
+                  {reviews.length > 0 
+                    ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
+                    : "0.0"}
+                </span>
               </div>
-              <p className="text-ink/60 mb-6 font-sans font-bold">Based on 124 reviews</p>
+              <p className="text-ink/60 mb-6 font-sans font-bold">Based on {reviews.length} reviews</p>
               {!showReviewForm ? (
                 <button 
                   onClick={() => setShowReviewForm(true)}
@@ -473,6 +496,18 @@ function ProductDetailPage() {
                     />
                   </div>
 
+                  {!user && (
+                    <div className="mb-4">
+                      <input 
+                        type="email" 
+                        placeholder="Your Email (kept private, used for verifying purchase)" 
+                        value={reviewForm.email}
+                        onChange={(e) => setReviewForm(prev => ({ ...prev, email: e.target.value }))}
+                        className="w-full border border-ink/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sunshine"
+                      />
+                    </div>
+                  )}
+
                   <div className="mb-4">
                     <textarea 
                       placeholder="Share your thoughts about this product..." 
@@ -491,13 +526,27 @@ function ProductDetailPage() {
                       Cancel
                     </button>
                     <button 
-                      onClick={() => {
-                        setShowReviewForm(false);
-                        setReviewForm({ rating: 5, name: '', text: '' });
-                        showToast('Review submitted for moderation!', 'success');
+                      onClick={async () => {
+                        if (!reviewForm.name || (!user && !reviewForm.email) || !reviewForm.text) {
+                          showToast("Please fill all fields", "error")
+                          return
+                        }
+                        try {
+                          await api.post(`/api/v1/products/${product!.id}/reviews`, {
+                            rating: reviewForm.rating,
+                            reviewer_name: reviewForm.name,
+                            guest_email: user ? undefined : reviewForm.email,
+                            body_text: reviewForm.text
+                          })
+                          setShowReviewForm(false);
+                          setReviewForm({ rating: 5, name: '', email: '', text: '' });
+                          showToast('Review submitted for moderation!', 'success');
+                        } catch (err: any) {
+                          showToast(err.response?.data?.detail || "Failed to submit review", "error")
+                        }
                       }}
-                      className="flex-1 bg-ink text-white font-bold py-3 rounded-full hover:bg-ink/80 transition-colors"
-                      disabled={!reviewForm.name || !reviewForm.text}
+                      className="flex-1 bg-ink text-white font-bold py-3 rounded-full hover:bg-ink/80 transition-colors disabled:opacity-50"
+                      disabled={!reviewForm.name || (!user && !reviewForm.email) || !reviewForm.text}
                     >
                       Submit
                     </button>
@@ -507,17 +556,31 @@ function ProductDetailPage() {
             </div>
             
             <div className="md:w-2/3 flex flex-col gap-6">
-              {[1, 2, 3].map(review => (
-                <div key={review} className="bg-white p-8 rounded-2xl border border-ink/5 shadow-sm">
+              {reviews.length === 0 && (
+                <p className="text-ink/60 italic p-8 text-center bg-white rounded-2xl border border-ink/5">
+                  No reviews yet. Be the first to share your thoughts!
+                </p>
+              )}
+              {reviews.map(review => (
+                <div key={review.id} className="bg-white p-8 rounded-2xl border border-ink/5 shadow-sm relative">
+                  {review.is_verified_purchase && (
+                    <div className="absolute top-8 right-8 flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full text-xs font-bold">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Verified Purchase
+                    </div>
+                  )}
                   <div className="flex justify-between items-start mb-2">
-                    <span className="font-bold text-ink">Sarah M.</span>
-                    <span className="text-sm text-ink/40 font-bold">2 weeks ago</span>
+                    <span className="font-bold text-ink">{review.reviewer_name}</span>
+                    <span className="text-sm text-ink/40 font-bold mr-24">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </span>
                   </div>
                   <div className="flex text-sunshine text-lg mb-4">
-                    {[1,2,3,4,5].map(star => <span key={star}>★</span>)}
+                    {[1,2,3,4,5].map(star => (
+                      <span key={star} className={star <= review.rating ? 'text-sunshine' : 'text-ink/10'}>★</span>
+                    ))}
                   </div>
                   <p className="text-ink/70 text-base leading-relaxed font-sans font-medium">
-                    Absolutely love the fit and quality. I've washed it several times and it holds up perfectly. Highly recommend!
+                    {review.body_text}
                   </p>
                 </div>
               ))}

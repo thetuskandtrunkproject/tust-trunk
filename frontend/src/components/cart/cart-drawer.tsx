@@ -23,7 +23,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   // Use serverSubtotal if logged in, otherwise local computation (which will be 0 for guests without mock data)
   const subtotal = user ? serverSubtotal : cartDetails.reduce((sum, item) => sum + (item.variant!.price * item.quantity), 0)
   
-  const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
+  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
 
   return (
     <div className="fixed inset-0 z-[110] flex justify-end">

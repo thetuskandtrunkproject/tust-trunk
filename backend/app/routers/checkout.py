@@ -13,6 +13,10 @@ from app.schemas.checkout import (
     VerifyPaymentResponse,
     GuestOrderResponse,
 )
+from pydantic import BaseModel
+class ApplyCouponRequest(BaseModel):
+    code: str
+    subtotal_paise: int
 from app.services import checkout_service
 
 logger = logging.getLogger(__name__)
@@ -71,6 +75,31 @@ def get_and_attach_optional_user(
     request.state.user = user
     return user
 
+
+# ---------------------------------------------------------------------------
+# POST /api/v1/checkout/apply-coupon
+# ---------------------------------------------------------------------------
+
+@checkout_router.post("/apply-coupon")
+@create_order_limiter.limit("10/minute")
+def apply_coupon_endpoint(
+    request: Request,
+    payload: ApplyCouponRequest,
+    current_user: Optional[dict] = Depends(get_and_attach_optional_user),
+    db: Client = Depends(get_db_client),
+):
+    from app.services.coupons_service import validate_coupon_for_cart
+    user_id = current_user['id'] if current_user else None
+    discount_paise, coupon = validate_coupon_for_cart(
+        db=db,
+        code=payload.code,
+        subtotal_paise=payload.subtotal_paise,
+        user_id=user_id
+    )
+    return {
+        "code": coupon['code'],
+        "discount_paise": discount_paise
+    }
 
 # ---------------------------------------------------------------------------
 # POST /api/v1/checkout/create-order

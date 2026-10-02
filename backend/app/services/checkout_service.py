@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from supabase import Client
 
 from app.core.config import settings
+from app.services.coupons_service import validate_coupon_for_cart
 
 logger = logging.getLogger(__name__)
 
@@ -116,13 +117,13 @@ def _verify_webhook_signature(raw_body: bytes, signature_header: str) -> bool:
     return hmac.compare_digest(expected, signature_header)
 
 
-def _compute_delivery_fee(subtotal_paise: int) -> int:
+def _compute_delivery_fee(subtotal_paise: int, free_shipping_override: bool = False) -> int:
     """
     Compute delivery fee in paise.
     Business rule: free above ₹3000 subtotal, else ₹60 flat.
     Flagged: revisit this value before launch if the actual business rule differs.
     """
-    if subtotal_paise >= FREE_DELIVERY_THRESHOLD_PAISE:
+    if free_shipping_override or subtotal_paise >= FREE_DELIVERY_THRESHOLD_PAISE:
         return 0
     return DELIVERY_FEE_PAISE
 
@@ -158,6 +159,7 @@ def create_order(db: Client, user_id: str | None, payload: dict) -> dict:
     items = payload['items']
     contact = payload['contact']
     shipping = payload['shipping']
+    coupon_code = payload.get('coupon_code')
 
     # -------------------------------------------------------------------------
     # Step 1: Deduplicate items by variant_id, summing quantities.
@@ -250,7 +252,13 @@ def create_order(db: Client, user_id: str | None, payload: dict) -> dict:
         })
 
     delivery_fee_paise = _compute_delivery_fee(subtotal_paise)
-    total_paise = subtotal_paise + delivery_fee_paise
+    
+    discount_paise = 0
+    if coupon_code:
+        discount_paise, _ = validate_coupon_for_cart(db, coupon_code, subtotal_paise, user_id)
+        
+    total_paise = subtotal_paise + delivery_fee_paise - discount_paise
+
 
     # -------------------------------------------------------------------------
     # Step 4: Create Razorpay order via their REST API.
@@ -310,6 +318,8 @@ def create_order(db: Client, user_id: str | None, payload: dict) -> dict:
         },
         'subtotal_paise': subtotal_paise,
         'delivery_fee_paise': delivery_fee_paise,
+        'discount_paise': discount_paise,
+        'coupon_code': coupon_code,
         'total_paise': total_paise,
     }).execute()
 
@@ -321,6 +331,7 @@ def create_order(db: Client, user_id: str | None, payload: dict) -> dict:
         'order_summary': {
             'subtotal_paise': subtotal_paise,
             'delivery_fee_paise': delivery_fee_paise,
+            'discount_paise': discount_paise,
             'total_paise': total_paise,
             'line_items': [
                 {

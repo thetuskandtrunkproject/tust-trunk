@@ -1,20 +1,50 @@
+import { useState } from 'react'
 import { ArrowRight } from 'lucide-react'
+import { useToast } from '@/context/toast-context'
+import { api } from '@/lib/api'
 
 interface StepReviewProps {
   onNext: () => void
   deliveryFee: number
   items: any[]
   subtotal: number
+  couponCode?: string | null
+  discountAmount?: number
+  onApplyCoupon?: (code: string, discount: number) => void
 }
 
-export function StepReview({ onNext, deliveryFee, items, subtotal }: StepReviewProps) {
+export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, discountAmount = 0, onApplyCoupon }: StepReviewProps) {
+  const [promoInput, setPromoInput] = useState(couponCode || '')
+  const [isApplying, setIsApplying] = useState(false)
+  const { showToast } = useToast()
+
+  const handleApplyPromo = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!promoInput.trim()) return
+    setIsApplying(true)
+    try {
+      const res = await api.post('/api/v1/checkout/apply-coupon', {
+        code: promoInput,
+        subtotal_paise: subtotal * 100
+      })
+      if (onApplyCoupon) {
+        onApplyCoupon(res.data.code, res.data.discount_paise / 100)
+      }
+      showToast('Coupon applied successfully!', 'success')
+    } catch (err: any) {
+      showToast(err.response?.data?.detail || 'Invalid or expired coupon', 'error')
+      setPromoInput('')
+    } finally {
+      setIsApplying(false)
+    }
+  }
   // Guest carts missing product data will be filtered out to avoid crashes,
   // but guests should be logged in to sync and render correctly.
   const cartDetails = items.filter(item => item.product !== undefined && item.variant !== undefined)
 
-  const total = subtotal + deliveryFee
+  const total = subtotal + deliveryFee - discountAmount
 
-  const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
+  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
 
   return (
     <div>
@@ -48,6 +78,30 @@ export function StepReview({ onNext, deliveryFee, items, subtotal }: StepReviewP
           )}
         </div>
 
+        {/* Promo Code */}
+        <div className="p-6 lg:p-8 border-b border-ink/10">
+          <form onSubmit={handleApplyPromo} className="flex gap-2 max-w-sm">
+            <input
+              type="text"
+              placeholder="Promo code"
+              value={promoInput}
+              onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+              disabled={!!couponCode || isApplying}
+              className="flex-1 bg-white border border-ink/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-ink/30 focus:ring-1 focus:ring-ink/30 transition-all disabled:opacity-50"
+            />
+            <button
+              type="submit"
+              disabled={!!couponCode || isApplying || !promoInput.trim()}
+              className="bg-ink text-cloud px-6 py-3 rounded-lg text-sm font-bold hover:bg-sky-soft hover:text-ink transition-colors disabled:opacity-50"
+            >
+              {isApplying ? 'Applying...' : couponCode ? 'Applied' : 'Apply'}
+            </button>
+          </form>
+          {couponCode && (
+            <p className="text-xs text-sky mt-3 font-medium">Coupon '{couponCode}' applied!</p>
+          )}
+        </div>
+
         <div className="bg-sunshine/20 p-6 lg:p-8">
           <div className="flex flex-col gap-4 text-ink/80 mb-6 pb-6 border-b border-ink/10">
             <div className="flex justify-between font-medium">
@@ -58,6 +112,12 @@ export function StepReview({ onNext, deliveryFee, items, subtotal }: StepReviewP
               <span>Delivery</span>
               <span>{deliveryFee === 0 ? 'Free' : formatPrice(deliveryFee)}</span>
             </div>
+            {couponCode && (
+              <div className="flex justify-between font-bold text-sky">
+                <span>Discount ({couponCode})</span>
+                <span>-{formatPrice(discountAmount)}</span>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-between items-center text-xl font-bold text-ink">

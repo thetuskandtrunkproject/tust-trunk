@@ -66,7 +66,7 @@ export function CustomerTable({ customers }: CustomerTableProps) {
     })
   }
 
-  const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
+  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
 
   return (
     <div className="space-y-6">

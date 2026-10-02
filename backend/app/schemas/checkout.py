@@ -34,6 +34,7 @@ class CreateOrderRequest(BaseModel):
     items: List[CheckoutItemSchema] = Field(..., min_length=1)
     contact: CheckoutContactSchema
     shipping: CheckoutShippingSchema
+    coupon_code: Optional[str] = None
 
 
 class OrderLineItemSummary(BaseModel):
@@ -50,7 +51,7 @@ class CreateOrderResponse(BaseModel):
     amount_paise: int
     currency: str
     key_id: str  # Public key — safe to return to frontend for Checkout.js init
-    order_summary: dict  # Subtotal, delivery_fee, total, line items for display
+    order_summary: dict  # Subtotal, discount, delivery_fee, total, line items for display
 
 
 # ---------------------------------------------------------------------------
@@ -92,6 +93,7 @@ class GuestOrderResponse(BaseModel):
     status: str
     total_paise: int
     subtotal_paise: int
+    discount_paise: int = 0
     delivery_fee_paise: int
     shipping_address: dict
     items: List[GuestOrderItemResponse]

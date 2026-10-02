@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { LayoutDashboard, Package, Boxes, Users, FileText, Mail, X, Ticket, Building2 } from 'lucide-react'
+import { LayoutDashboard, Package, Boxes, Users, FileText, Mail, X, Ticket, Building2, Star } from 'lucide-react'
 import logoImg from '@/assets/logo_full_hd.png'
 
 interface AdminSidebarProps {
@@ -15,6 +15,7 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
     { name: 'Products', path: '/admin/products', icon: ShoppingBagIcon },
     { name: 'Inventory', path: '/admin/inventory', icon: Boxes },
     { name: 'Coupons', path: '/admin/coupons', icon: Ticket },
+    { name: 'Reviews', path: '/admin/reviews', icon: Star },
     { name: 'Customers', path: '/admin/customers', icon: Users },
     { name: 'CMS', path: '/admin/cms', icon: FileText },
     { name: 'Contact', path: '/admin/contact', icon: Mail },

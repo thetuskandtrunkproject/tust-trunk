@@ -20,9 +20,10 @@ interface StepPaymentProps {
   totalAmount: number
   items: any[]
   isBuyNowFlow?: boolean
+  couponCode?: string | null
 }
 
-export function StepPayment({ onBack, contact, shipping, totalAmount, items, isBuyNowFlow }: StepPaymentProps) {
+export function StepPayment({ onBack, contact, shipping, totalAmount, items, isBuyNowFlow, couponCode }: StepPaymentProps) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [isResending, setIsResending] = useState(false)
@@ -43,7 +44,8 @@ export function StepPayment({ onBack, contact, shipping, totalAmount, items, isB
       const createRes = await api.post('/api/v1/checkout/create-order', {
         items: items.map(i => ({ variant_id: i.variant_id, quantity: i.quantity })),
         contact,
-        shipping
+        shipping,
+        coupon_code: couponCode
       })
       
       const { razorpay_order_id, amount_paise, currency, key_id } = createRes.data
@@ -165,7 +167,7 @@ export function StepPayment({ onBack, contact, shipping, totalAmount, items, isB
     setIsResending(false)
   }
 
-  const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
+  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
 
   return (
     <div>
