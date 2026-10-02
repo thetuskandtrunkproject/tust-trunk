@@ -9,7 +9,8 @@ from app.schemas.public_catalog import (
     PublicProductListResponse,
     PublicProductDetailResponse,
     PublicCategoryResponse,
-    PublicResolveResponse
+    PublicResolveResponse,
+    PublicResolveProductResponse
 )
 from app.services import public_catalog_service
 
@@ -58,13 +59,7 @@ def list_products(
     )
 
 
-@router.get('/products/{slug}', response_model=PublicProductDetailResponse)
-@limiter.limit('60/minute')
-def get_product(request: Request, slug: str, db: Client = Depends(get_db_client)):
-    """Fetch full public product details including active variants."""
-    return public_catalog_service.get_public_product(db, slug)
-
-@router.get('/products/resolve', response_model=PublicProductListResponse)
+@router.get('/products/resolve', response_model=PublicResolveProductResponse)
 @limiter.limit('60/minute')
 def resolve_products(
     request: Request,
@@ -73,6 +68,12 @@ def resolve_products(
 ):
     """Resolve a batch of product IDs into display data for guest wishlists."""
     return public_catalog_service.resolve_products(db, ids)
+
+@router.get('/products/{slug}', response_model=PublicProductDetailResponse)
+@limiter.limit('60/minute')
+def get_product(request: Request, slug: str, db: Client = Depends(get_db_client)):
+    """Fetch full public product details including active variants."""
+    return public_catalog_service.get_public_product(db, slug)
 
 @router.get('/variants/resolve', response_model=PublicResolveResponse)
 @limiter.limit('60/minute')

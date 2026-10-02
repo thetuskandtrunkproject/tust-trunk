@@ -48,6 +48,9 @@ webhook_limiter = Limiter(key_func=get_remote_address)
 # Guest order lookup: IP-based, tight — brute-force resistance on order_number+email
 guest_lookup_limiter = Limiter(key_func=get_remote_address)
 
+# check-payment: Step 5 fallback — tight because it makes an outbound Razorpay API call
+check_payment_limiter = Limiter(key_func=_checkout_key_func)
+
 
 # ---------------------------------------------------------------------------
 # Auth attachment helper
@@ -180,6 +183,39 @@ async def webhook_endpoint(
         raw_body=raw_body,
         signature_header=x_razorpay_signature,
         db=db,
+    )
+
+
+# ---------------------------------------------------------------------------
+# GET /api/v1/checkout/check-payment/{razorpay_order_id}
+# ---------------------------------------------------------------------------
+
+@checkout_router.get("/check-payment/{razorpay_order_id}")
+@check_payment_limiter.limit("5/minute")
+def check_payment_endpoint(
+    request: Request,
+    razorpay_order_id: str,
+    current_user: Optional[dict] = Depends(get_and_attach_optional_user),
+    db: Client = Depends(get_db_client),
+):
+    """
+    Step 5 fallback: Direct Razorpay API reconciliation check.
+
+    Called by the frontend after the Razorpay SDK fires 'payment.failed' to
+    verify whether the payment was actually captured before navigating to
+    the failure page. Necessary for UPI/netbanking flows where the SDK event
+    and the actual bank settlement can race.
+
+    No payment IDs are accepted from the client — this endpoint fetches
+    payment data directly from Razorpay's API using the razorpay_order_id,
+    so there is no client injection surface.
+
+    If a captured payment is found, calls commit_order() RPC (idempotent —
+    safe even if webhook already committed). Returns committed=True/False.
+    """
+    return checkout_service.check_payment_status(
+        db=db,
+        razorpay_order_id=razorpay_order_id,
     )
 
 

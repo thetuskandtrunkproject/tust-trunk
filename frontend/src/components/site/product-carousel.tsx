@@ -15,7 +15,7 @@ export function ProductCarousel() {
   useEffect(() => {
     const fetchNew = async () => {
       try {
-        const res = await api.get('/api/v1/public/products', { 
+        const res = await api.get('/public/products', { 
           params: { sort: 'newest', page_size: 6 } 
         })
         setProducts(res.data.items || [])

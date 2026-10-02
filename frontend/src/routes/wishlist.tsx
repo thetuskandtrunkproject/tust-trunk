@@ -27,7 +27,7 @@ function WishlistPage() {
       }
       try {
         setIsLoading(true)
-        const res = await api.get('/api/v1/public/products/resolve', {
+        const res = await api.get('/public/products/resolve', {
           params: { ids: wishlistIds.join(',') }
         })
         setWishlistedProducts(res.data.items || [])

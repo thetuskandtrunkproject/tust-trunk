@@ -86,3 +86,20 @@ class PublicResolvedVariant(BaseModel):
 
 class PublicResolveResponse(BaseModel):
     items: List[PublicResolvedVariant]
+
+class PublicResolvedProduct(BaseModel):
+    id: uuid.UUID
+    name: str
+    slug: str
+    category: str
+    price: int
+    images: List[str]
+    tags: List[str]
+    is_available: bool
+
+class PublicResolveProductResponse(BaseModel):
+    items: List[PublicResolvedProduct]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int

@@ -12,6 +12,7 @@ class WishlistMergeRequest(BaseModel):
 class WishlistItemResponse(BaseModel):
     id: UUID4
     user_id: UUID4
+    product_id: UUID4
     created_at: datetime
     
     # Joined data

@@ -70,13 +70,13 @@ export function ProductCard({ id, slug, name, price, img, hoverImg, category, ta
             </div>
           )}
 
-          {/* Wishlist Button */}
           <button 
             onClick={handleWishlist}
-            className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-300 z-10 hover:scale-110 ${
+            title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-300 z-10 hover:scale-110 shadow-sm ${
               wishlisted 
-                ? 'bg-coral text-white opacity-100 shadow-md' 
-                : 'bg-white/90 text-ink/40 opacity-0 group-hover:opacity-100 shadow-md backdrop-blur-sm hover:text-coral'
+                ? 'bg-watermelon text-white opacity-100 hover:bg-watermelon/80' 
+                : 'bg-white/90 text-ink opacity-0 group-hover:opacity-100 hover:bg-coral hover:text-white backdrop-blur-sm'
             }`}
           >
             <Heart className={`w-4 h-4 ${wishlisted ? 'fill-current' : ''}`} />

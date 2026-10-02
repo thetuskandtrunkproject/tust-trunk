@@ -23,6 +23,7 @@ FREE_DELIVERY_THRESHOLD_PAISE = 300_000
 DELIVERY_FEE_PAISE = 6_000
 
 RAZORPAY_ORDERS_URL = "https://api.razorpay.com/v1/orders"
+RAZORPAY_ORDER_PAYMENTS_URL = "https://api.razorpay.com/v1/orders/{order_id}/payments"
 
 # ---------------------------------------------------------------------------
 # SQLSTATE codes raised by commit_order() plpgsql RPC (migration 010).
@@ -513,4 +514,136 @@ def get_guest_order(db: Client, order_number: str, email: str) -> dict:
         'shipping_address': order['shipping_address'],
         'items': items_res.data,
         'created_at': order['created_at'],
+    }
+
+
+# ---------------------------------------------------------------------------
+# check_payment_status  (Step 5 — polling/reconciliation fallback)
+# ---------------------------------------------------------------------------
+
+def check_payment_status(db: Client, razorpay_order_id: str) -> dict:
+    """
+    Step 5 of the checkout flow: direct Razorpay API reconciliation.
+
+    Called by the frontend when the Razorpay SDK fires 'payment.failed' but
+    the client suspects the money may still have been captured (e.g. UPI flows
+    where the browser event and the actual bank deduction can race).
+
+    Flow:
+      1. Fast-path: check our own orders table first. If already committed,
+         return immediately without hitting Razorpay's API.
+      2. Slow-path: query GET /v1/orders/{order_id}/payments from Razorpay.
+         If a 'captured' payment exists, call _run_commit_rpc (idempotent).
+      3. If no captured payment exists, return committed=False so the frontend
+         can safely navigate to /order-failed.
+
+    This endpoint is rate-limited (5/minute per user/IP) to prevent abuse.
+    It does NOT accept any payment IDs from the client — it fetches them
+    directly from Razorpay, so there is no injection surface.
+    """
+    if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
+        logger.error("Razorpay credentials not configured for check-payment.")
+        raise HTTPException(status_code=500, detail="Payment gateway not configured.")
+
+    # -------------------------------------------------------------------------
+    # 1. Fast-path: check our DB first. If this razorpay_order_id already has
+    #    a committed order row, return it without calling Razorpay's API.
+    #    This covers the race where the webhook fired and committed just before
+    #    the frontend called this endpoint.
+    # -------------------------------------------------------------------------
+    existing_res = (
+        db.table('orders')
+        .select('id, order_number, status')
+        .eq('razorpay_order_id', razorpay_order_id)
+        .execute()
+    )
+    if existing_res.data:
+        order = existing_res.data[0]
+        logger.info(
+            "check-payment fast-path: order already in DB | order_id=%s rzp_order=%s",
+            order['id'], razorpay_order_id
+        )
+        return {
+            'committed': True,
+            'order_id': str(order['id']),
+            'order_number': order['order_number'],
+            'status': order['status'],
+            'requires_review': order['status'] == 'requires_review',
+            'already_committed': True,
+        }
+
+    # -------------------------------------------------------------------------
+    # 2. Slow-path: ask Razorpay for all payments on this order.
+    #    Auth: HTTP Basic with KEY_ID (username) and KEY_SECRET (password).
+    #    Source: https://razorpay.com/docs/api/orders/fetch-payments/
+    # -------------------------------------------------------------------------
+    try:
+        rz_response = http_requests.get(
+            RAZORPAY_ORDER_PAYMENTS_URL.format(order_id=razorpay_order_id),
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET),
+            timeout=10,
+        )
+        rz_response.raise_for_status()
+        rz_data = rz_response.json()
+    except http_requests.HTTPError as e:
+        logger.error(
+            "check-payment: Razorpay payments fetch failed: status=%s rzp_order=%s",
+            e.response.status_code, razorpay_order_id
+        )
+        raise HTTPException(
+            status_code=502,
+            detail="Could not verify payment status with gateway. Please try again."
+        )
+    except http_requests.RequestException as e:
+        logger.error(
+            "check-payment: Razorpay API unreachable: %s rzp_order=%s",
+            type(e).__name__, razorpay_order_id
+        )
+        raise HTTPException(
+            status_code=502,
+            detail="Payment gateway unreachable. Please try again."
+        )
+
+    # -------------------------------------------------------------------------
+    # 3. Scan the returned payment list for a captured payment.
+    #    Razorpay payload shape:
+    #      { "count": N, "items": [{ "id": "pay_xxx", "status": "captured", ... }] }
+    #    Source: https://razorpay.com/docs/api/orders/fetch-payments/
+    # -------------------------------------------------------------------------
+    payments = rz_data.get('items', [])
+    captured_payment = next(
+        (p for p in payments if p.get('status') == 'captured'),
+        None
+    )
+
+    if captured_payment is None:
+        logger.info(
+            "check-payment: no captured payment found | rzp_order=%s",
+            razorpay_order_id
+        )
+        return {'committed': False}
+
+    # -------------------------------------------------------------------------
+    # 4. Captured payment found — commit the order.
+    #    _run_commit_rpc is idempotent: if another path (webhook / client verify)
+    #    already committed this payment, it returns the existing order silently.
+    #    We never log the payment_id value itself here — only at INFO level for
+    #    reconciliation audit.
+    # -------------------------------------------------------------------------
+    razorpay_payment_id = captured_payment['id']
+    logger.info(
+        "check-payment: captured payment detected, committing | rzp_order=%s",
+        razorpay_order_id
+    )
+
+    result = _run_commit_rpc(
+        db, razorpay_order_id, razorpay_payment_id, 'check-payment'
+    )
+    return {
+        'committed': True,
+        'order_id': str(result['order_id']),
+        'order_number': result['order_number'],
+        'status': result['status'],
+        'requires_review': result.get('requires_review', False),
+        'already_committed': result.get('already_committed', False),
     }

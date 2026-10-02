@@ -16,7 +16,7 @@ export function CategoryTiles() {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const res = await api.get('/api/v1/public/products', { params: { page_size: 4 } })
+        const res = await api.get('/public/products', { params: { page_size: 4 } })
         setFeaturedProducts(res.data.items || [])
       } catch (err) {
         console.error("Failed to load featured products", err)

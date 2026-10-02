@@ -55,15 +55,23 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     const adding = !wishlistIds.includes(productId)
     
     if (user) {
+      // Optimistic UI update
+      setWishlistIds(prev => 
+        adding ? [...prev, productId] : prev.filter(id => id !== productId)
+      )
+      
       try {
         if (adding) {
           await api.post(`/api/v1/wishlist/${productId}`)
         } else {
           await api.delete(`/api/v1/wishlist/${productId}`)
         }
-        await fetchBackendWishlist()
+        // Sync with backend in background
+        fetchBackendWishlist()
       } catch (err) {
         console.error("Failed to toggle wishlist", err)
+        // Revert optimistic update on failure
+        await fetchBackendWishlist()
       }
     } else {
       setWishlistIds(prev => 

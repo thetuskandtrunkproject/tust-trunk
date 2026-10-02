@@ -49,7 +49,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     const fetchSearch = async () => {
       if (debouncedQuery.trim().length > 0) {
         try {
-          const res = await api.get('/api/v1/public/products', {
+          const res = await api.get('/public/products', {
             params: { search: debouncedQuery, page_size: 6 }
           })
           setResults(res.data.items || [])

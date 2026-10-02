@@ -98,8 +98,39 @@ export function StepPayment({ onBack, contact, shipping, totalAmount, items, isB
       }
       
       const rzp = new window.Razorpay(options)
-      rzp.on('payment.failed', function (response: any) {
+      rzp.on('payment.failed', async function (response: any) {
         console.error(response.error)
+
+        // Step 5 fallback: Razorpay's SDK can fire 'payment.failed' even in
+        // cases where the bank DID deduct money (common in UPI/netbanking flows
+        // where the app event and the actual settlement race). Before giving up,
+        // we ask our backend to check Razorpay's API directly.
+        //
+        // We wait 2 s first to give the server-to-server webhook a head start —
+        // if the webhook already committed the order, the check-payment endpoint
+        // will return the committed order via the fast DB path (no Razorpay API call).
+        try {
+          await new Promise<void>(resolve => setTimeout(resolve, 2000))
+          const checkRes = await api.get(`/api/v1/checkout/check-payment/${razorpay_order_id}`)
+          if (checkRes.data.committed) {
+            if (!isBuyNowFlow) await clearCart()
+            navigate({
+              to: '/order-success',
+              search: {
+                order_id: checkRes.data.order_id,
+                order_number: checkRes.data.order_number,
+                guest_email: user ? undefined : contact.email,
+                requires_review: checkRes.data.requires_review ?? false,
+              }
+            })
+            return
+          }
+        } catch (checkErr) {
+          // Best-effort only — if the check itself fails (e.g. gateway 502),
+          // fall through to /order-failed rather than leaving the user stuck.
+          console.error('Payment status check failed:', checkErr)
+        }
+
         navigate({ to: '/order-failed' })
       })
       rzp.open()
