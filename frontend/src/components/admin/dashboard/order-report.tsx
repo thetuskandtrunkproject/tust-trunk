@@ -1,14 +1,13 @@
 import { useState, useRef } from 'react'
 import { Download, FileText, FileSpreadsheet, Loader2, AlertCircle } from 'lucide-react'
 import { fetchAdminOrders, type AdminOrderItem } from '@/lib/admin/orders-api'
-// @ts-ignore
-import html2pdf from 'html2pdf.js'
 import { AdminCard, AdminButton, AdminPageHeader, AdminDatePicker } from '@/components/admin/ui/primitives'
 
 export function OrderReport() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
   const [orders, setOrders] = useState<AdminOrderItem[]>([])
@@ -43,15 +42,17 @@ export function OrderReport() {
   }
 
   const exportPDF = () => {
-    if (!reportRef.current) return
-    const opt = {
-      margin:       0.5,
-      filename:     `order-report-${startDate}-to-${endDate}.pdf`,
-      image:        { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' as const }
+    setIsPdfGenerating(true)
+    if (reportRef.current) {
+      reportRef.current.classList.add('print-active-target')
     }
-    html2pdf().set(opt).from(reportRef.current).save()
+    setTimeout(() => {
+      window.print()
+      if (reportRef.current) {
+        reportRef.current.classList.remove('print-active-target')
+      }
+      setIsPdfGenerating(false)
+    }, 100)
   }
 
   const exportCSV = () => {
@@ -134,8 +135,13 @@ export function OrderReport() {
             <AdminButton variant="secondary" onClick={exportCSV} icon={<FileSpreadsheet className="w-4 h-4" />}>
               Export CSV
             </AdminButton>
-            <AdminButton variant="secondary" onClick={exportPDF} icon={<Download className="w-4 h-4 text-[#005bd3]" />}>
-              Download PDF
+            <AdminButton 
+              variant="secondary" 
+              onClick={exportPDF} 
+              disabled={isPdfGenerating}
+              icon={isPdfGenerating ? <Loader2 className="w-4 h-4 animate-spin text-[#005bd3]" /> : <Download className="w-4 h-4 text-[#005bd3]" />}
+            >
+              {isPdfGenerating ? 'Generating...' : 'Download PDF'}
             </AdminButton>
           </div>
 

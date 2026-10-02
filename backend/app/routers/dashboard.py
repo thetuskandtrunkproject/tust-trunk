@@ -30,12 +30,14 @@ def get_and_attach_admin(request: Request, admin: dict = Depends(get_current_adm
 @admin_dashboard_limiter.limit("60/minute")
 def get_dashboard(
     request: Request,
-    time_range: str = Query('30d', regex="^(7d|30d|1y)$", description="Time range for revenue chart and top products"),
+    time_range: str = Query('30d', description="Time range (e.g. 7d, 30d, 1y)"),
+    start_date: Optional[str] = Query(None, description="Custom start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="Custom end date (YYYY-MM-DD)"),
     current_admin: dict = Depends(get_and_attach_admin),
     db: Client = Depends(get_db_client)
 ):
     """Get all dashboard metrics, charts, and feeds in a single call."""
-    return dashboard_service.get_dashboard_metrics(db, time_range)
+    return dashboard_service.get_dashboard_metrics(db, time_range, start_date, end_date)
 
 
 @router.patch("/variants/{variant_id}/stock")

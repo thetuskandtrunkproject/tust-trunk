@@ -6,7 +6,7 @@ import { CouponTable } from '@/components/admin/coupons/coupon-table'
 import { CouponAnalyticsDrawer } from '@/components/admin/coupons/coupon-analytics-drawer'
 import { type Coupon, MOCK_COUPONS, MOCK_REDEMPTIONS, getCouponStatus } from '@/lib/admin/mock-coupons'
 import { useToast } from '@/context/toast-context'
-import { AdminPageHeader, AdminButton } from '@/components/admin/ui/primitives'
+import { AdminPageHeader, AdminButton, ConfirmModal } from '@/components/admin/ui/primitives'
 
 export const Route = createFileRoute('/admin/coupons/')({
   component: AdminCouponsPage,
@@ -16,6 +16,11 @@ function AdminCouponsPage() {
   const [coupons, setCoupons] = useState<Coupon[]>(MOCK_COUPONS)
   const [selectedAnalyticsCoupon, setSelectedAnalyticsCoupon] = useState<Coupon | null>(null)
   const { showToast } = useToast()
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    id: string;
+  }>({ isOpen: false, id: '' })
 
   const activeCount = coupons.filter(c => getCouponStatus(c) === 'Active').length
   const expiredCount = coupons.filter(c => getCouponStatus(c) === 'Expired').length
@@ -28,10 +33,13 @@ function AdminCouponsPage() {
   }
 
   const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this coupon?')) {
-      setCoupons(prev => prev.filter(c => c.id !== id))
-      showToast("Coupon deleted successfully")
-    }
+    setConfirmModal({ isOpen: true, id })
+  }
+
+  const confirmDelete = () => {
+    setCoupons(prev => prev.filter(c => c.id !== confirmModal.id))
+    showToast("Coupon deleted successfully")
+    setConfirmModal({ isOpen: false, id: '' })
   }
 
   return (
@@ -61,6 +69,15 @@ function AdminCouponsPage() {
         onClose={() => setSelectedAnalyticsCoupon(null)}
       />
 
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, id: '' })}
+        onConfirm={confirmDelete}
+        title="Delete Coupon"
+        message="Are you sure you want to delete this coupon? This action cannot be undone."
+        confirmText="Delete"
+        isDestructive={true}
+      />
     </div>
   )
 }

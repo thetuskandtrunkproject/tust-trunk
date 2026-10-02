@@ -1,12 +1,14 @@
 import { Link, useSearch, useLocation } from '@tanstack/react-router'
-import { Search, Heart, User, ShoppingBag, Menu, X, ChevronDown } from 'lucide-react'
-import { useState } from 'react'
+import { Search, Heart, User, ShoppingBag, Menu, X, ChevronDown, Package, Settings, ShieldCheck, LogOut, LayoutDashboard } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useCart } from '@/context/cart-context'
 import { useWishlist } from '@/context/wishlist-context'
 import { CartDrawer } from '@/components/cart/cart-drawer'
 import { SearchOverlay } from '@/components/site/search-overlay'
 import { useAuth } from '@/context/auth-context'
 import { auth } from '@/lib/firebase'
+import { fetchPublicCategories } from '@/lib/public/catalog-api'
+import type { PublicCategory } from '@/lib/public/catalog-api'
 
 import logo from '@/assets/logo_full_hd.png'
 
@@ -14,6 +16,11 @@ export function SiteHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [categories, setCategories] = useState<PublicCategory[]>([])
+
+  useEffect(() => {
+    fetchPublicCategories().then(setCategories).catch(console.error)
+  }, [])
   
   const search: any = useSearch({ strict: false })
   const location = useLocation()
@@ -41,7 +48,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="w-full bg-cloud sticky top-0 z-50 border-b border-ink/10 shadow-sm">
+      <header className="w-full sticky top-0 z-50 border-b border-ink/10 shadow-sm" style={{ background: '#FDF6EE' }}>
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between h-20">
             
@@ -68,20 +75,54 @@ export function SiteHeader() {
                   New Arrivals
                 </Link>
                 
-                {/* Categories Dropdown */}
+                {/* Categories Dropdown (Mega Menu) */}
                 <div className="relative group">
                   <button className="px-3 xl:px-4 py-2 font-medium text-sm text-ink hover:text-coral flex items-center gap-1 transition-colors">
                     Categories <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
                   </button>
                   
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-6 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-48 z-50">
-                    <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-ink/5 flex flex-col py-2">
-                      <Link to="/shop" search={{ gender: 'Women' }} className={getSubNavClass('Women')}>
-                        Women's Collection
-                      </Link>
-                      <Link to="/shop" search={{ gender: 'Kids' }} className={getSubNavClass('Kids')}>
-                        Kids' Collection
-                      </Link>
+                  {/* Mega Menu Dropdown */}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-6 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-[500px] z-50">
+                    <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-ink/5 p-6 grid grid-cols-2 gap-8 before:absolute before:top-4 before:left-1/2 before:-translate-x-1/2 before:border-8 before:border-transparent before:border-b-white">
+                      
+                      {/* Women's Column */}
+                      <div>
+                        <Link to="/shop" search={{ gender: 'Women' }} className="block font-heading font-bold text-lg text-coral mb-3 hover:opacity-80 transition-opacity">
+                          Women's Collection
+                        </Link>
+                        <div className="flex flex-col gap-2">
+                          {categories.filter(c => c.gender === 'Women' || c.gender === 'Unisex').map(category => (
+                            <Link 
+                              key={category.id} 
+                              to="/shop" 
+                              search={{ gender: 'Women', category: category.name }} 
+                              className="text-[13px] text-ink/70 hover:text-ink hover:translate-x-1 transition-all duration-200"
+                            >
+                              {category.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Kids' Column */}
+                      <div>
+                        <Link to="/shop" search={{ gender: 'Kids' }} className="block font-heading font-bold text-lg text-sky mb-3 hover:opacity-80 transition-opacity">
+                          Kids' Collection
+                        </Link>
+                        <div className="flex flex-col gap-2">
+                          {categories.filter(c => c.gender === 'Kids' || c.gender === 'Unisex').map(category => (
+                            <Link 
+                              key={category.id} 
+                              to="/shop" 
+                              search={{ gender: 'Kids', category: category.name }} 
+                              className="text-[13px] text-ink/70 hover:text-ink hover:translate-x-1 transition-all duration-200"
+                            >
+                              {category.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+
                     </div>
                   </div>
                 </div>
@@ -124,22 +165,31 @@ export function SiteHeader() {
               <div className="relative group hidden sm:block">
                 {firebaseUser ? (
                   <>
-                    <Link to="/account" className="text-ink hover:text-sky transition-colors flex items-center p-2">
+                    <Link to="/account" className="text-ink hover:text-sky transition-colors flex items-center p-2 rounded-full hover:bg-sky/10">
                       <User className="w-5 h-5" />
                     </Link>
-                    <div className="absolute top-full right-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-48 z-50">
-                      <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-ink/5 flex flex-col py-2">
-                        <Link to="/account" className="px-4 py-2 text-sm text-ink hover:bg-sky-soft hover:text-sky transition-colors">
+                    <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-56 z-50">
+                      <div className="bg-white rounded-xl shadow-2xl border border-ink/10 flex flex-col p-1.5 space-y-0.5">
+                        <div className="px-3 py-2 border-b border-ink/10 mb-1">
+                          <p className="text-xs font-semibold text-ink/40 uppercase tracking-wider">Account</p>
+                          <p className="text-sm font-bold text-ink truncate">{user?.full_name || firebaseUser.email}</p>
+                        </div>
+
+                        <Link to="/account" className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-ink rounded-lg hover:bg-cloud transition-colors">
+                          <User className="w-4 h-4 text-ink/60" />
                           My Account
                         </Link>
-                        <Link to="/account/orders" className="px-4 py-2 text-sm text-ink hover:bg-sky-soft hover:text-sky transition-colors">
+                        <Link to="/account/orders" className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-ink rounded-lg hover:bg-cloud transition-colors">
+                          <Package className="w-4 h-4 text-ink/60" />
                           Order History
                         </Link>
-                        <Link to="/account/settings" className="px-4 py-2 text-sm text-ink hover:bg-sky-soft hover:text-sky transition-colors">
+                        <Link to="/account/settings" className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-ink rounded-lg hover:bg-cloud transition-colors">
+                          <Settings className="w-4 h-4 text-ink/60" />
                           Settings
                         </Link>
                         {(user?.role === 'admin' || user?.role === 'owner') && (
-                          <Link to="/admin" className="px-4 py-2 text-sm font-bold text-sky hover:bg-sky-soft transition-colors border-t border-ink/5 mt-1 pt-3">
+                          <Link to="/admin/dashboard" className="flex items-center gap-2.5 px-3 py-2 text-sm font-bold text-sky bg-sky/10 rounded-lg hover:bg-sky/20 transition-colors my-1">
+                            <LayoutDashboard className="w-4 h-4 text-sky" />
                             Admin Panel
                           </Link>
                         )}
@@ -148,8 +198,9 @@ export function SiteHeader() {
                             auth.signOut()
                             window.location.href = '/'
                           }}
-                          className="px-4 py-2 text-sm text-left text-coral hover:bg-coral/10 transition-colors border-t border-ink/5 mt-1 pt-3"
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-coral rounded-lg hover:bg-coral/10 transition-colors mt-1 border-t border-ink/5 pt-2"
                         >
+                          <LogOut className="w-4 h-4 text-coral" />
                           Sign Out
                         </button>
                       </div>

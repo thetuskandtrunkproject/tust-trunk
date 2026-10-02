@@ -11,8 +11,10 @@ interface OrderFiltersProps {
   setPaymentFilter: (status: PaymentStatus | 'All') => void
   timeFilter: 'Recent (24h)' | 'In Process' | 'All Time'
   setTimeFilter: (time: 'Recent (24h)' | 'In Process' | 'All Time') => void
-  dateFilter: string
-  setDateFilter: (date: string) => void
+  startDate: string
+  setStartDate: (date: string) => void
+  endDate: string
+  setEndDate: (date: string) => void
   resultCount: number
   isMobileFiltersOpen: boolean
   setIsMobileFiltersOpen: (isOpen: boolean) => void
@@ -27,28 +29,36 @@ export function OrderFilters({
   setPaymentFilter,
   timeFilter,
   setTimeFilter,
-  dateFilter,
-  setDateFilter,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
   resultCount,
   isMobileFiltersOpen,
   setIsMobileFiltersOpen
 }: OrderFiltersProps) {
 
-  const hasActiveFilters = searchQuery !== '' || statusFilter !== 'All' || paymentFilter !== 'All' || dateFilter !== '' || timeFilter !== 'All Time'
+  const hasActiveFilters = searchQuery !== '' || statusFilter !== 'All' || paymentFilter !== 'All' || startDate !== '' || endDate !== '' || timeFilter !== 'All Time'
 
   const clearFilters = () => {
     setSearchQuery('')
     setStatusFilter('All')
     setPaymentFilter('All')
-    setDateFilter('')
+    setStartDate('')
+    setEndDate('')
     setTimeFilter('All Time')
   }
 
   const FilterControls = () => (
     <>
-      <div className="flex flex-col gap-1 w-full lg:w-40">
-        <label className="text-[11px] font-semibold text-[#8C9196] uppercase tracking-wider">Date</label>
-        <AdminDatePicker value={dateFilter} onChange={setDateFilter} placeholder="dd-mm-yyyy" />
+      <div className="flex flex-col gap-1 w-full lg:w-36">
+        <label className="text-[11px] font-semibold text-[#8C9196] uppercase tracking-wider">Start Date</label>
+        <AdminDatePicker value={startDate} onChange={setStartDate} placeholder="dd-mm-yyyy" />
+      </div>
+
+      <div className="flex flex-col gap-1 w-full lg:w-36">
+        <label className="text-[11px] font-semibold text-[#8C9196] uppercase tracking-wider">End Date</label>
+        <AdminDatePicker value={endDate} onChange={setEndDate} placeholder="dd-mm-yyyy" />
       </div>
 
       <div className="flex flex-col gap-1 w-full lg:w-40">
@@ -76,10 +86,11 @@ export function OrderFilters({
       </div>
 
       {hasActiveFilters && (
-        <div className="flex items-end h-full mt-4 lg:mt-0">
+        <div className="flex flex-col gap-1 w-full lg:w-auto justify-end">
+          <label className="text-[11px] font-semibold text-transparent uppercase tracking-wider hidden lg:block">&nbsp;</label>
           <button 
             onClick={clearFilters}
-            className="text-sm font-semibold text-red-500 hover:text-red-600 flex items-center gap-1 py-2"
+            className="text-sm font-semibold text-red-500 hover:text-red-600 flex items-center gap-1 h-[38px]"
           >
             <X className="w-4 h-4" /> Clear filters
           </button>

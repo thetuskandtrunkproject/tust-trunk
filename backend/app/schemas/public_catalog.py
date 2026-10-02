@@ -11,6 +11,7 @@ class PublicCategoryResponse(BaseModel):
     id: uuid.UUID
     name: str
     slug: str
+    gender: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -59,6 +60,7 @@ class PublicProductDetailResponse(BaseModel):
     category_id: uuid.UUID
     images: List[str]
     tags: List[str]
+    details: Optional[List[dict]] = None
     variants: List[PublicVariantResponse]
 
     model_config = ConfigDict(from_attributes=True)

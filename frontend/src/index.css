@@ -15,14 +15,14 @@
   --mint: #8FE3C7;
   --coral: #FF6B6B;
   --ink: #22303B;
-  --cloud: #FFFBF2;
+  --cloud: #FAF8F5;
 
   --font-baloo: 'Baloo 2', sans-serif;
   --font-nunito: 'Nunito', sans-serif;
 
   --text: #6b6375;
   --text-h: #08060d;
-  --bg: #fff;
+  --bg: #FAF8F5;
   --border: oklch(0.922 0 0);
   --code-bg: #f4f3ec;
   --accent: oklch(0.97 0 0);
@@ -231,4 +231,22 @@ input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px white inset !important;
   -webkit-text-fill-color: var(--ink) !important;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-active-target, .print-active-target * {
+    visibility: visible;
+  }
+  .print-active-target {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  @page { margin: 1cm; }
 }

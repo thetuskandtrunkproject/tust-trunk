@@ -9,7 +9,7 @@ import { fetchAdminProducts, archiveAdminProduct, bulkMoveCategory, bulkUpdateSt
 import { useEffect } from 'react'
 import type { Category } from '@/lib/admin/categories-api'
 import { fetchCategories } from '@/lib/admin/categories-api'
-import { AdminPageHeader, AdminFilterBar, AdminSearchInput, AdminSelect, AdminButton, AdminSpinner } from '@/components/admin/ui/primitives'
+import { AdminPageHeader, AdminFilterBar, AdminSearchInput, AdminSelect, AdminButton, AdminSpinner, ConfirmModal } from '@/components/admin/ui/primitives'
 import { CategoryManagerPanel } from '@/components/admin/products/category-manager-panel'
 import { DiscountManagerPanel } from '@/components/admin/products/discount-manager-panel'
 
@@ -32,6 +32,21 @@ function AdminProductsPage() {
   const [categoriesList, setCategoriesList] = useState<Category[]>([])
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
   const [isDiscountPanelOpen, setIsDiscountPanelOpen] = useState(false)
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    confirmText?: string;
+    isDestructive?: boolean;
+    isLoading?: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  })
 
   const loadProducts = async () => {
     try {
@@ -115,16 +130,29 @@ function AdminProductsPage() {
     }
   }
 
-  const handleBulkDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete ${selectedIds.length} products? This cannot be undone.`)) return
-    try {
-      await bulkDeleteProducts(selectedIds)
-      showToast(`Deleted ${selectedIds.length} products`)
-      setSelectedIds([])
-      loadProducts()
-    } catch (err: any) {
-      showToast('Failed to delete products. They may have orders attached.', 'error')
-    }
+  const handleBulkDelete = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Products',
+      message: `Are you sure you want to delete ${selectedIds.length} products? This cannot be undone.`,
+      confirmText: 'Delete',
+      isDestructive: true,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isLoading: true }))
+        try {
+          await bulkDeleteProducts(selectedIds)
+          showToast(`Deleted ${selectedIds.length} products`)
+          setSelectedIds([])
+          loadProducts()
+          setConfirmModal(prev => ({ ...prev, isOpen: false }))
+        } catch (err: any) {
+          showToast('Failed to delete products. They may have orders attached.', 'error')
+          setConfirmModal(prev => ({ ...prev, isOpen: false }))
+        } finally {
+          setConfirmModal(prev => ({ ...prev, isLoading: false }))
+        }
+      }
+    })
   }
 
   const handleBulkMoveCategory = async (categoryId: string) => {
@@ -236,6 +264,16 @@ function AdminProductsPage() {
         }} />
       )}
 
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        isDestructive={confirmModal.isDestructive}
+        isLoading={confirmModal.isLoading}
+      />
     </div>
   )
 }

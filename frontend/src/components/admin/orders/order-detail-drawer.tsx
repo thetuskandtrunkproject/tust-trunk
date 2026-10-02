@@ -1,9 +1,8 @@
 import { useEffect } from 'react'
-import { X, Mail, Phone, MapPin, Package, IndianRupee } from 'lucide-react'
+import { X, Mail, Phone, MapPin, Package, IndianRupee, Copy, Check, CreditCard, User, Calendar, ExternalLink } from 'lucide-react'
 import type { AdminOrder, OrderStatus } from '@/lib/admin/mock-orders'
 import { OrderStatusBadge } from './order-status-badge'
 import { OrderStatusStepper } from './order-status-stepper'
-
 
 interface OrderDetailDrawerProps {
   order: AdminOrder | null
@@ -51,147 +50,168 @@ export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: Or
     <>
       {/* Backdrop */}
       <div 
-        className={`fixed inset-0 bg-ink/30 backdrop-blur-sm z-50 transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-[#202223]/40 backdrop-blur-xs z-50 transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
       />
 
-      {/* Drawer */}
+      {/* Drawer Container */}
       <div 
-        className={`fixed inset-y-0 right-0 w-full md:w-[500px] bg-white z-50 shadow-2xl flex flex-col transform transition-transform duration-300 ease-out ${
+        className={`fixed inset-y-0 right-0 w-full md:w-[560px] bg-[#F4F6F8] z-50 shadow-2xl flex flex-col transform transition-transform duration-300 ease-out border-l border-[#C9CCCF] ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-ink/10 shrink-0">
-          <div>
-            <h2 className="font-heading font-bold text-xl text-ink">Order #{order.order_number}</h2>
-            <p className="text-sm text-ink/60 mt-1">{formatDate(order.date)}</p>
+        {/* Header Bar */}
+        <div className="flex items-center justify-between p-5 bg-white border-b border-[#E1E3E5] shrink-0 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-[#F4F6F8] rounded-lg text-[#202223] border border-[#E1E3E5]">
+              <Package className="w-5 h-5 text-[#5C5F62]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="font-semibold text-lg text-[#202223]">Order #{order.order_number}</h2>
+              </div>
+              <p className="text-xs text-[#6D7175] flex items-center gap-1.5 mt-0.5">
+                <Calendar className="w-3.5 h-3.5" />
+                {formatDate(order.date)}
+              </p>
+            </div>
           </div>
+
           <button 
             onClick={onClose}
-            className="p-2 -mr-2 text-ink/40 hover:text-ink hover:bg-ink/5 rounded-full transition-colors"
+            className="p-2 text-[#5C5F62] hover:text-[#202223] hover:bg-[#F4F6F8] rounded-lg transition-colors border border-transparent hover:border-[#E1E3E5]"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-8">
+        {/* Scrollable Main Content */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-5">
           
-          {/* Status Section */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium text-ink">Order Status</h3>
+          {/* Status Lifecycle Stepper Card */}
+          <div className="bg-white p-5 rounded-xl border border-[#E1E3E5] shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#F1F2F4]">
+              <span className="text-xs font-semibold text-[#6D7175] uppercase tracking-wider">Fulfillment Status</span>
               <OrderStatusBadge type="order" status={order.status} />
             </div>
             <OrderStatusStepper 
               status={order.status} 
               onStatusChange={(newStatus) => onUpdateStatus(order.id, newStatus)} 
             />
-          </section>
-
-          {/* Customer Details */}
-          <section className="bg-cloud p-5 rounded-2xl border border-ink/5">
-            <h3 className="font-medium text-ink mb-4">Customer Details</h3>
-            <div className="space-y-3 text-sm text-ink/80">
-              <div className="flex items-center gap-3 font-medium text-ink">
-                <div className="w-8 h-8 rounded-full bg-ink/10 flex items-center justify-center text-ink">
-                  {order.customer_name.charAt(0)}
-                </div>
-                {order.customer_name}
-              </div>
-              <div className="flex items-center gap-3 pl-1">
-                <Mail className="w-4 h-4 text-ink/40" />
-                <a href={`mailto:${order.customer_email}`} className="hover:text-sky transition-colors">{order.customer_email}</a>
-              </div>
-              <div className="flex items-center gap-3 pl-1">
-                <Phone className="w-4 h-4 text-ink/40" />
-                <a href={`tel:${order.customer_phone || ''}`} className="hover:text-sky transition-colors">{order.customer_phone || 'N/A'}</a>
-              </div>
-            </div>
-          </section>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Shipping Address */}
-            <section>
-              <h3 className="font-medium text-ink mb-3 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-ink/40" /> Shipping
-              </h3>
-              <div className="text-sm text-ink/70 leading-relaxed border-l-2 border-ink/10 pl-3 ml-1">
-                <p className="font-medium text-ink">{order.shipping_address?.name}</p>
-                <p>{order.shipping_address?.address1}</p>
-                {order.shipping_address?.address2 && <p>{order.shipping_address.address2}</p>}
-                <p>{order.shipping_address?.city}, {order.shipping_address?.state} {order.shipping_address?.pincode}</p>
-              </div>
-            </section>
-
-            {/* Payment Details */}
-            <section>
-              <h3 className="font-medium text-ink mb-3 flex items-center gap-2">
-                <IndianRupee className="w-4 h-4 text-ink/40" /> Payment
-              </h3>
-              <div className="text-sm text-ink/70 space-y-2 border-l-2 border-ink/10 pl-3 ml-1">
-                <div className="flex items-center gap-2">
-                  <span>Status:</span>
-                  <OrderStatusBadge type="payment" status={order.payment_status} />
-                </div>
-                <p>Method: <span className="font-medium text-ink">{order.payment_method}</span></p>
-              </div>
-            </section>
           </div>
 
-          {/* Line Items */}
-          <section>
-            <h3 className="font-medium text-ink mb-4 flex items-center gap-2">
-              <Package className="w-4 h-4 text-ink/40" /> Order Items ({order.items.length})
-            </h3>
-            <div className="space-y-4">
-              {order.items.map((item: any, idx: number) => {
-                return (
-                  <div key={idx} className="flex gap-4">
-                    <div className="w-16 aspect-[3/4] bg-cloud border border-ink/5 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
-                      {item.image_url ? (
-                        <img src={item.image_url} alt={item.product_name_snapshot} className="w-full h-full object-cover" />
-                      ) : (
-                        <Package className="w-6 h-6 text-ink/20" />
-                      )}
+          {/* Customer & Shipping Information Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {/* Customer Details */}
+            <div className="bg-white p-4 rounded-xl border border-[#E1E3E5] shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#F1F2F4]">
+                  <User className="w-4 h-4 text-[#5C5F62]" />
+                  <h3 className="text-xs font-semibold text-[#6D7175] uppercase tracking-wider">Customer Info</h3>
+                </div>
+                <div className="space-y-2.5 text-xs text-[#202223]">
+                  <p className="font-semibold text-sm text-[#202223]">{order.customer_name}</p>
+                  <div className="flex items-center gap-2 text-[#5C5F62]">
+                    <Mail className="w-3.5 h-3.5 text-[#8C9196] shrink-0" />
+                    <a href={`mailto:${order.customer_email}`} className="hover:text-[#005bd3] truncate">{order.customer_email}</a>
+                  </div>
+                  {order.customer_phone && (
+                    <div className="flex items-center gap-2 text-[#5C5F62]">
+                      <Phone className="w-3.5 h-3.5 text-[#8C9196] shrink-0" />
+                      <a href={`tel:${order.customer_phone}`} className="hover:text-[#005bd3]">{order.customer_phone}</a>
                     </div>
-                    <div className="flex flex-col flex-1 py-1">
-                      <div className="flex justify-between items-start gap-4 mb-1">
-                        <span className="font-medium text-ink text-sm leading-tight">{item.product_name_snapshot}</span>
-                        <span className="font-medium text-ink text-sm whitespace-nowrap">{formatPrice(item.price_at_purchase * item.quantity / 100)}</span>
-                      </div>
-                      <div className="text-xs text-ink/60 mt-auto flex flex-wrap gap-x-4 gap-y-1">
-                        <span>Size: {item.size_snapshot}</span>
-                        <span>Qty: {item.quantity}</span>
-                        <span className="w-full text-ink/40">{formatPrice(item.price_at_purchase / 100)} each</span>
-                      </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Shipping Address */}
+            <div className="bg-white p-4 rounded-xl border border-[#E1E3E5] shadow-xs">
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#F1F2F4]">
+                <MapPin className="w-4 h-4 text-[#5C5F62]" />
+                <h3 className="text-xs font-semibold text-[#6D7175] uppercase tracking-wider">Shipping Address</h3>
+              </div>
+              <div className="text-xs text-[#5C5F62] leading-relaxed space-y-0.5">
+                <p className="font-semibold text-[#202223] text-sm mb-1">{order.shipping_address?.name}</p>
+                <p>{order.shipping_address?.address1}</p>
+                {order.shipping_address?.address2 && <p>{order.shipping_address.address2}</p>}
+                <p className="font-medium text-[#202223] pt-0.5">
+                  {order.shipping_address?.city}, {order.shipping_address?.state} - {order.shipping_address?.pincode}
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Payment Method Details */}
+          <div className="bg-white p-4 rounded-xl border border-[#E1E3E5] shadow-xs flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[#F4F6F8] rounded-lg border border-[#E1E3E5]">
+                <CreditCard className="w-4 h-4 text-[#5C5F62]" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-[#6D7175] uppercase tracking-wider">Payment Method</p>
+                <p className="text-xs font-medium text-[#202223] mt-0.5">{order.payment_method || 'Razorpay Gateway'}</p>
+              </div>
+            </div>
+            <OrderStatusBadge type="payment" status={order.payment_status} />
+          </div>
+
+          {/* Order Items List */}
+          <div className="bg-white rounded-xl border border-[#E1E3E5] shadow-xs overflow-hidden">
+            <div className="p-4 border-b border-[#F1F2F4] flex items-center justify-between">
+              <h3 className="text-xs font-semibold text-[#6D7175] uppercase tracking-wider">Items ({order.items.length})</h3>
+              <span className="text-xs font-medium text-[#6D7175]">Price</span>
+            </div>
+            
+            <div className="divide-y divide-[#F1F2F4]">
+              {order.items.map((item: any, idx: number) => (
+                <div key={idx} className="p-4 flex gap-3.5 items-center">
+                  <div className="w-12 h-14 bg-[#F4F6F8] border border-[#E1E3E5] rounded-md overflow-hidden shrink-0 flex items-center justify-center">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.product_name_snapshot} className="w-full h-full object-cover" />
+                    ) : (
+                      <Package className="w-5 h-5 text-[#8C9196]" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-xs text-[#202223] truncate">{item.product_name_snapshot}</p>
+                    <div className="flex items-center gap-3 text-[11px] text-[#6D7175] mt-1">
+                      <span>Size: <strong className="text-[#202223]">{item.size_snapshot}</strong></span>
+                      <span>Qty: <strong className="text-[#202223]">{item.quantity}</strong></span>
+                      <span>Rate: <strong className="text-[#202223]">{formatPrice(item.price_at_purchase / 100)}</strong></span>
                     </div>
                   </div>
-                )
-              })}
+                  <div className="text-right">
+                    <span className="font-semibold text-xs text-[#202223]">
+                      {formatPrice((item.price_at_purchase * item.quantity) / 100)}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-          </section>
+          </div>
 
         </div>
 
         {/* Financial Summary Sticky Footer */}
-        <div className="p-6 bg-cloud border-t border-ink/10 shrink-0">
-          <div className="space-y-2 text-sm text-ink/70 mb-4">
+        <div className="p-5 bg-white border-t border-[#E1E3E5] shrink-0 space-y-3 shadow-lg">
+          <div className="space-y-1.5 text-xs text-[#6D7175]">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span className="font-medium text-ink">{formatPrice(order.subtotal_paise / 100)}</span>
+              <span className="font-medium text-[#202223]">{formatPrice(order.subtotal_paise / 100)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Delivery Fee</span>
-              <span className="font-medium text-ink">{order.delivery_fee_paise === 0 ? 'Free' : formatPrice(order.delivery_fee_paise / 100)}</span>
+              <span>Shipping & Delivery</span>
+              <span className="font-medium text-[#202223]">{order.delivery_fee_paise === 0 ? 'Free' : formatPrice(order.delivery_fee_paise / 100)}</span>
             </div>
           </div>
-          <div className="flex justify-between items-center pt-4 border-t border-ink/10">
-            <span className="font-medium text-ink">Total</span>
-            <span className="font-heading font-bold text-2xl text-ink">{formatPrice(order.total_paise / 100)}</span>
+          <div className="flex justify-between items-center pt-3 border-t border-[#E1E3E5]">
+            <span className="font-semibold text-sm text-[#202223]">Total Paid</span>
+            <span className="font-bold text-xl text-[#202223]">{formatPrice(order.total_paise / 100)}</span>
           </div>
         </div>
 

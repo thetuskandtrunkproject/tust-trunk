@@ -15,6 +15,29 @@ export function AdminCard({ children, className = '', padding = true }: AdminCar
   )
 }
 
+/* ─── AdminCheckbox ─── */
+
+interface AdminCheckboxProps {
+  checked: boolean
+  onChange: (checked: boolean) => void
+  disabled?: boolean
+}
+
+export function AdminCheckbox({ checked, onChange, disabled }: AdminCheckboxProps) {
+  return (
+    <div 
+      onClick={(e) => { e.stopPropagation(); !disabled && onChange(!checked); }}
+      className={`w-[18px] h-[18px] rounded-[4px] border flex items-center justify-center transition-colors ${
+        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+      } ${
+        checked ? 'bg-[#005bd3] border-[#005bd3] text-white' : 'bg-white border-[#8C9196] hover:border-[#5C5F62]'
+      }`}
+    >
+      {checked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+    </div>
+  )
+}
+
 /* ─── AdminSearchInput ─── */
 import { Search } from 'lucide-react'
 
@@ -278,8 +301,8 @@ interface AdminTableShellProps {
 
 export function AdminTableShell({ children, emptyMessage = 'No data found.', isEmpty }: AdminTableShellProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-[#E3E3E3] overflow-hidden">
-      <div className="overflow-x-auto">
+    <div className="bg-white rounded-xl shadow-sm border border-[#E3E3E3]">
+      <div className="">
         {children}
       </div>
       {isEmpty && (
@@ -315,5 +338,156 @@ export function AdminSpinner() {
   )
 }
 
+/* ─── AdminActionsDropdown ─── */
+import { MoreHorizontal } from 'lucide-react'
+
+export interface AdminActionItem {
+  label: string
+  icon?: ReactNode
+  onClick: () => void
+  danger?: boolean
+}
+
+interface AdminActionsDropdownProps {
+  actions: AdminActionItem[]
+}
+
+export function AdminActionsDropdown({ actions }: AdminActionsDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  return (
+    <div className="relative inline-block text-left" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+        className="p-1.5 rounded-md text-[#5C5F62] hover:bg-[#F4F6F8] hover:text-[#202223] transition-colors focus:outline-none"
+      >
+        <MoreHorizontal className="w-5 h-5" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-1 w-48 bg-white border border-[#E3E3E3] rounded-xl shadow-lg z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="px-3 pb-2 mb-1 border-b border-[#E3E3E3] text-[12px] font-semibold text-[#8C9196] uppercase tracking-wider">
+            Actions
+          </div>
+          {actions.map((action, i) => (
+            <button
+              key={i}
+              onClick={(e) => {
+                e.stopPropagation()
+                action.onClick()
+                setIsOpen(false)
+              }}
+              className={`w-full flex items-center px-4 py-2 text-[13px] font-medium transition-colors hover:bg-[#F4F6F8] ${
+                action.danger ? 'text-[#D82C0D] hover:bg-[#FBF1ED]' : 'text-[#202223]'
+              }`}
+            >
+              {action.icon && <span className="mr-3 opacity-70">{action.icon}</span>}
+              {action.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ─── AdminDatePicker ─── */
 export { AdminDatePicker } from './admin-date-picker'
+export function AdminModal({ 
+  isOpen, 
+  onClose, 
+  title, 
+  children 
+}: { 
+  isOpen: boolean, 
+  onClose: () => void, 
+  title: string, 
+  children: React.ReactNode 
+}) {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+      <div className="fixed inset-0 bg-ink/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      
+      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="px-6 py-4 border-b border-ink/10 flex items-center justify-between">
+          <h3 className="font-semibold text-ink text-lg">{title}</h3>
+          <button 
+            onClick={onClose}
+            className="text-ink/50 hover:text-ink transition-colors p-1 rounded-md hover:bg-ink/5"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+        <div className="p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function ConfirmModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  isDestructive = false,
+  isLoading = false
+}: {
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
+  title: string
+  message: string
+  confirmText?: string
+  cancelText?: string
+  isDestructive?: boolean
+  isLoading?: boolean
+}) {
+  return (
+    <AdminModal isOpen={isOpen} onClose={onClose} title={title}>
+      <p className="text-ink/80 mb-8">{message}</p>
+      <div className="flex items-center justify-end gap-3">
+        <button
+          onClick={onClose}
+          disabled={isLoading}
+          className="px-4 py-2 rounded-md font-medium text-ink/70 hover:bg-ink/5 hover:text-ink transition-colors disabled:opacity-50"
+        >
+          {cancelText}
+        </button>
+        <button
+          onClick={onConfirm}
+          disabled={isLoading}
+          className={`px-4 py-2 rounded-md font-medium text-white transition-colors disabled:opacity-50 flex items-center gap-2 ${
+            isDestructive ? 'bg-red-500 hover:bg-red-600' : 'bg-ink hover:bg-ink/90'
+          }`}
+        >
+          {isLoading && (
+            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          )}
+          {confirmText}
+        </button>
+      </div>
+    </AdminModal>
+  )
+}

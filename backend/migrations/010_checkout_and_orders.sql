@@ -339,10 +339,7 @@ BEGIN
   --    - NNNNNN: zero-padded sequence (up to 999,999 per year before rollover)
   --    - XXX: 3-char random hex suffix for brute-force resistance on guest lookup
   -- -------------------------------------------------------------------------
-  v_order_number := 'ORD-' ||
-    to_char(now(), 'YYYY') || '-' ||
-    LPAD(nextval('order_number_seq')::text, 6, '0') || '-' ||
-    substr(upper(md5(gen_random_uuid()::text)), 1, 3);
+  v_order_number := 'ORD-TT-' || LPAD(nextval('order_number_seq')::text, 3, '0');
 
   -- -------------------------------------------------------------------------
   -- 5. Determine final status and deduct stock if sufficient.

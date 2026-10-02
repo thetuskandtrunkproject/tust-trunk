@@ -115,6 +115,7 @@ class ProductCreate(BaseModel):
     category_id: uuid.UUID
     images: List[str] = []
     tags: List[str] = []
+    details: List[dict] = []
     status: Literal['Active', 'Draft', 'Archived'] = 'Draft'
     variants: List[VariantCreate]  # At least one variant required
 
@@ -154,6 +155,7 @@ class ProductUpdate(BaseModel):
     category_id: Optional[uuid.UUID] = None
     images: Optional[List[str]] = None
     tags: Optional[List[str]] = None
+    details: Optional[List[dict]] = None
     status: Optional[Literal['Active', 'Draft', 'Archived']] = None
 
     @field_validator('name')
@@ -208,6 +210,7 @@ class ProductResponse(BaseModel):
     category: str
     images: List[str]
     tags: List[str]
+    details: List[dict] = []
     status: str
     created_at: datetime
     updated_at: datetime

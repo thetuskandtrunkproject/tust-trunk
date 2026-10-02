@@ -21,7 +21,8 @@ function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'All'>('All')
   const [paymentFilter, setPaymentFilter] = useState<PaymentStatus | 'All'>('All')
   const [timeFilter, setTimeFilter] = useState<'Recent (24h)' | 'In Process' | 'All Time'>('All Time')
-  const [dateFilter, setDateFilter] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
 
   // Drawer state
@@ -32,7 +33,13 @@ function AdminOrdersPage() {
     const controller = new AbortController()
     const fetchOrders = async () => {
       try {
-        const res = await api.get('/api/v1/admin/orders', { signal: controller.signal })
+        let url = '/api/v1/admin/orders'
+        const params = new URLSearchParams()
+        if (startDate) params.append('start_date', startDate)
+        if (endDate) params.append('end_date', endDate)
+        if (params.toString()) url += `?${params.toString()}`
+
+        const res = await api.get(url, { signal: controller.signal })
         setOrders(res.data.orders || [])
       } catch (err: any) {
         if (err.name === 'CanceledError' || controller.signal.aborted) return
@@ -43,7 +50,7 @@ function AdminOrdersPage() {
     }
     fetchOrders()
     return () => controller.abort()
-  }, [])
+  }, [startDate, endDate])
 
   // Derived filtered data
   const filteredOrders = useMemo(() => {
@@ -63,15 +70,14 @@ function AdminOrdersPage() {
       // Payment
       if (paymentFilter !== 'All' && order.payment_status !== paymentFilter) return false
       
-      // Date Filter
-      if (dateFilter) {
-        const orderDateStr = new Date(order.created_at).toISOString().split('T')[0]
-        if (orderDateStr !== dateFilter) return false
-      }
+      // Date Range Filter (Client Fallback)
+      const orderDateStr = new Date(order.date || order.created_at).toISOString().split('T')[0]
+      if (startDate && orderDateStr < startDate) return false
+      if (endDate && orderDateStr > endDate) return false
 
       // Time Pills Filter
       if (timeFilter === 'Recent (24h)') {
-        const orderDate = new Date(order.created_at).getTime()
+        const orderDate = new Date(order.date || order.created_at).getTime()
         const now = new Date().getTime()
         if (now - orderDate > 24 * 60 * 60 * 1000) return false
       } else if (timeFilter === 'In Process') {
@@ -80,7 +86,7 @@ function AdminOrdersPage() {
       
       return true
     })
-  }, [orders, searchQuery, statusFilter, paymentFilter, timeFilter, dateFilter])
+  }, [orders, searchQuery, statusFilter, paymentFilter, timeFilter, startDate, endDate])
 
   // Handlers
   const handleSelectOrder = (order: any) => {
@@ -135,8 +141,10 @@ function AdminOrdersPage() {
         setPaymentFilter={setPaymentFilter}
         timeFilter={timeFilter}
         setTimeFilter={setTimeFilter}
-        dateFilter={dateFilter}
-        setDateFilter={setDateFilter}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
         resultCount={filteredOrders.length}
         isMobileFiltersOpen={isMobileFiltersOpen}
         setIsMobileFiltersOpen={setIsMobileFiltersOpen}

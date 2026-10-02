@@ -1,7 +1,7 @@
-import { Archive, PenLine } from 'lucide-react'
+import { Archive, PenLine, CheckSquare, Eye, Copy, Trash2 } from 'lucide-react'
 import type { AdminProductListItem } from '@/lib/admin/products-api'
-import { Link } from '@tanstack/react-router'
-import { AdminTableShell, AdminTh, AdminTd, StatusBadge, AdminThumbnail, AdminButton } from '@/components/admin/ui/primitives'
+import { Link, useRouter } from '@tanstack/react-router'
+import { AdminTableShell, AdminTh, AdminTd, StatusBadge, AdminThumbnail, AdminButton, AdminActionsDropdown, AdminCheckbox } from '@/components/admin/ui/primitives'
 
 interface ProductTableProps {
   products: AdminProductListItem[]
@@ -12,7 +12,7 @@ interface ProductTableProps {
 }
 
 export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAll, onQuickAction }: ProductTableProps) {
-  
+  const router = useRouter()
   const allSelected = products.length > 0 && selectedIds.length === products.length
 
   // Desktop Table
@@ -23,11 +23,9 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
           <thead>
             <tr className="bg-cloud/50 border-b border-ink/10">
               <AdminTh className="w-12">
-                <input 
-                  type="checkbox" 
+                <AdminCheckbox 
                   checked={allSelected}
                   onChange={onToggleAll}
-                  className="w-4 h-4 rounded border-ink/20 text-sky focus:ring-sky cursor-pointer"
                 />
               </AdminTh>
               <AdminTh>Product</AdminTh>
@@ -42,13 +40,15 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
             {products.map(product => {
               const isSelected = selectedIds.includes(product.id)
               return (
-                <tr key={product.id} className={`border-b border-ink/5 hover:bg-ink/[0.02] transition-colors ${isSelected ? 'bg-sky/5' : ''}`}>
+                <tr 
+                  key={product.id} 
+                  onClick={() => onToggleSelect(product.id)}
+                  className={`border-b border-ink/5 hover:bg-ink/[0.02] transition-colors cursor-pointer ${isSelected ? 'bg-sky/5' : ''}`}
+                >
                   <AdminTd>
-                    <input 
-                      type="checkbox" 
+                    <AdminCheckbox 
                       checked={isSelected}
                       onChange={() => onToggleSelect(product.id)}
-                      className="w-4 h-4 rounded border-ink/20 text-sky focus:ring-sky cursor-pointer"
                     />
                   </AdminTd>
                   <AdminTd>
@@ -63,18 +63,41 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
                   <AdminTd className="text-ink/70">{product.variant_count}</AdminTd>
                   <AdminTd className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link 
-                        to="/admin/products/$productId"
-                        params={{ productId: product.id }}
-                        title="Edit"
-                      >
-                        <AdminButton variant="ghost" icon={<PenLine className="w-4 h-4" />} />
-                      </Link>
-                      <AdminButton 
-                        variant="danger" 
-                        icon={<Archive className="w-4 h-4" />}
-                        onClick={() => onQuickAction(product.id, 'archive')}
-                        title="Archive"
+                      <AdminActionsDropdown 
+                        actions={[
+                          {
+                            label: 'Select',
+                            icon: <CheckSquare className="w-4 h-4" />,
+                            onClick: () => onToggleSelect(product.id)
+                          },
+                          {
+                            label: 'Edit',
+                            icon: <PenLine className="w-4 h-4" />,
+                            onClick: () => router.navigate({ to: '/admin/products/$productId', params: { productId: product.id } })
+                          },
+                          {
+                            label: 'View in store',
+                            icon: <Eye className="w-4 h-4" />,
+                            onClick: () => window.open(`/products/${product.slug}`, '_blank')
+                          },
+                          {
+                            label: 'Duplicate',
+                            icon: <Copy className="w-4 h-4" />,
+                            onClick: () => window.alert('Duplicate functionality coming soon')
+                          },
+                          {
+                            label: 'Archive',
+                            icon: <Archive className="w-4 h-4" />,
+                            onClick: () => onQuickAction(product.id, 'archive'),
+                            danger: true
+                          },
+                          {
+                            label: 'Delete',
+                            icon: <Trash2 className="w-4 h-4" />,
+                            onClick: () => onQuickAction(product.id, 'delete'),
+                            danger: true
+                          }
+                        ]}
                       />
                     </div>
                   </AdminTd>
@@ -93,14 +116,18 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
       {products.map(product => {
         const isSelected = selectedIds.includes(product.id)
         return (
-          <div key={product.id} className={`bg-white border rounded-xl p-4 shadow-sm transition-colors ${isSelected ? 'border-sky bg-sky/5' : 'border-ink/10'}`}>
+          <div 
+            key={product.id} 
+            onClick={() => onToggleSelect(product.id)}
+            className={`bg-white border rounded-xl p-4 shadow-sm transition-colors cursor-pointer ${isSelected ? 'border-sky bg-sky/5' : 'border-ink/10'}`}
+          >
             <div className="flex gap-4">
-              <input 
-                type="checkbox" 
-                checked={isSelected}
-                onChange={() => onToggleSelect(product.id)}
-                className="mt-1 w-4 h-4 rounded border-ink/20 text-sky focus:ring-sky cursor-pointer shrink-0"
-              />
+              <div className="mt-1 shrink-0">
+                <AdminCheckbox 
+                  checked={isSelected}
+                  onChange={() => onToggleSelect(product.id)}
+                />
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start gap-2 mb-3">
                   <div className="flex items-center gap-3">
@@ -116,8 +143,42 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
                 <div className="flex items-center justify-between pt-3 border-t border-ink/5">
                   <span className="text-xs text-ink/60 capitalize">{product.gender} • {product.category} ({product.variant_count} var)</span>
                   <div className="flex gap-3">
-                    <Link to="/admin/products/$productId" params={{ productId: product.id }} className="text-xs font-semibold text-sky">Edit</Link>
-                    <button onClick={() => onQuickAction(product.id, 'archive')} className="text-xs font-semibold text-red-500">Archive</button>
+                    <AdminActionsDropdown 
+                      actions={[
+                        {
+                          label: 'Select',
+                          icon: <CheckSquare className="w-4 h-4" />,
+                          onClick: () => onToggleSelect(product.id)
+                        },
+                        {
+                          label: 'Edit',
+                          icon: <PenLine className="w-4 h-4" />,
+                          onClick: () => router.navigate({ to: '/admin/products/$productId', params: { productId: product.id } })
+                        },
+                        {
+                          label: 'View in store',
+                          icon: <Eye className="w-4 h-4" />,
+                          onClick: () => window.open(`/products/${product.slug}`, '_blank')
+                        },
+                        {
+                          label: 'Duplicate',
+                          icon: <Copy className="w-4 h-4" />,
+                          onClick: () => window.alert('Duplicate functionality coming soon')
+                        },
+                        {
+                          label: 'Archive',
+                          icon: <Archive className="w-4 h-4" />,
+                          onClick: () => onQuickAction(product.id, 'archive'),
+                          danger: true
+                        },
+                        {
+                          label: 'Delete',
+                          icon: <Trash2 className="w-4 h-4" />,
+                          onClick: () => onQuickAction(product.id, 'delete'),
+                          danger: true
+                        }
+                      ]}
+                    />
                   </div>
                 </div>
               </div>

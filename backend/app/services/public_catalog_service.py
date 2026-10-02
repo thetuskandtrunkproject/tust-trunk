@@ -3,8 +3,8 @@ from fastapi import HTTPException
 from supabase import Client
 
 def list_public_categories(db: Client) -> list:
-    """Fetch all active categories for the public sidebar."""
-    res = db.table('categories').select('id, name, slug').eq('is_active', True).execute()
+    """Fetch all active categories for the public sidebar and mega menu."""
+    res = db.table('categories').select('id, name, slug, gender').eq('is_active', True).execute()
     return res.data
 
 
@@ -97,17 +97,26 @@ def get_public_product(db: Client, slug: str) -> dict:
 def resolve_variants(db: Client, ids_str: str) -> dict:
     """Resolve a comma-separated list of variant UUIDs for guest carts."""
     # Parse and limit to 50
+    import uuid
     ids_list = [v_id.strip() for v_id in ids_str.split(',') if v_id.strip()]
-    if not ids_list:
+    valid_ids = []
+    for vid in ids_list:
+        try:
+            uuid.UUID(vid)
+            valid_ids.append(vid)
+        except ValueError:
+            pass
+            
+    if not valid_ids:
         return {'items': []}
         
-    ids_list = ids_list[:50]
+    valid_ids = valid_ids[:50]
     
     # Query product_variants joined with products
     res = (
         db.table('product_variants')
         .select('*, products(*)')
-        .in_('id', ids_list)
+        .in_('id', valid_ids)
         .execute()
     )
     
@@ -145,17 +154,26 @@ def resolve_variants(db: Client, ids_str: str) -> dict:
 
 def resolve_products(db: Client, ids_str: str) -> dict:
     """Resolve a comma-separated list of product UUIDs for guest wishlists."""
+    import uuid
     ids_list = [p_id.strip() for p_id in ids_str.split(',') if p_id.strip()]
-    if not ids_list:
+    valid_ids = []
+    for pid in ids_list:
+        try:
+            uuid.UUID(pid)
+            valid_ids.append(pid)
+        except ValueError:
+            pass
+            
+    if not valid_ids:
         return {'items': [], 'total': 0, 'page': 1, 'page_size': 50, 'total_pages': 0}
         
-    ids_list = ids_list[:50]
+    valid_ids = valid_ids[:50]
     
     # Query products joined with categories and variants
     res = (
         db.table('products')
         .select('*, categories!inner(name), product_variants(price, stock, is_active)')
-        .in_('id', ids_list)
+        .in_('id', valid_ids)
         .eq('status', 'Active')
         .eq('categories.is_active', True)
         .execute()

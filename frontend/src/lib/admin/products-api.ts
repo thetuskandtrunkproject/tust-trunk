@@ -11,6 +11,11 @@ export interface AdminProductVariant {
   product_id?: string
 }
 
+export interface ProductDetail {
+  key: string
+  value: string
+}
+
 export interface AdminProductListItem {
   id: string
   name: string
@@ -21,6 +26,7 @@ export interface AdminProductListItem {
   status: 'Active' | 'Draft' | 'Archived'
   images: string[]
   tags: string[]
+  details?: ProductDetail[]
   variant_count: number
   total_stock: number
   created_at: string
@@ -39,6 +45,7 @@ export interface AdminProduct {
   status: 'Active' | 'Draft' | 'Archived'
   images: string[]
   tags: string[]
+  details?: ProductDetail[]
   variants: AdminProductVariant[]
   created_at: string
   updated_at: string

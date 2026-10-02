@@ -15,24 +15,38 @@ export const Route = createFileRoute('/admin/dashboard')({
 function AdminDashboardPage() {
   const [dashboard, setDashboard] = useState<any>(null)
   const [timeRange, setTimeRange] = useState('30d')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  
   const [isLoading, setIsLoading] = useState(true)
   const { showToast } = useToast()
-  const fetchedRef = useRef(false)
+  const cacheRef = useRef<Record<string, any>>({})
+  const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
-    // Guard against StrictMode double-mount on initial load
-    if (fetchedRef.current && timeRange === '30d') {
-      // Allow refetch if timeRange actually changed
-    }
-    fetchedRef.current = true
-
     const controller = new AbortController()
-    const fetchDashboard = async () => {
+    const cacheKey = timeRange === 'custom' ? `custom:${startDate}:${endDate}` : timeRange
+
+    // INSTANT DISPLAY FROM CACHE (0ms delay)
+    if (cacheRef.current[cacheKey]) {
+      setDashboard(cacheRef.current[cacheKey])
+      setIsLoading(false)
+    } else if (!dashboard) {
       setIsLoading(true)
+    }
+
+    const fetchDashboard = async () => {
       try {
-        const res = await api.get(`/api/v1/admin/dashboard?time_range=${timeRange}`, {
+        let url = `/api/v1/admin/dashboard?time_range=${timeRange}`
+        if (timeRange === 'custom') {
+          if (!startDate || !endDate) return
+          url += `&start_date=${startDate}&end_date=${endDate}`
+        }
+        
+        const res = await api.get(url, {
           signal: controller.signal,
         })
+        cacheRef.current[cacheKey] = res.data
         setDashboard(res.data)
       } catch (err: any) {
         if (err.name === 'CanceledError' || controller.signal.aborted) return
@@ -45,7 +59,7 @@ function AdminDashboardPage() {
     }
     fetchDashboard()
     return () => controller.abort()
-  }, [timeRange])
+  }, [timeRange, startDate, endDate, retryCount])
 
   if (isLoading && !dashboard) {
     return <AdminSpinner />
@@ -56,7 +70,7 @@ function AdminDashboardPage() {
       <div className="p-12 text-center">
         <p className="text-ink/60 font-bold mb-4">Failed to load dashboard.</p>
         <button
-          onClick={() => setTimeRange(prev => prev)}
+          onClick={() => setRetryCount(prev => prev + 1)}
           className="text-sm font-semibold text-sky hover:underline"
         >
           Retry
@@ -73,27 +87,38 @@ function AdminDashboardPage() {
         description="Here's what's happening with your store today."
       />
 
-      {/* Top Stat Cards */}
-      <RevenueCards 
-        todayRevenue={dashboard.todayRevenue / 100}
-        yesterdayRevenue={dashboard.yesterdayRevenue / 100}
-        thisWeekRevenue={dashboard.thisWeekRevenue / 100}
-        thisMonthRevenue={dashboard.thisMonthRevenue / 100}
-        thisYearRevenue={dashboard.thisYearRevenue / 100}
-      />
+      <div id="revenue-section" className="flex flex-col gap-6">
+        {/* Top Stat Cards */}
+        <RevenueCards 
+          periodRevenue={dashboard.periodRevenue / 100}
+          previousPeriodRevenue={dashboard.previousPeriodRevenue / 100}
+          avgDailyRevenue={dashboard.avgDailyRevenue / 100}
+          totalOrders={dashboard.totalOrders}
+          avgOrderValue={dashboard.avgOrderValue / 100}
+          todayRevenue={(dashboard.todayRevenue || 0) / 100}
+          weekRevenue={(dashboard.weekRevenue || 0) / 100}
+          monthRevenue={(dashboard.monthRevenue || 0) / 100}
+          yearRevenue={(dashboard.yearRevenue || 0) / 100}
+          timeRange={timeRange}
+        />
 
-      {/* Main Grid Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Chart Area (takes up full width) */}
-        <div className="lg:col-span-3">
-          <RevenueChart 
-            data={dashboard.revenueData.map((d: any) => ({ ...d, revenue: d.revenue / 100 }))} 
-            timeRange={timeRange}
-            onTimeRangeChange={setTimeRange}
-          />
+        {/* Main Grid Area */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Chart Area (takes up full width) */}
+          <div className="lg:col-span-3">
+            <RevenueChart 
+              data={dashboard.revenueData.map((d: any) => ({ ...d, revenue: d.revenue / 100 }))} 
+              timeRange={timeRange}
+              onTimeRangeChange={setTimeRange}
+              startDate={startDate}
+              endDate={endDate}
+              onStartDateChange={setStartDate}
+              onEndDateChange={setEndDate}
+            />
+          </div>
+          
         </div>
-        
       </div>
 
       {/* Bottom Area */}

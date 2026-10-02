@@ -19,7 +19,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     try {
       const res = await api.get('/api/v1/wishlist')
       // backend returns items: [{ product_id, created_at, product_name_snapshot }]
-      const ids = res.data.items.map((i: any) => i.product_id)
+      const ids = res.data.items.map((i: any) => i.product_id).filter(Boolean)
       setWishlistIds(ids)
     } catch (err) {
       console.error("Failed to fetch wishlist", err)

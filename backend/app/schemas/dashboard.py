@@ -20,12 +20,15 @@ class ActivityItem(BaseModel):
     time: str
 
 class DashboardResponse(BaseModel):
-    todayRevenue: int
-    yesterdayRevenue: int
-    thisWeekRevenue: int
-    thisMonthRevenue: int
-    thisYearRevenue: int
-    totalOrdersMonth: int
+    periodRevenue: int
+    previousPeriodRevenue: int
+    avgDailyRevenue: int
+    totalOrders: int
+    avgOrderValue: int
+    todayRevenue: Optional[int] = 0
+    weekRevenue: Optional[int] = 0
+    monthRevenue: Optional[int] = 0
+    yearRevenue: Optional[int] = 0
     pendingOrders: int
     lowStockCount: int
     revenueData: List[RevenueDataPoint]

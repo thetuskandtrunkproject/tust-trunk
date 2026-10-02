@@ -5,6 +5,22 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
+def _format_order_number(order_number: str) -> str:
+    if not order_number:
+        return 'ORD-TT-001'
+    if order_number.startswith('ORD-TT-'):
+        return order_number
+    import re
+    nums = re.findall(r'\d+', order_number)
+    if nums:
+        seq_str = nums[1] if len(nums) >= 2 else nums[0]
+        try:
+            val = int(seq_str)
+            return f"ORD-TT-{val:03d}"
+        except ValueError:
+            pass
+    return order_number
+
 def _map_errcode_to_http(e: Exception):
     code = None
     if hasattr(e, 'code'): code = e.code
@@ -61,7 +77,7 @@ def get_user_orders(db: Client, user_id: str) -> dict:
         items_data = _format_items(order.get('order_items', []))
         orders_data.append({
             "id": order['id'],
-            "order_number": order['order_number'],
+            "order_number": _format_order_number(order['order_number']),
             "created_at": order['created_at'],
             "status": order['status'],
             "total_paise": order['total_paise'],
@@ -90,7 +106,7 @@ def get_user_order_detail(db: Client, user_id: str, order_id: str) -> dict:
     
     return {
         "id": order['id'],
-        "order_number": order['order_number'],
+        "order_number": _format_order_number(order['order_number']),
         "created_at": order['created_at'],
         "status": order['status'],
         "total_paise": order['total_paise'],
@@ -153,7 +169,7 @@ def get_admin_orders(
             
         orders_data.append({
             "id": order['id'],
-            "order_number": order['order_number'],
+            "order_number": _format_order_number(order['order_number']),
             "customer_name": customer_name,
             "customer_email": customer_email,
             "customer_phone": customer_phone,
@@ -206,7 +222,7 @@ def get_admin_order_detail(db: Client, order_id: str) -> dict:
     
     return {
         "id": order['id'],
-        "order_number": order['order_number'],
+        "order_number": _format_order_number(order['order_number']),
         "customer_name": customer_name,
         "customer_email": customer_email,
         "customer_phone": customer_phone,

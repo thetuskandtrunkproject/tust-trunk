@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Heart } from 'lucide-react'
+import { Heart, Plus } from 'lucide-react'
 import { useWishlist } from '@/context/wishlist-context'
 
 interface ProductCardProps {
@@ -25,20 +25,20 @@ export function ProductCard({ id, slug, name, price, img, hoverImg, category, ta
     toggleWishlist(id)
   }
 
-  const getTagColor = (tag: string) => {
+  const getTagStyle = (tag: string): { bg: string; text: string; accent: string } => {
     const t = tag.toLowerCase()
-    if (t === 'bestseller') return 'bg-coral text-white'
-    if (t === 'sale') return 'bg-watermelon text-white'
-    if (t === 'new') return 'bg-sky-soft text-ink'
-    return 'bg-ink text-white'
+    if (t === 'bestseller') return { bg: '#FFF3CD', text: '#856404', accent: '#FFD93D' }
+    if (t === 'sale') return { bg: '#FFE8EC', text: '#CC2936', accent: '#FF6B6B' }
+    if (t === 'new') return { bg: '#E8F4FD', text: '#1565C0', accent: '#7EC8E3' }
+    return { bg: '#F0F0F0', text: '#333', accent: '#666' }
   }
 
   return (
-    <Link to="/products/$slug" params={{ slug }} className="group block w-full relative snap-start">
+    <Link to="/products/$slug" params={{ slug }} className="group block w-full relative">
       {/* Card Container */}
-      <div className="relative w-full bg-cloud rounded-xl overflow-hidden border border-ink/5 mb-3">
-        {/* Image Crossfade */}
-        <div className="relative w-full aspect-[4/5] overflow-hidden">
+      <div className="relative w-full bg-white rounded-2xl overflow-hidden border border-ink/6 shadow-[0_1px_4px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow duration-500 mb-3">
+        {/* Image Container */}
+        <div className="relative w-full aspect-[4/5] overflow-hidden bg-[#FAFAFA]">
           <img 
             src={img} 
             alt={name} 
@@ -52,28 +52,45 @@ export function ProductCard({ id, slug, name, price, img, hoverImg, category, ta
             />
           )}
           
-          {/* Tags */}
+          {/* Tags — ribbon style */}
           {tags.length > 0 && (
-            <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-              {tags.map(tag => (
-                <div key={tag} className={`${getTagColor(tag)} text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-sm inline-block w-max`}>
-                  {tag}
-                </div>
-              ))}
+            <div className="absolute top-3 left-0 flex flex-col gap-1.5 z-10">
+              {tags.map(tag => {
+                const style = getTagStyle(tag)
+                return (
+                  <div 
+                    key={tag} 
+                    className="text-[10px] font-extrabold uppercase tracking-wider pl-3 pr-3 py-1 rounded-r-full shadow-sm"
+                    style={{ backgroundColor: style.bg, color: style.text }}
+                  >
+                    {tag}
+                  </div>
+                )
+              })}
             </div>
           )}
 
           {/* Wishlist Button */}
           <button 
             onClick={handleWishlist}
-            className={`absolute top-3 right-3 p-2 rounded-full transition-all z-10 hover:scale-110 ${
+            className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-300 z-10 hover:scale-110 ${
               wishlisted 
-                ? 'bg-watermelon text-white opacity-100' 
-                : 'bg-white/80 text-ink opacity-0 group-hover:opacity-100 shadow-sm'
+                ? 'bg-coral text-white opacity-100 shadow-md' 
+                : 'bg-white/90 text-ink/40 opacity-0 group-hover:opacity-100 shadow-md backdrop-blur-sm hover:text-coral'
             }`}
           >
-            <Heart className={`w-4 h-4 ${wishlisted ? 'fill-white text-white' : ''}`} />
+            <Heart className={`w-4 h-4 ${wishlisted ? 'fill-current' : ''}`} />
           </button>
+
+          {/* Quick Add Floating Button — appears on hover */}
+          <div className="absolute bottom-3 left-3 right-3 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out z-10">
+            <div className="flex items-center justify-between bg-gradient-to-r from-coral to-[#FF8FA3] text-white rounded-full pl-4 pr-1.5 py-1.5 shadow-lg">
+              <span className="text-xs font-bold tracking-wide">Select Size</span>
+              <div className="w-7 h-7 bg-white/25 rounded-full flex items-center justify-center">
+                <Plus className="w-3.5 h-3.5" />
+              </div>
+            </div>
+          </div>
 
           {/* Action Button (e.g. Quick Add / Move to Cart) */}
           {actionButton && (
@@ -84,9 +101,12 @@ export function ProductCard({ id, slug, name, price, img, hoverImg, category, ta
         </div>
 
         {/* Size Chips Row */}
-        <div className="flex flex-wrap gap-1 px-3 py-2 border-t border-ink/5">
+        <div className="flex flex-wrap gap-1.5 px-3 py-2.5">
           {sizes.map(size => (
-            <span key={size} className="text-[9px] text-ink/60 font-bold border border-ink/15 rounded px-1.5 py-0.5 transition-colors hover:border-ink hover:bg-ink hover:text-white">
+            <span 
+              key={size} 
+              className="text-[10px] text-ink/70 font-bold border border-ink/12 rounded-md px-2 py-1 bg-white transition-colors hover:border-ink/40 hover:text-ink"
+            >
               {size}
             </span>
           ))}
@@ -95,8 +115,8 @@ export function ProductCard({ id, slug, name, price, img, hoverImg, category, ta
 
       {/* Product Info */}
       <div className="px-1">
-        <h3 className="font-sans font-bold text-sm text-ink line-clamp-1">{name}</h3>
-        <p className="font-sans font-bold text-sm text-ink mt-0.5">{price}</p>
+        <h3 className="font-sans font-semibold text-[13px] text-ink line-clamp-1 leading-snug">{name}</h3>
+        <p className="font-sans font-bold text-[14px] text-ink mt-1">{price}</p>
       </div>
     </Link>
   )

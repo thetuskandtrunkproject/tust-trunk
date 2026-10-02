@@ -133,6 +133,7 @@ def create_product(db: Client, data: ProductCreate, admin_user: dict) -> dict:
         'category_id': str(data.category_id),
         'images': data.images,
         'tags': data.tags,
+        'details': data.details,
         'status': data.status,
         'created_by': admin_user['id'],
     }

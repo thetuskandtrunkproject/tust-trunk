@@ -4,6 +4,7 @@ import { Plus, Edit2, Trash2, ArrowLeft } from 'lucide-react'
 import type { Category } from '@/lib/admin/categories-api'
 import { fetchCategories, createCategory, updateCategory, deleteCategory } from '@/lib/admin/categories-api'
 import { useToast } from '@/context/toast-context'
+import { ConfirmModal } from '@/components/admin/ui/primitives'
 
 export const Route = createFileRoute('/admin/categories/')({
   component: CategoriesPage,
@@ -20,6 +21,21 @@ function CategoriesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [formData, setFormData] = useState({ name: '', slug: '', description: '', gender: 'Women', is_active: true })
+  
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    confirmText?: string;
+    isDestructive?: boolean;
+    isLoading?: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  })
 
   const loadCategories = async () => {
     setLoading(true)
@@ -72,15 +88,28 @@ function CategoriesPage() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this category?')) return
-    try {
-      await deleteCategory(id)
-      showToast('Category deleted successfully')
-      loadCategories()
-    } catch (err: any) {
-      showToast(err.response?.data?.detail || 'Failed to delete category (it may be in use)')
-    }
+  const handleDelete = (id: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Category',
+      message: 'Are you sure you want to delete this category? This action cannot be undone.',
+      confirmText: 'Delete',
+      isDestructive: true,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isLoading: true }))
+        try {
+          await deleteCategory(id)
+          showToast('Category deleted successfully')
+          loadCategories()
+          setConfirmModal(prev => ({ ...prev, isOpen: false }))
+        } catch (err: any) {
+          showToast(err.response?.data?.detail || 'Failed to delete category (it may be in use)')
+          setConfirmModal(prev => ({ ...prev, isOpen: false }))
+        } finally {
+          setConfirmModal(prev => ({ ...prev, isLoading: false }))
+        }
+      }
+    })
   }
 
   const generateSlug = (name: string) => {
@@ -267,6 +296,17 @@ function CategoriesPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        isDestructive={confirmModal.isDestructive}
+        isLoading={confirmModal.isLoading}
+      />
     </div>
   )
 }

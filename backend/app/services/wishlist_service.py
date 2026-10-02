@@ -18,6 +18,7 @@ def get_wishlist(db: Client, user_id: str) -> dict:
         formatted_items.append({
             "id": item["id"],
             "user_id": item["user_id"],
+            "product_id": item["product_id"],
             "created_at": item["created_at"],
             "product": product,
             "is_available": is_available

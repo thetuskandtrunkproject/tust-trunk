@@ -92,7 +92,7 @@ function ShopPage() {
   const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`
 
   return (
-    <div className="bg-sky-soft/30 min-h-screen">
+    <div className="bg-cloud min-h-screen">
       <div className="container mx-auto px-4 lg:px-8 py-8 md:py-12">
       {/* Page Title & Breadcrumb */}
       <div className="mb-6">

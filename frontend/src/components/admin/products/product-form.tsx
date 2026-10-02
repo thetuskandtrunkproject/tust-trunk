@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Save, Plus, Loader2 } from 'lucide-react'
 import type { AdminProduct } from '@/lib/admin/products-api'
-import { 
-  createAdminProduct, 
-  updateAdminProduct, 
-  addVariant, 
-  updateVariant, 
+import {
+  createAdminProduct,
+  updateAdminProduct,
+  addVariant,
+  updateVariant,
   deactivateVariant,
   uploadProductImage,
   deleteProductImage
@@ -65,7 +65,7 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
       }
     }
     loadCategories()
-    
+
     if (initialData) {
       if (initialData.variants && initialData.variants.length > 0) {
         setBasePrice((initialData.variants[0].price / 100).toString())
@@ -93,7 +93,7 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
       return
     }
     setIsSubmitting(true)
-    
+
     try {
       const tags = collectionBadge !== 'None' ? [collectionBadge] : []
       if (isEditing && initialData) {
@@ -104,7 +104,8 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
           category_id: formData.category_id,
           status: formData.status,
           slug: formData.slug,
-          tags: tags
+          tags: tags,
+          details: formData.details || []
         })
         const currentVariantIds = formData.variants.map(v => v.id)
         for (const v of formData.variants) {
@@ -134,7 +135,7 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
         }))
         const newProduct = await createAdminProduct({
           name: formData.name, slug: formData.slug, description: formData.description, gender: formData.gender,
-          category_id: formData.category_id, status: formData.status, images: [], tags: tags, variants: variantsPayload
+          category_id: formData.category_id, status: formData.status, images: [], tags: tags, details: formData.details || [], variants: variantsPayload
         })
         for (const file of newFiles) {
           await uploadProductImage(newProduct.id, file)
@@ -161,6 +162,22 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
     }
   }
 
+  const handleAddDetail = () => {
+    const newDetails = [...(formData.details || []), { key: '', value: '' }]
+    handleChange('details', newDetails)
+  }
+
+  const handleUpdateDetail = (index: number, field: 'key' | 'value', val: string) => {
+    const newDetails = [...(formData.details || [])]
+    newDetails[index] = { ...newDetails[index], [field]: val }
+    handleChange('details', newDetails)
+  }
+
+  const handleRemoveDetail = (index: number) => {
+    const newDetails = (formData.details || []).filter((_, i) => i !== index)
+    handleChange('details', newDetails)
+  }
+
   // Professional styling (Shopify/Stripe-like)
   const inputClassName = "w-full bg-white border border-[#D1D5DB] text-[#111827] rounded-md px-3 py-2 text-[14px] shadow-sm focus:outline-none focus:ring-1 focus:ring-[#005bd3] focus:border-[#005bd3] transition-colors"
   const labelClassName = "block text-[13px] font-medium text-[#374151] mb-1.5"
@@ -169,12 +186,12 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-[1000px] mx-auto pb-24 font-sans text-[#111827]">
-      
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6 pt-2">
         <div className="flex items-center gap-4">
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={() => navigate({ to: '/admin/products' })}
             className="p-1.5 text-[#6B7280] hover:text-[#111827] hover:bg-[#F3F4F6] rounded-md transition-colors"
           >
@@ -184,9 +201,9 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
             {isEditing ? 'Edit Product' : 'Add Product'}
           </h1>
         </div>
-        
+
         <div className="flex items-center gap-3">
-          <select 
+          <select
             value={formData.status}
             onChange={(e) => handleChange('status', e.target.value)}
             className="bg-white border border-[#D1D5DB] text-[#111827] rounded-md px-3 py-1.5 text-[14px] font-medium shadow-sm focus:outline-none focus:border-[#005bd3]"
@@ -195,8 +212,8 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
             <option value="Active">Active</option>
             <option value="Archived">Archived</option>
           </select>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isSubmitting}
             className="bg-[#005bd3] hover:bg-[#004c99] text-white px-4 py-1.5 rounded-md font-medium text-[14px] flex items-center gap-2 shadow-sm transition-colors disabled:opacity-50"
           >
@@ -207,18 +224,18 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* LEFT COLUMN */}
         <div className="lg:col-span-2 space-y-6">
-          
+
           {/* General Information */}
           <div className={cardClassName}>
             <h2 className={sectionTitleClassName}>General</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className={labelClassName}>Title</label>
-                <input 
+                <input
                   required
                   type="text"
                   value={formData.name}
@@ -233,7 +250,7 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
 
               <div>
                 <label className={labelClassName}>Description</label>
-                <textarea 
+                <textarea
                   rows={6}
                   value={formData.description}
                   onChange={(e) => handleChange('description', e.target.value)}
@@ -246,10 +263,10 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
           {/* Product Images */}
           <div className={cardClassName}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className={sectionTitleClassName} style={{marginBottom: 0}}>Media</h2>
+              <h2 className={sectionTitleClassName} style={{ marginBottom: 0 }}>Media</h2>
             </div>
-            <ImageUploader 
-              existingImages={formData.images || []} 
+            <ImageUploader
+              existingImages={formData.images || []}
               newFiles={newFiles}
               onAddFiles={(files) => setNewFiles(prev => [...prev, ...files])}
               onRemoveExisting={handleDeleteImage}
@@ -259,8 +276,8 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
 
           {/* Variants */}
           <div className={cardClassName}>
-            <VariantEditor 
-              variants={formData.variants || []} 
+            <VariantEditor
+              variants={formData.variants || []}
               onChange={(variants) => handleChange('variants', variants)}
             />
           </div>
@@ -268,17 +285,17 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
 
         {/* RIGHT COLUMN */}
         <div className="space-y-6">
-          
+
           {/* Pricing */}
           <div className={cardClassName}>
             <h2 className={sectionTitleClassName}>Pricing</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className={labelClassName}>Price</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]">₹</span>
-                  <input 
+                  <input
                     type="number"
                     value={basePrice}
                     onChange={e => setBasePrice(e.target.value)}
@@ -290,7 +307,7 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
 
               <div className="pt-2 border-t border-[#E5E7EB]">
                 <label className="flex items-center gap-2 cursor-pointer mb-3 mt-1">
-                  <input 
+                  <input
                     type="checkbox"
                     checked={onSale}
                     onChange={(e) => setOnSale(e.target.checked)}
@@ -298,13 +315,13 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
                   />
                   <span className="text-[13px] font-medium text-[#374151]">Set compare at price (Sale)</span>
                 </label>
-                
+
                 {onSale && (
                   <div>
                     <label className={labelClassName}>Sale Price</label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]">₹</span>
-                      <input 
+                      <input
                         type="number"
                         value={salePrice}
                         onChange={e => setSalePrice(e.target.value)}
@@ -318,15 +335,69 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
             </div>
           </div>
 
+          {/* Product Details (Key-Value) */}
+          <div className={cardClassName}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={sectionTitleClassName} style={{ marginBottom: 0 }}>Product Details</h2>
+              <button
+                type="button"
+                onClick={handleAddDetail}
+                className="text-[13px] font-medium text-[#005bd3] hover:text-[#004c99] transition-colors flex items-center gap-1"
+              >
+                <Plus className="w-4 h-4" /> Add Detail
+              </button>
+            </div>
+
+            <p className="text-[12px] text-[#6B7280] mb-4">
+              Add custom specifications like Material, Fit, or Care Instructions.
+            </p>
+
+            <div className="space-y-3">
+              {!(formData.details && formData.details.length > 0) && (
+                <div className="text-[13px] text-[#6B7280] bg-[#F9FAFB] p-3 rounded border border-[#E5E7EB] text-center">
+                  No details added yet.
+                </div>
+              )}
+              {formData.details?.map((detail, index) => (
+                <div key={index} className="flex items-start gap-2">
+                  <input
+                    type="text"
+                    required
+                    value={detail.key}
+                    onChange={(e) => handleUpdateDetail(index, 'key', e.target.value)}
+                    placeholder="Key (e.g. Material)"
+                    className={`${inputClassName.replace('w-full', '')} flex-1 min-w-0`}
+                  />
+                  <input
+                    type="text"
+                    required
+                    value={detail.value}
+                    onChange={(e) => handleUpdateDetail(index, 'value', e.target.value)}
+                    placeholder="Value (e.g. 100% Cotton)"
+                    className={`${inputClassName.replace('w-full', '')} flex-1 min-w-0`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveDetail(index)}
+                    className="p-2 text-[#9CA3AF] hover:text-[#EF4444] rounded transition-colors"
+                    title="Remove"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Organization */}
           <div className={cardClassName}>
             <h2 className={sectionTitleClassName}>Product organization</h2>
-            
+
             <div className="space-y-4">
               {!initialData && (
                 <div>
                   <label className={labelClassName}>Category</label>
-                  <select 
+                  <select
                     required
                     value={formData.category_id}
                     onChange={(e) => handleChange('category_id', e.target.value)}
@@ -342,7 +413,7 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
 
               <div>
                 <label className={labelClassName}>Gender</label>
-                <select 
+                <select
                   value={formData.gender}
                   onChange={(e) => handleChange('gender', e.target.value)}
                   className={inputClassName}
@@ -354,7 +425,7 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
 
               <div>
                 <label className={labelClassName}>Collection Badge</label>
-                <select 
+                <select
                   value={collectionBadge}
                   onChange={(e) => setCollectionBadge(e.target.value)}
                   className={inputClassName}
@@ -368,7 +439,7 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
 
               <div>
                 <label className={labelClassName}>Slug (URL handle)</label>
-                <input 
+                <input
                   required
                   type="text"
                   value={formData.slug}

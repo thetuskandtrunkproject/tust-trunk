@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Save, RotateCcw, ImagePlus } from 'lucide-react'
 import { useToast } from '@/context/toast-context'
 import { MOCK_SHOP_SETTINGS, type ShopSettings } from '@/lib/admin/mock-shop-settings'
-import { AdminPageHeader, AdminButton } from '@/components/admin/ui/primitives'
+import { AdminPageHeader, AdminButton, ConfirmModal } from '@/components/admin/ui/primitives'
 import logoImg from '@/assets/logo_full_hd.png'
 
 export const Route = createFileRoute('/admin/shop')({
@@ -14,6 +14,7 @@ function AdminShopSettingsPage() {
   const { showToast } = useToast()
   const [settings, setSettings] = useState<ShopSettings>(MOCK_SHOP_SETTINGS)
   const [isSaving, setIsSaving] = useState(false)
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false)
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -24,10 +25,13 @@ function AdminShopSettingsPage() {
   }
 
   const handleReset = () => {
-    if (window.confirm("Are you sure you want to discard your unsaved changes?")) {
-      setSettings(MOCK_SHOP_SETTINGS)
-      showToast("Settings reset to defaults")
-    }
+    setIsResetModalOpen(true)
+  }
+
+  const confirmReset = () => {
+    setSettings(MOCK_SHOP_SETTINGS)
+    showToast("Settings reset to defaults")
+    setIsResetModalOpen(false)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -255,6 +259,16 @@ function AdminShopSettingsPage() {
           </div>
         </section>
       </div>
+
+      <ConfirmModal
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onConfirm={confirmReset}
+        title="Discard Changes"
+        message="Are you sure you want to discard your unsaved changes? This cannot be undone."
+        confirmText="Discard"
+        isDestructive={true}
+      />
     </div>
   )
 }

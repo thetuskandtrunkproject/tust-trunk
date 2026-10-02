@@ -18,6 +18,7 @@ export type PublicProduct = {
   category_id: string
   images: string[]
   tags: string[]
+  details?: { key: string; value: string }[]
   variants: PublicVariant[]
 }
 
@@ -47,6 +48,7 @@ export type PublicCategory = {
   id: string
   name: string
   slug: string
+  gender?: string
 }
 
 export const fetchPublicCategories = async (): Promise<PublicCategory[]> => {
