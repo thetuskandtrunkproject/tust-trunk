@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react'
+import { type ReactNode, forwardRef } from 'react'
 
 /* ─── AdminCard ─── */
 interface AdminCardProps {
@@ -7,13 +7,18 @@ interface AdminCardProps {
   padding?: boolean
 }
 
-export function AdminCard({ children, className = '', padding = true }: AdminCardProps) {
-  return (
-    <div className={`bg-white rounded-xl shadow-sm border border-[#E3E3E3] ${padding ? 'p-5' : ''} ${className}`}>
-      {children}
-    </div>
-  )
-}
+export const AdminCard = forwardRef<HTMLDivElement, AdminCardProps>(
+  ({ children, className = '', padding = true }, ref) => {
+    return (
+      <div 
+        ref={ref}
+        className={`bg-white rounded-xl shadow-sm border border-[#E3E3E3] ${padding ? 'p-5' : ''} ${className}`}
+      >
+        {children}
+      </div>
+    )
+  }
+)
 
 /* ─── AdminCheckbox ─── */
 
