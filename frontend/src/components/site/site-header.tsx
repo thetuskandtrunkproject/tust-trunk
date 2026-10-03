@@ -10,7 +10,7 @@ import { auth } from '@/lib/firebase'
 import { fetchPublicCategories } from '@/lib/public/catalog-api'
 import type { PublicCategory } from '@/lib/public/catalog-api'
 
-import logo from '@/assets/logo_full_hd.png'
+import logo from '@/assets/New_logo.png'
 
 export function SiteHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)

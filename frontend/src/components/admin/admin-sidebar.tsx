@@ -1,6 +1,6 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import { LayoutDashboard, Package, Boxes, Users, FileText, Mail, X, Ticket, Building2, Star } from 'lucide-react'
-import logoImg from '@/assets/logo_full_hd.png'
+import logoImg from '@/assets/New_logo.png'
 
 interface AdminSidebarProps {
   onClose?: () => void

@@ -4,7 +4,7 @@ import { Save, RotateCcw, ImagePlus } from 'lucide-react'
 import { useToast } from '@/context/toast-context'
 import { MOCK_SHOP_SETTINGS, type ShopSettings } from '@/lib/admin/mock-shop-settings'
 import { AdminPageHeader, AdminButton, ConfirmModal } from '@/components/admin/ui/primitives'
-import logoImg from '@/assets/logo_full_hd.png'
+import logoImg from '@/assets/New_logo.png'
 
 export const Route = createFileRoute('/admin/shop')({
   component: AdminShopSettingsPage,

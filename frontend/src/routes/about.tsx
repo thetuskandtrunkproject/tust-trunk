@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useRef } from 'react'
-import logoImg from '@/assets/logo_full_hd.png'
+import logoImg from '@/assets/New_logo.png'
 import { Droplets, Sparkles, ShieldCheck } from 'lucide-react'
 import { ReadingProgress } from '@/components/ui/reading-progress'
 import gsap from 'gsap'
