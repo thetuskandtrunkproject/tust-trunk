@@ -82,7 +82,7 @@ function LoginPage() {
           <div>
             <div className="flex items-center justify-between mb-2 ml-2 mr-2">
               <label className="block text-sm font-bold text-ink">Password</label>
-              <button type="button" className="text-sm font-bold text-coral hover:text-coral/80 transition-colors">
+              <button type="button" className="text-sm font-bold text-sky hover:text-sky/80 transition-colors">
                 Forgot password?
               </button>
             </div>
@@ -108,7 +108,7 @@ function LoginPage() {
           <button 
             type="submit"
             disabled={loading}
-            className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="w-full bg-cta text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {loading ? 'Logging in...' : 'Log In'}
           </button>
@@ -145,8 +145,9 @@ function LoginPage() {
       </div>
       
       <p className="mt-8 text-ink/60 font-medium relative z-10">
-        Don't have an account? <Link to="/register" className="text-coral font-bold hover:text-coral/80 transition-colors underline underline-offset-4 ml-1">Sign up</Link>
+        Don't have an account? <Link to="/register" className="text-sky font-bold hover:text-sky/80 transition-colors underline underline-offset-4 ml-1">Sign up</Link>
       </p>
     </div>
   )
 }
+

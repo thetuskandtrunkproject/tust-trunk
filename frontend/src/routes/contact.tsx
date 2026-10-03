@@ -166,7 +166,7 @@ function ContactPage() {
               <button 
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all mt-4 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                className="w-full bg-cta text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all mt-4 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>
@@ -214,9 +214,9 @@ function ContactPage() {
               <div className="mt-auto bg-white/50 p-6 rounded-3xl">
                 <p className="font-bold text-ink mb-4 text-center">Follow us</p>
                 <div className="flex justify-center gap-6 text-base">
-                  <a href="#" className="font-bold text-sky hover:text-coral transition-colors">Instagram</a>
-                  <a href="#" className="font-bold text-sky hover:text-coral transition-colors">Twitter</a>
-                  <a href="#" className="font-bold text-sky hover:text-coral transition-colors">Facebook</a>
+                  <a href="#" className="font-bold text-sky hover:text-cta transition-colors">Instagram</a>
+                  <a href="#" className="font-bold text-sky hover:text-cta transition-colors">Twitter</a>
+                  <a href="#" className="font-bold text-sky hover:text-cta transition-colors">Facebook</a>
                 </div>
               </div>
             </div>
@@ -262,3 +262,4 @@ function ContactPage() {
     </div>
   )
 }
+

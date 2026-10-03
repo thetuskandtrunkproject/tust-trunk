@@ -70,7 +70,7 @@ function WishlistPage() {
           <Link 
             to="/shop" 
             search={{}} 
-            className="bg-coral text-white px-8 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:shadow-2xl hover:bg-coral/90 transition-all"
+            className="bg-cta text-white px-8 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:shadow-2xl hover:bg-cta/90 transition-all"
           >
             Explore the shop
           </Link>
@@ -94,7 +94,7 @@ function WishlistPage() {
                 actionButton={
                   <button
                     onClick={(e) => handleMoveToCart(e, p)}
-                    className="w-full bg-white/90 backdrop-blur-sm text-ink font-bold py-3 rounded-full flex items-center justify-center gap-2 hover:bg-coral hover:text-white hover:scale-105 transition-all shadow-md"
+                    className="w-full bg-white/90 backdrop-blur-sm text-ink font-bold py-3 rounded-full flex items-center justify-center gap-2 hover:bg-cta hover:text-white hover:scale-105 transition-all shadow-md"
                   >
                     <ShoppingBag className="w-5 h-5" /> Move to cart
                   </button>
@@ -107,3 +107,4 @@ function WishlistPage() {
     </div>
   )
 }
+

@@ -95,3 +95,4 @@ export function CouponTable({ coupons, onToggleStatus, onDelete, onViewAnalytics
     </AdminTableShell>
   )
 }
+

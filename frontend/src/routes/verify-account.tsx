@@ -88,7 +88,7 @@ function VerifyAccountPage() {
               }
             }
           }}
-          className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all mb-8"
+          className="w-full bg-cta text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all mb-8"
         >
           I've verified my email
         </button>
@@ -98,7 +98,7 @@ function VerifyAccountPage() {
             await auth.signOut();
             window.location.href = '/login';
           }}
-          className="text-sm font-bold text-coral hover:text-coral/80 transition-colors underline underline-offset-4"
+          className="text-sm font-bold text-sky hover:text-sky/80 transition-colors underline underline-offset-4"
         >
           Log out & Back to login
         </button>
@@ -107,3 +107,4 @@ function VerifyAccountPage() {
     </div>
   )
 }
+

@@ -36,3 +36,4 @@ function AdminNewCouponPage() {
     </div>
   )
 }
+

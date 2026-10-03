@@ -223,3 +223,4 @@ export function CouponForm({ initialData, onSubmit }: CouponFormProps) {
     </div>
   )
 }
+

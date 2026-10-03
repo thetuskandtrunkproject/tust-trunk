@@ -455,3 +455,4 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
     </form>
   )
 }
+

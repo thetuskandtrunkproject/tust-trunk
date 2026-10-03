@@ -127,7 +127,7 @@ export function HeroBannerEditor() {
           cta: 'Shop Now',
           ctaLink: '/shop',
           align: 'left',
-          accentColor: '#FF6B6B',
+          accentColor: '#FF6B8B',
           textColor: '#FFFFFF'
         }
       ]
@@ -222,7 +222,7 @@ export function HeroBannerEditor() {
           <h4 className="font-medium text-ink">Carousel Slides</h4>
           <button 
             onClick={addSlide}
-            className="text-xs bg-coral text-white px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-opacity-90 transition-opacity"
+            className="text-xs bg-cta text-white px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-opacity-90 transition-opacity"
           >
             <Plus className="w-3 h-3" /> Add Slide
           </button>
@@ -233,7 +233,7 @@ export function HeroBannerEditor() {
             <div 
               key={slide.id}
               onClick={() => setActiveSlideIndex(idx)}
-              className={`flex-shrink-0 relative w-32 h-20 min-h-[80px] rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${activeSlideIndex === idx ? 'border-coral' : 'border-transparent hover:border-ink/20'}`}
+              className={`flex-shrink-0 relative w-32 h-20 min-h-[80px] rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${activeSlideIndex === idx ? 'border-cta' : 'border-transparent hover:border-ink/20'}`}
             >
               <img src={slide.img} alt="" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
@@ -472,3 +472,4 @@ export function HeroBannerEditor() {
     </AdminCard>
   )
 }
+

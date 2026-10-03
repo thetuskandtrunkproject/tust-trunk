@@ -53,7 +53,7 @@ function AccountLayout() {
                   key={item.path}
                   to={item.path}
                   className={`flex items-center gap-2 px-6 py-3 rounded-full whitespace-nowrap text-sm font-bold transition-colors ${
-                    isActive ? 'bg-coral text-white' : 'text-ink/60 hover:text-ink hover:bg-ink/5'
+                    isActive ? 'bg-cta text-white' : 'text-ink/60 hover:text-ink hover:bg-ink/5'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -76,7 +76,7 @@ function AccountLayout() {
                   key={item.path}
                   to={item.path}
                   className={`flex items-center gap-3 px-6 py-4 rounded-full text-base font-bold transition-all ${
-                    isActive ? 'bg-coral text-white shadow-md scale-105' : 'text-ink/60 hover:text-ink hover:bg-ink/5'
+                    isActive ? 'bg-cta text-white shadow-md scale-105' : 'text-ink/60 hover:text-ink hover:bg-ink/5'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -95,3 +95,4 @@ function AccountLayout() {
     </div>
   )
 }
+

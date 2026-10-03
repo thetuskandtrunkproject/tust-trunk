@@ -319,7 +319,7 @@ function ProductDetailPage() {
                 <button 
                   onClick={handleAddToCart}
                   disabled={totalStock === 0}
-                  className="flex-1 bg-ink text-white py-3.5 rounded-xl font-bold text-base hover:bg-ink/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                  className="flex-1 bg-cta text-white py-3.5 rounded-xl font-bold text-base hover:bg-cta/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                 >
                   Add to Cart
                 </button>
@@ -340,7 +340,7 @@ function ProductDetailPage() {
               <button 
                 onClick={handleAddToCart}
                 disabled={totalStock === 0}
-                className="w-full bg-gradient-to-r from-[#FF6B6B] to-[#ee5a24] text-white py-3.5 rounded-xl font-bold text-base hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 shadow-md hover:shadow-lg"
+                className="w-full bg-cta text-white py-3.5 rounded-xl font-bold text-base hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 shadow-md hover:shadow-lg"
               >
                 Buy Now
               </button>
@@ -468,7 +468,7 @@ function ProductDetailPage() {
               {!showReviewForm ? (
                 <button 
                   onClick={() => setShowReviewForm(true)}
-                  className="w-full border-2 border-ink text-ink font-bold py-4 rounded-full hover:bg-ink hover:text-white transition-colors"
+                  className="w-full border-2 border-ink text-ink font-bold py-4 rounded-full hover:bg-cta hover:text-white transition-colors"
                 >
                   Write a Review
                 </button>
@@ -547,7 +547,7 @@ function ProductDetailPage() {
                           showToast(err.response?.data?.detail || "Failed to submit review", "error")
                         }
                       }}
-                      className="flex-1 bg-ink text-white font-bold py-3 rounded-full hover:bg-ink/80 transition-colors disabled:opacity-50"
+                      className="flex-1 bg-cta text-white font-bold py-3 rounded-full hover:bg-cta/90 transition-colors disabled:opacity-50"
                       disabled={!reviewForm.name || (!user && !reviewForm.email) || !reviewForm.text}
                     >
                       Submit
@@ -596,7 +596,7 @@ function ProductDetailPage() {
         <button 
           onClick={handleAddToCart}
           disabled={totalStock === 0}
-          className="w-full bg-ink text-white py-3.5 rounded-2xl font-bold shadow-xl disabled:opacity-40 active:scale-[0.98] transition-all text-sm"
+          className="w-full bg-cta text-white py-3.5 rounded-2xl font-bold shadow-xl disabled:opacity-40 active:scale-[0.98] transition-all text-sm"
         >
           Add to Cart — {formatPrice(displayPrice * quantity)}
         </button>
@@ -604,3 +604,4 @@ function ProductDetailPage() {
     </div>
   )
 }
+

@@ -37,3 +37,4 @@ export function TopProductsWidget({ products }: TopProductsWidgetProps) {
     </AdminCard>
   )
 }
+

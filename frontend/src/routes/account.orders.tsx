@@ -58,7 +58,7 @@ function AccountOrdersPage() {
         <Package className="w-20 h-20 text-ink/20 mb-6" />
         <h2 className="font-heading font-bold text-4xl text-ink mb-4">No orders yet</h2>
         <p className="text-ink/60 font-medium mb-8 max-w-sm">When you place an order, it will appear here so you can track its status.</p>
-        <Link to="/shop" className="bg-coral text-white px-8 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all">
+        <Link to="/shop" className="bg-cta text-white px-8 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all">
           Start Shopping
         </Link>
       </div>
@@ -240,3 +240,4 @@ function AccountOrdersPage() {
     </div>
   )
 }
+

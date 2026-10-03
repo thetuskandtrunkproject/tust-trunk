@@ -28,7 +28,7 @@ export function ProductCard({ id, slug, name, price, img, hoverImg, category, ta
   const getTagStyle = (tag: string): { bg: string; text: string; accent: string } => {
     const t = tag.toLowerCase()
     if (t === 'bestseller') return { bg: '#FFF3CD', text: '#856404', accent: '#FFD93D' }
-    if (t === 'sale') return { bg: '#FFE8EC', text: '#CC2936', accent: '#FF6B6B' }
+    if (t === 'sale') return { bg: '#FFE8EC', text: '#CC2936', accent: '#FF6B8B' }
     if (t === 'new') return { bg: '#E8F4FD', text: '#1565C0', accent: '#7EC8E3' }
     return { bg: '#F0F0F0', text: '#333', accent: '#666' }
   }
@@ -76,7 +76,7 @@ export function ProductCard({ id, slug, name, price, img, hoverImg, category, ta
             className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-300 z-10 hover:scale-110 shadow-sm ${
               wishlisted 
                 ? 'bg-watermelon text-white opacity-100 hover:bg-watermelon/80' 
-                : 'bg-white/90 text-ink opacity-0 group-hover:opacity-100 hover:bg-coral hover:text-white backdrop-blur-sm'
+                : 'bg-white/90 text-ink opacity-0 group-hover:opacity-100 hover:bg-cta hover:text-white backdrop-blur-sm'
             }`}
           >
             <Heart className={`w-4 h-4 ${wishlisted ? 'fill-current' : ''}`} />
@@ -121,3 +121,4 @@ export function ProductCard({ id, slug, name, price, img, hoverImg, category, ta
     </Link>
   )
 }
+

@@ -33,3 +33,4 @@ export function CustomerAddresses({ addresses }: CustomerAddressesProps) {
     </div>
   )
 }
+

@@ -189,10 +189,10 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
           {/* Abstract Warm Wave 2 */}
           <div className="absolute -bottom-5 left-0 w-[200%] h-[150px] md:h-[300px] animate-wave-medium opacity-[0.12] flex">
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#FF6B6B" d="M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,170.7C672,160,768,192,864,197.3C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L0,320Z"></path>
+              <path fill="#FF6B8B" d="M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,170.7C672,160,768,192,864,197.3C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L0,320Z"></path>
             </svg>
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#FF6B6B" d="M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,170.7C672,160,768,192,864,197.3C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L0,320Z"></path>
+              <path fill="#FF6B8B" d="M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,170.7C672,160,768,192,864,197.3C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L0,320Z"></path>
             </svg>
           </div>
 
@@ -281,7 +281,7 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
                   
                   {/* Hover Button */}
                   <div className="overflow-hidden h-0 group-hover:h-10 transition-all duration-500 ease-out mt-1">
-                    <span className="inline-flex items-center gap-2 bg-coral/90 backdrop-blur-sm text-white text-sm font-medium px-4 py-1.5 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
+                    <span className="inline-flex items-center gap-2 bg-cta/90 backdrop-blur-sm text-white text-sm font-medium px-4 py-1.5 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
                       Explore {product.category.toLowerCase()} <span className="text-lg leading-none">&rarr;</span>
                     </span>
                   </div>
@@ -301,3 +301,4 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
     </section>
   )
 }
+

@@ -139,14 +139,14 @@ function RegisterPage() {
               className="w-full bg-white border-2 border-ink/10 rounded-2xl px-6 py-4 text-ink font-medium placeholder:text-ink/30 focus:border-peach focus:ring-0 outline-none transition-colors"
             />
             {confirmPassword !== '' && !passwordsMatch && (
-              <p className="text-coral text-sm font-bold mt-2 ml-2">Passwords do not match</p>
+              <p className="text-cta text-sm font-bold mt-2 ml-2">Passwords do not match</p>
             )}
           </div>
 
           <button 
             type="submit"
             disabled={!isValid || loading}
-            className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all mt-4 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+            className="w-full bg-cta text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all mt-4 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating Account...' : 'Create Account'}
           </button>
@@ -183,8 +183,9 @@ function RegisterPage() {
       </div>
       
       <p className="mt-8 text-ink/60 font-medium relative z-10">
-        Already have an account? <Link to="/login" className="text-coral font-bold hover:text-coral/80 transition-colors underline underline-offset-4 ml-1">Log in</Link>
+        Already have an account? <Link to="/login" className="text-sky font-bold hover:text-sky/80 transition-colors underline underline-offset-4 ml-1">Log in</Link>
       </p>
     </div>
   )
 }
+

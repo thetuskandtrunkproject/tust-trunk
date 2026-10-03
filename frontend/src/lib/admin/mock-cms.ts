@@ -12,7 +12,7 @@ export const mockCmsData = {
         cta: 'Shop Now',
         ctaLink: '/shop',
         align: 'left',
-        accentColor: '#FF6B6B',
+        accentColor: '#FF6B8B',
         textColor: '#1a1a1a'
       },
       {
@@ -25,7 +25,7 @@ export const mockCmsData = {
         cta: 'Explore New Arrivals',
         ctaLink: '/shop?sort=newest',
         align: 'left',
-        accentColor: '#FF6B6B',
+        accentColor: '#FF6B8B',
         textColor: '#FFFFFF'
       },
       {

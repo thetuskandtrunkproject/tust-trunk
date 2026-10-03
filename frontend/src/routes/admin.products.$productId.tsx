@@ -42,3 +42,4 @@ function EditProductPage() {
 
   return <ProductForm initialData={product} isEditing={true} />
 }
+

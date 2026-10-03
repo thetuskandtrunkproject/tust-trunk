@@ -110,13 +110,13 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             {query && (
               <button 
                 onClick={() => setQuery('')}
-                className="absolute right-6 p-1 text-ink/40 hover:text-coral transition-colors"
+                className="absolute right-6 p-1 text-ink/40 hover:text-cta transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             )}
           </div>
-          <button onClick={onClose} className="p-3 text-ink/60 hover:text-coral transition-colors rounded-full hover:bg-coral/10 hidden md:block">
+          <button onClick={onClose} className="p-3 text-ink/60 hover:text-cta transition-colors rounded-full hover:bg-coral/10 hidden md:block">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -143,7 +143,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                         </div>
                         <div 
                           onClick={(e) => removeRecent(term, e)}
-                          className="p-2 text-ink/30 hover:text-coral transition-colors rounded-full"
+                          className="p-2 text-ink/30 hover:text-cta transition-colors rounded-full"
                         >
                           <X className="w-4 h-4" />
                         </div>
@@ -200,7 +200,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
               <div className="pt-4 border-t border-ink/5 flex justify-center">
                 <button 
                   onClick={() => handleSearchSubmit(debouncedQuery)}
-                  className="flex items-center gap-2 font-bold text-sky hover:text-coral transition-colors"
+                  className="flex items-center gap-2 font-bold text-sky hover:text-cta transition-colors"
                 >
                   See all results for "{debouncedQuery}" <ArrowRight className="w-4 h-4" />
                 </button>
@@ -249,3 +249,4 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     </div>
   )
 }
+

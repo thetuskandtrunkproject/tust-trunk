@@ -131,7 +131,7 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
         <button 
           onClick={onNext}
           disabled={cartDetails.length === 0 || cartDetails.some(item => item.is_available === false)}
-          className="bg-coral text-white px-10 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all flex items-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
+          className="bg-cta text-white px-10 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all flex items-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
         >
           Proceed to Details <ArrowRight className="w-5 h-5" />
         </button>
@@ -139,3 +139,4 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
     </div>
   )
 }
+

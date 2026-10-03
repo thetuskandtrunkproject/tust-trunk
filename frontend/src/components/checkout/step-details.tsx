@@ -51,7 +51,7 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 required
                 value={contact.email}
                 onChange={e => setContact({...contact, email: e.target.value})}
-                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
               />
             </div>
             <div>
@@ -69,7 +69,7 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 maxLength={10}
                 pattern="[0-9]{10}"
                 title="Please enter a valid 10-digit phone number"
-                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
               />
             </div>
           </div>
@@ -86,7 +86,7 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 required
                 value={shipping.name}
                 onChange={e => setShipping({...shipping, name: e.target.value})}
-                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
               />
             </div>
             <div className="md:col-span-2">
@@ -96,7 +96,7 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 required
                 value={shipping.address1}
                 onChange={e => setShipping({...shipping, address1: e.target.value})}
-                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
               />
             </div>
             <div className="md:col-span-2">
@@ -105,7 +105,7 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 type="text" 
                 value={shipping.address2}
                 onChange={e => setShipping({...shipping, address2: e.target.value})}
-                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
               />
             </div>
             <div>
@@ -115,7 +115,7 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 required
                 value={shipping.city}
                 onChange={e => setShipping({...shipping, city: e.target.value})}
-                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
               />
             </div>
             <div>
@@ -125,7 +125,7 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 required
                 value={shipping.state}
                 onChange={e => setShipping({...shipping, state: e.target.value})}
-                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
               />
             </div>
             <div className="md:col-span-2">
@@ -143,7 +143,7 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 maxLength={6}
                 pattern="[0-9]{6}"
                 title="Please enter a valid 6-digit PIN code"
-                className="w-full md:w-1/2 bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                className="w-full md:w-1/2 bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
               />
             </div>
           </div>
@@ -153,7 +153,7 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
               type="checkbox" 
               checked={saveDefault}
               onChange={e => setSaveDefault(e.target.checked)}
-              className="w-6 h-6 rounded-md border-2 border-ink/20 text-coral focus:ring-coral focus:ring-offset-2 cursor-pointer transition-colors" 
+              className="w-6 h-6 rounded-md border-2 border-ink/20 text-cta focus:ring-cta focus:ring-offset-2 cursor-pointer transition-colors" 
             />
             <span className="text-sm font-bold text-ink/80 group-hover:text-ink transition-colors">Save as default address</span>
           </label>
@@ -183,7 +183,7 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
           <button 
             type="submit"
             disabled={!isFormValid()}
-            className="bg-coral text-white px-10 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
+            className="bg-cta text-white px-10 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
           >
             Continue to Payment <ArrowRight className="w-5 h-5" />
           </button>
@@ -192,3 +192,4 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
     </div>
   )
 }
+

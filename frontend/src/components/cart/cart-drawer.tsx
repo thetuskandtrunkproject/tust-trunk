@@ -51,7 +51,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <p className="text-ink/60 font-medium">Your cart is currently empty.</p>
               <button 
                 onClick={onClose}
-                className="bg-coral text-white px-8 py-4 rounded-full font-bold shadow-md hover:scale-105 hover:shadow-lg transition-all"
+                className="bg-cta text-white px-8 py-4 rounded-full font-bold shadow-md hover:scale-105 hover:shadow-lg transition-all"
               >
                 Continue Shopping
               </button>
@@ -144,7 +144,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 router.navigate({ to: '/checkout' })
               }}
               disabled={cartDetails.some(item => item.is_available === false)}
-              className="w-full bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all disabled:opacity-50 disabled:hover:scale-100"
+              className="w-full bg-cta text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all disabled:opacity-50 disabled:hover:scale-100"
             >
               Checkout
             </button>
@@ -154,3 +154,4 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     </div>
   )
 }
+

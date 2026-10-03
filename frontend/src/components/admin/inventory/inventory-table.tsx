@@ -164,3 +164,4 @@ export function InventoryTable({ products, onStockUpdate }: InventoryTableProps)
     </AdminTableShell>
   )
 }
+

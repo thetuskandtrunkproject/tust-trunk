@@ -219,3 +219,4 @@ export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: Or
     </>
   )
 }
+

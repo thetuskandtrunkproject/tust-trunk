@@ -395,3 +395,4 @@ export function RevenueChart({
     </AdminCard>
   )
 }
+

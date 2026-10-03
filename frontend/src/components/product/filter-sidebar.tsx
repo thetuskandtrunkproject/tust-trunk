@@ -114,7 +114,7 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
       {hasActiveFilters && (
         <div className="mb-6 flex flex-col items-start gap-4">
           {currentFilters.search && (
-            <div className="flex items-center gap-2 bg-coral/10 text-coral px-3 py-1.5 rounded-full text-sm font-bold border border-coral/20">
+            <div className="flex items-center gap-2 bg-coral/10 text-cta px-3 py-1.5 rounded-full text-sm font-bold border border-cta/20">
               <span>Search: {currentFilters.search}</span>
               <button 
                 onClick={() => updateSearch({ search: undefined })}
@@ -314,3 +314,4 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
     </>
   )
 }
+

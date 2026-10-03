@@ -201,7 +201,7 @@ export function StepPayment({ onBack, contact, shipping, totalAmount, items, isB
         <button 
           onClick={handlePayment}
           disabled={isProcessing}
-          className="w-full max-w-sm mx-auto bg-coral text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all disabled:opacity-70 disabled:cursor-wait disabled:hover:scale-100 flex items-center justify-center gap-2 mb-12"
+          className="w-full max-w-sm mx-auto bg-cta text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all disabled:opacity-70 disabled:cursor-wait disabled:hover:scale-100 flex items-center justify-center gap-2 mb-12"
         >
           {isProcessing ? (
             <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>
@@ -226,3 +226,4 @@ export function StepPayment({ onBack, contact, shipping, totalAmount, items, isB
     </div>
   )
 }
+

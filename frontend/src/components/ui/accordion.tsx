@@ -16,8 +16,8 @@ export function AccordionItem({ title, content, defaultOpen = false }: Accordion
         onClick={() => setIsOpen(!isOpen)}
         className="flex w-full items-center justify-between text-left py-2 focus:outline-none group"
       >
-        <span className="font-heading font-bold text-xl text-ink group-hover:text-coral transition-colors">{title}</span>
-        <ChevronDown className={`w-6 h-6 text-ink/50 group-hover:text-coral transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="font-heading font-bold text-xl text-ink group-hover:text-cta transition-colors">{title}</span>
+        <ChevronDown className={`w-6 h-6 text-ink/50 group-hover:text-cta transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       
       <div className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
@@ -34,3 +34,4 @@ export function AccordionItem({ title, content, defaultOpen = false }: Accordion
 export function Accordion({ children }: { children: React.ReactNode }) {
   return <div className="w-full">{children}</div>
 }
+

@@ -66,7 +66,7 @@ export function SiteHeader() {
       isActive = location.pathname.startsWith(path)
     }
 
-    return `px-4 py-2 font-medium text-sm transition-colors ${isActive ? 'text-coral' : 'text-ink hover:text-coral'}`
+    return `px-4 py-2 font-medium text-sm transition-colors ${isActive ? 'text-cta' : 'text-ink hover:text-cta'}`
   }
 
   return (
@@ -75,7 +75,7 @@ export function SiteHeader() {
         className={`w-full sticky top-0 z-50 border-b border-ink/10 shadow-sm transition-transform duration-300 ${
           headerVisible ? 'translate-y-0' : '-translate-y-full'
         }`} 
-        style={{ background: '#FDF6EE' }}
+        style={{ background: '#FAF7F9' }}
       >
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
@@ -99,13 +99,13 @@ export function SiteHeader() {
               <nav className="flex items-center xl:gap-4 lg:gap-2">
                 <Link to="/" className={getNavClass('/', true)}>Home</Link>
                 <Link to="/shop" className={getNavClass('/shop', true)}>Shop All</Link>
-                <Link to="/shop" search={{ sort: 'newest' }} className={getNavClass('/shop/new', false) + (search.sort === 'newest' ? ' text-coral' : '')}>
+                <Link to="/shop" search={{ sort: 'newest' }} className={getNavClass('/shop/new', false) + (search.sort === 'newest' ? ' text-cta' : '')}>
                   New Arrivals
                 </Link>
                 
                 {/* Categories Dropdown (Mega Menu) */}
                 <div className="relative group">
-                  <button className="px-3 xl:px-4 py-2 font-medium text-sm text-ink hover:text-coral flex items-center gap-1 transition-colors">
+                  <button className="px-3 xl:px-4 py-2 font-medium text-sm text-ink hover:text-cta flex items-center gap-1 transition-colors">
                     Categories <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
                   </button>
                   
@@ -115,7 +115,7 @@ export function SiteHeader() {
                       
                       {/* Women's Column */}
                       <div>
-                        <Link to="/shop" search={{ gender: 'Women' }} className="block font-heading font-bold text-lg text-coral mb-3 hover:opacity-80 transition-opacity">
+                        <Link to="/shop" search={{ gender: 'Women' }} className="block font-heading font-bold text-lg text-cta mb-3 hover:opacity-80 transition-opacity">
                           Women's Collection
                         </Link>
                         <div className="flex flex-col gap-2">
@@ -155,7 +155,7 @@ export function SiteHeader() {
                   </div>
                 </div>
 
-                <Link to="/shop" search={{ tag: 'sale' }} className={getNavClass('/shop/sale', false) + (search.tag === 'sale' ? ' text-coral' : '')}>
+                <Link to="/shop" search={{ tag: 'sale' }} className={getNavClass('/shop/sale', false) + (search.tag === 'sale' ? ' text-cta' : '')}>
                   Offers
                 </Link>
 
@@ -187,7 +187,7 @@ export function SiteHeader() {
               </button>
 
               {/* Wishlist - visible on all screen sizes */}
-              <Link to="/wishlist" className="text-ink hover:text-coral transition-colors flex items-center relative p-2 group">
+              <Link to="/wishlist" className="text-ink hover:text-cta transition-colors flex items-center relative p-2 group">
                 <Heart className="w-5 h-5 group-hover:fill-coral/20" />
                 {wishlistIds.length > 0 && <span className="absolute top-1 right-1 w-2 h-2 bg-coral rounded-full border-2 border-white"></span>}
               </Link>
@@ -229,9 +229,9 @@ export function SiteHeader() {
                             auth.signOut()
                             window.location.href = '/'
                           }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-coral rounded-lg hover:bg-coral/10 transition-colors mt-1 border-t border-ink/5 pt-2"
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-cta rounded-lg hover:bg-coral/10 transition-colors mt-1 border-t border-ink/5 pt-2"
                         >
-                          <LogOut className="w-4 h-4 text-coral" />
+                          <LogOut className="w-4 h-4 text-cta" />
                           Sign Out
                         </button>
                       </div>
@@ -248,7 +248,7 @@ export function SiteHeader() {
               <button onClick={() => setIsCartOpen(true)} className="text-ink hover:text-sky transition-colors flex items-center relative p-2">
                 <ShoppingBag className="w-5 h-5" />
                 {cartCount > 0 && (
-                  <span className="absolute top-0 right-0 bg-coral text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md">
+                  <span className="absolute top-0 right-0 bg-cta text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md">
                     {cartCount}
                   </span>
                 )}
@@ -263,21 +263,21 @@ export function SiteHeader() {
         <div className="flex items-center justify-around h-14 px-2">
           <Link 
             to="/" 
-            className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-colors ${location.pathname === '/' ? 'text-coral' : 'text-ink/50'}`}
+            className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-colors ${location.pathname === '/' ? 'text-cta' : 'text-ink/50'}`}
           >
             <Home className="w-5 h-5" />
             Home
           </Link>
           <Link 
             to="/shop" 
-            className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-colors ${location.pathname.startsWith('/shop') ? 'text-coral' : 'text-ink/50'}`}
+            className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-colors ${location.pathname.startsWith('/shop') ? 'text-cta' : 'text-ink/50'}`}
           >
             <Search className="w-5 h-5" />
             Shop
           </Link>
           <Link 
             to="/wishlist" 
-            className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-colors relative ${location.pathname === '/wishlist' ? 'text-coral' : 'text-ink/50'}`}
+            className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-colors relative ${location.pathname === '/wishlist' ? 'text-cta' : 'text-ink/50'}`}
           >
             <Heart className={`w-5 h-5 ${location.pathname === '/wishlist' ? 'fill-coral' : ''}`} />
             {wishlistIds.length > 0 && <span className="absolute -top-0.5 right-1 w-2 h-2 bg-coral rounded-full"></span>}
@@ -289,7 +289,7 @@ export function SiteHeader() {
           >
             <ShoppingBag className="w-5 h-5" />
             {cartCount > 0 && (
-              <span className="absolute -top-0.5 right-1 min-w-[14px] h-[14px] bg-coral text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute -top-0.5 right-1 min-w-[14px] h-[14px] bg-cta text-white text-[8px] font-bold rounded-full flex items-center justify-center">
                 {cartCount}
               </span>
             )}
@@ -297,7 +297,7 @@ export function SiteHeader() {
           </button>
           <Link 
             to={firebaseUser ? "/account" : "/login"} 
-            className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-colors ${location.pathname.startsWith('/account') ? 'text-coral' : 'text-ink/50'}`}
+            className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-colors ${location.pathname.startsWith('/account') ? 'text-cta' : 'text-ink/50'}`}
           >
             <User className="w-5 h-5" />
             Account
@@ -342,7 +342,7 @@ export function SiteHeader() {
               <Link to="/shop" search={{ gender: 'Kids' }} onClick={() => setIsMobileMenuOpen(false)} className="py-2.5 px-3 pl-6 rounded-xl hover:bg-cloud transition-colors text-sm">Kids' Collection</Link>
 
               <div className="my-2 mx-3 border-t border-ink/5"></div>
-              <Link to="/shop" search={{ tag: 'sale' }} onClick={() => setIsMobileMenuOpen(false)} className="py-3 px-3 rounded-xl hover:bg-coral/5 transition-colors text-coral font-bold flex items-center gap-3">
+              <Link to="/shop" search={{ tag: 'sale' }} onClick={() => setIsMobileMenuOpen(false)} className="py-3 px-3 rounded-xl hover:bg-coral/5 transition-colors text-cta font-bold flex items-center gap-3">
                 <Tag className="w-5 h-5" /> Offers & Sale
               </Link>
               <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className="py-3 px-3 rounded-xl hover:bg-cloud transition-colors flex items-center gap-3">
@@ -376,7 +376,7 @@ export function SiteHeader() {
                     setIsMobileMenuOpen(false)
                     window.location.href = '/'
                   }}
-                  className="w-full flex items-center justify-center gap-2.5 py-3 text-sm font-bold text-coral border-2 border-coral/20 rounded-full hover:bg-coral/5 transition-colors"
+                  className="w-full flex items-center justify-center gap-2.5 py-3 text-sm font-bold text-cta border-2 border-cta/20 rounded-full hover:bg-coral/5 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                   Sign Out
@@ -402,3 +402,4 @@ export function SiteHeader() {
     </>
   )
 }
+

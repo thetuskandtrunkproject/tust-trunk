@@ -30,7 +30,7 @@ export function Newsletter() {
 
           {/* Card 2 */}
           <div className="bg-white/70 backdrop-blur-xl rounded-[2rem] p-8 flex flex-col items-center text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white hover:-translate-y-2 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-500 group">
-            <div className="w-16 h-16 rounded-2xl bg-[#FFE8EC] text-coral flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-coral group-hover:text-white transition-all duration-500">
+            <div className="w-16 h-16 rounded-2xl bg-[#FFE8EC] text-cta flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-coral group-hover:text-white transition-all duration-500">
               <Heart className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-bold text-ink mb-3">Gentle on Skin</h3>
@@ -65,4 +65,5 @@ export function Newsletter() {
     </section>
   )
 }
+
 

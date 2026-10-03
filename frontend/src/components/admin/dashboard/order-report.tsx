@@ -120,7 +120,7 @@ export function OrderReport() {
       </div>
 
       {error && (
-        <div className="bg-coral/10 text-coral p-4 rounded-xl flex items-start gap-3 mb-6">
+        <div className="bg-coral/10 text-cta p-4 rounded-xl flex items-start gap-3 mb-6">
           <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-bold">Error generating report</p>
@@ -206,3 +206,4 @@ export function OrderReport() {
     </AdminCard>
   )
 }
+

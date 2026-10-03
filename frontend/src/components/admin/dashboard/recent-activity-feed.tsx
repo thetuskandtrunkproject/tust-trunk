@@ -68,3 +68,4 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
     </AdminCard>
   )
 }
+

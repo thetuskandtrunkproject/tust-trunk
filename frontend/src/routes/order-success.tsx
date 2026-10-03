@@ -51,7 +51,7 @@ function OrderSuccessPage() {
   if (isLoading) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center bg-cloud">
-        <Loader2 className="w-10 h-10 animate-spin text-coral" />
+        <Loader2 className="w-10 h-10 animate-spin text-cta" />
       </div>
     )
   }
@@ -66,7 +66,7 @@ function OrderSuccessPage() {
         </p>
         <Link 
           to="/shop" 
-          className="bg-coral text-white px-8 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:shadow-2xl hover:bg-coral/90 transition-all"
+          className="bg-cta text-white px-8 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:shadow-2xl hover:bg-cta/90 transition-all"
         >
           Return to Shop
         </Link>
@@ -193,3 +193,4 @@ function OrderSuccessPage() {
     </div>
   )
 }
+

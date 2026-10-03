@@ -108,3 +108,4 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
     </div>
   )
 }
+

@@ -345,3 +345,4 @@ export function DiscountManagerPanel({ onClose }: DiscountManagerPanelProps) {
     </div>
   )
 }
+

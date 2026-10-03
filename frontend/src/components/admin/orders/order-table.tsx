@@ -116,3 +116,4 @@ export function OrderTable({ orders, onSelectOrder }: OrderTableProps) {
     </>
   )
 }
+

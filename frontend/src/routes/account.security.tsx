@@ -77,7 +77,7 @@ function AccountSecurityPage() {
                 required
                 value={passwords.current}
                 onChange={e => setPasswords({...passwords, current: e.target.value})}
-                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-mono focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-mono focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -88,7 +88,7 @@ function AccountSecurityPage() {
                   required
                   value={passwords.new}
                   onChange={e => setPasswords({...passwords, new: e.target.value})}
-                  className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-mono focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                  className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-mono focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
                 />
               </div>
               <div>
@@ -98,7 +98,7 @@ function AccountSecurityPage() {
                   required
                   value={passwords.confirm}
                   onChange={e => setPasswords({...passwords, confirm: e.target.value})}
-                  className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-mono focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                  className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-mono focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
                 />
               </div>
             </div>
@@ -109,7 +109,7 @@ function AccountSecurityPage() {
               <button 
                 type="submit"
                 disabled={!passwords.new || !passwords.confirm || isChanging}
-                className="bg-coral text-white px-8 py-3 rounded-full text-base font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="bg-cta text-white px-8 py-3 rounded-full text-base font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {isChanging ? 'Updating...' : 'Update Password'}
               </button>
@@ -152,3 +152,4 @@ function AccountSecurityPage() {
     </div>
   )
 }
+

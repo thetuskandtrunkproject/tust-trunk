@@ -451,3 +451,4 @@ export function CategoryManagerPanel({ onClose }: CategoryManagerPanelProps) {
     </div>
   )
 }
+

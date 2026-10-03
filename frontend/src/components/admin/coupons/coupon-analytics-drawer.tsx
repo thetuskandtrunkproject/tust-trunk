@@ -67,7 +67,7 @@ export function CouponAnalyticsDrawer({ coupon, redemptions, isOpen, onClose }: 
               <p className="text-2xl font-black text-ink">{coupon.usageCount}</p>
             </div>
             <div className="bg-coral/10 rounded-xl p-4">
-              <p className="text-xs font-bold text-coral uppercase tracking-wider mb-1">Total Discount</p>
+              <p className="text-xs font-bold text-cta uppercase tracking-wider mb-1">Total Discount</p>
               <p className="text-2xl font-black text-ink">₹{totalDiscount.toLocaleString()}</p>
             </div>
             <div className="bg-mint/20 rounded-xl p-4">
@@ -119,7 +119,7 @@ export function CouponAnalyticsDrawer({ coupon, redemptions, isOpen, onClose }: 
                         </td>
                         <td className="px-4 py-3 text-ink/60">{new Date(r.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric'})}</td>
                         <td className="px-4 py-3 text-ink">{r.customer}</td>
-                        <td className="px-4 py-3 text-right text-coral font-medium">-₹{r.discountAmount}</td>
+                        <td className="px-4 py-3 text-right text-cta font-medium">-₹{r.discountAmount}</td>
                       </tr>
                     ))
                   ) : (
@@ -137,3 +137,4 @@ export function CouponAnalyticsDrawer({ coupon, redemptions, isOpen, onClose }: 
     </div>
   )
 }
+

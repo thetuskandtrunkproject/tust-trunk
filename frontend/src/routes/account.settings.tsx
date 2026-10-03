@@ -137,7 +137,7 @@ function AccountSettingsPage() {
                 type="text" 
                 value={profile.name}
                 onChange={e => setProfile({...profile, name: e.target.value})}
-                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -156,14 +156,14 @@ function AccountSettingsPage() {
                   type="tel" 
                   value={profile.phone}
                   onChange={e => setProfile({...profile, phone: e.target.value})}
-                  className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral focus:ring-4 focus:ring-coral/20 transition-all"
+                  className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
                 />
               </div>
             </div>
             <div className="mt-4 flex justify-end">
               <button 
                 type="submit"
-                className="bg-coral text-white px-8 py-3 rounded-full text-base font-bold shadow-xl hover:scale-105 hover:bg-coral/90 transition-all flex items-center gap-2"
+                className="bg-cta text-white px-8 py-3 rounded-full text-base font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all flex items-center gap-2"
               >
                 <Save className="w-5 h-5" /> Save Changes
               </button>
@@ -197,33 +197,33 @@ function AccountSettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-bold text-ink mb-2 ml-2">Full Name</label>
-                  <input type="text" required value={addressForm.name} onChange={e => setAddressForm({...addressForm, name: e.target.value})} className="w-full bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral transition-all" />
+                  <input type="text" required value={addressForm.name} onChange={e => setAddressForm({...addressForm, name: e.target.value})} className="w-full bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta transition-all" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-bold text-ink mb-2 ml-2">Address Line 1</label>
-                  <input type="text" required value={addressForm.address1} onChange={e => setAddressForm({...addressForm, address1: e.target.value})} className="w-full bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral transition-all" />
+                  <input type="text" required value={addressForm.address1} onChange={e => setAddressForm({...addressForm, address1: e.target.value})} className="w-full bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta transition-all" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-bold text-ink mb-2 ml-2">Address Line 2 (Optional)</label>
-                  <input type="text" value={addressForm.address2} onChange={e => setAddressForm({...addressForm, address2: e.target.value})} className="w-full bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral transition-all" />
+                  <input type="text" value={addressForm.address2} onChange={e => setAddressForm({...addressForm, address2: e.target.value})} className="w-full bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-ink mb-2 ml-2">City</label>
-                  <input type="text" required value={addressForm.city} onChange={e => setAddressForm({...addressForm, city: e.target.value})} className="w-full bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral transition-all" />
+                  <input type="text" required value={addressForm.city} onChange={e => setAddressForm({...addressForm, city: e.target.value})} className="w-full bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-ink mb-2 ml-2">State</label>
-                  <input type="text" required value={addressForm.state} onChange={e => setAddressForm({...addressForm, state: e.target.value})} className="w-full bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral transition-all" />
+                  <input type="text" required value={addressForm.state} onChange={e => setAddressForm({...addressForm, state: e.target.value})} className="w-full bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta transition-all" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-bold text-ink mb-2 ml-2">Pincode</label>
-                  <input type="text" required pattern="[0-9]{6}" title="6 digit pincode" value={addressForm.pincode} onChange={e => setAddressForm({...addressForm, pincode: e.target.value})} className="w-full md:w-1/2 bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral transition-all" />
+                  <input type="text" required pattern="[0-9]{6}" title="6 digit pincode" value={addressForm.pincode} onChange={e => setAddressForm({...addressForm, pincode: e.target.value})} className="w-full md:w-1/2 bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta transition-all" />
                 </div>
               </div>
               
               <div className="mt-6 flex justify-end gap-4">
                 <button type="button" onClick={cancelAddressForm} className="px-6 py-3 rounded-full text-sm font-bold text-ink/60 hover:text-ink hover:bg-ink/5 transition-colors">Cancel</button>
-                <button type="submit" disabled={savingAddress} className="bg-coral text-white px-8 py-3 rounded-full text-sm font-bold shadow-md hover:bg-coral/90 transition-all disabled:opacity-50">
+                <button type="submit" disabled={savingAddress} className="bg-cta text-white px-8 py-3 rounded-full text-sm font-bold shadow-md hover:bg-cta/90 transition-all disabled:opacity-50">
                   {savingAddress ? 'Saving...' : 'Save Address'}
                 </button>
               </div>
@@ -232,7 +232,7 @@ function AccountSettingsPage() {
 
           {loadingAddresses ? (
             <div className="text-center py-8 px-4">
-              <div className="animate-spin w-8 h-8 border-4 border-coral border-t-transparent rounded-full mx-auto mb-4"></div>
+              <div className="animate-spin w-8 h-8 border-4 border-cta border-t-transparent rounded-full mx-auto mb-4"></div>
               <p className="text-sm font-medium text-ink/60">Loading addresses...</p>
             </div>
           ) : (
@@ -300,4 +300,5 @@ function AccountSettingsPage() {
     </div>
   )
 }
+
 

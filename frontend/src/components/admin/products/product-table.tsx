@@ -201,3 +201,4 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
     </>
   )
 }
+

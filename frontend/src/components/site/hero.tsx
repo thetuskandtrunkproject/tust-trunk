@@ -228,7 +228,7 @@ export function Hero({ initialData }: { initialData?: { promoRibbonText: string,
                   to={slide.ctaLink || '/shop'}
                   className="inline-flex items-center justify-center gap-2 font-bold text-sm sm:text-base md:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-full shadow-2xl hover:scale-105 transition-all duration-300 group"
                   style={{ 
-                    backgroundColor: slide.accentColor,
+                    backgroundColor: 'var(--color-cta)',
                     color: '#FFFFFF'
                   }}
                 >
@@ -308,3 +308,4 @@ export function Hero({ initialData }: { initialData?: { promoRibbonText: string,
     </section>
   )
 }
+

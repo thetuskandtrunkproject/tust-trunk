@@ -144,7 +144,7 @@ function ShopPage() {
               <p className="text-ink/70 mb-8 max-w-sm mx-auto font-sans text-lg">We couldn't find any products matching those playful filters. Let's try something else!</p>
               <button 
                 onClick={() => navigate({ search: (prev) => ({ category: prev.category }), replace: true })}
-                className="bg-coral text-white px-8 py-3 rounded-full font-bold hover:scale-105 hover:shadow-md transition-all"
+                className="bg-cta text-white px-8 py-3 rounded-full font-bold hover:scale-105 hover:shadow-md transition-all"
               >
                 Clear all filters
               </button>
@@ -177,7 +177,7 @@ function ShopPage() {
                 <div className="mt-16 flex justify-center">
                   <button 
                     onClick={handleLoadMore}
-                    className="bg-sky-soft text-ink px-10 py-4 rounded-full font-bold hover:bg-coral hover:text-white hover:scale-105 transition-all shadow-sm"
+                    className="bg-sky-soft text-ink px-10 py-4 rounded-full font-bold hover:bg-cta hover:text-white hover:scale-105 transition-all shadow-sm"
                   >
                     Load More Products
                   </button>
@@ -191,3 +191,4 @@ function ShopPage() {
     </div>
   )
 }
+

@@ -8,21 +8,22 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --sky: #7EC8E3;
-  --sky-soft: #D3E8F3;
+  --sky: #70A6FF;
+  --sky-soft: #D0E0FF;
   --sunshine: #FFD93D;
   --watermelon: #FF8FA3;
   --mint: #8FE3C7;
-  --coral: #FF6B6B;
-  --ink: #22303B;
-  --cloud: #FAF8F5;
+  --coral: #FF6B8B;
+  --cta: #E03B8B;
+  --ink: #2D283E;
+  --cloud: #FAF7F9;
 
   --font-baloo: 'Baloo 2', sans-serif;
   --font-nunito: 'Nunito', sans-serif;
 
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #FAF8F5;
+  --text: #2D283E;
+  --text-h: #2D283E;
+  --bg: #FAF7F9;
   --border: oklch(0.922 0 0);
   --code-bg: #f4f3ec;
   --accent: oklch(0.97 0 0);
@@ -88,6 +89,7 @@ h6 {
   --color-watermelon: var(--watermelon);
   --color-mint: var(--mint);
   --color-coral: var(--coral);
+  --color-cta: var(--cta);
   --color-ink: var(--ink);
   --color-cloud: var(--cloud);
 

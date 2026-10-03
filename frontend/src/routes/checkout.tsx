@@ -146,16 +146,16 @@ function CheckoutPage() {
           <div className="absolute top-1/2 left-0 h-1 bg-coral transition-all duration-500 -z-10 -translate-y-1/2 rounded-full" style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%' }}></div>
           
           <div className="flex flex-col items-center gap-2 bg-cloud px-2">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 1 ? 'bg-coral text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>1</div>
-            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 1 ? 'text-coral' : 'text-ink/40'}`}>Review</span>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 1 ? 'bg-cta text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>1</div>
+            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 1 ? 'text-cta' : 'text-ink/40'}`}>Review</span>
           </div>
           <div className="flex flex-col items-center gap-2 bg-cloud px-2">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 2 ? 'bg-coral text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>2</div>
-            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 2 ? 'text-coral' : 'text-ink/40'}`}>Details</span>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 2 ? 'bg-cta text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>2</div>
+            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 2 ? 'text-cta' : 'text-ink/40'}`}>Details</span>
           </div>
           <div className="flex flex-col items-center gap-2 bg-cloud px-2">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 3 ? 'bg-coral text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>3</div>
-            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 3 ? 'text-coral' : 'text-ink/40'}`}>Payment</span>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 3 ? 'bg-cta text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>3</div>
+            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 3 ? 'text-cta' : 'text-ink/40'}`}>Payment</span>
           </div>
         </div>
 
@@ -210,3 +210,4 @@ function CheckoutPage() {
     </div>
   )
 }
+

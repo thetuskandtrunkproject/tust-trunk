@@ -32,3 +32,4 @@ export function OrderStatusBadge({ type, status }: OrderStatusBadgeProps) {
     </span>
   )
 }
+

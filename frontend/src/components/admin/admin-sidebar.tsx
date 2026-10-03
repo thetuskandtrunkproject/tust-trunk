@@ -95,3 +95,4 @@ function ShoppingBagIcon(props: any) {
     </svg>
   )
 }
+

@@ -165,7 +165,7 @@ function AboutPage() {
             </p>
             <Link 
               to="/shop" 
-              className="inline-block bg-coral text-white px-10 py-4 rounded-full font-bold text-lg shadow-xl hover:scale-105 hover:bg-coral/90 transition-all"
+              className="inline-block bg-cta text-white px-10 py-4 rounded-full font-bold text-lg shadow-xl hover:scale-105 hover:bg-cta/90 transition-all"
             >
               Shop the collection
             </Link>
@@ -176,3 +176,4 @@ function AboutPage() {
     </div>
   )
 }
+

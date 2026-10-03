@@ -8,3 +8,4 @@ export const Route = createFileRoute('/admin/products/new')({
 function NewProductPage() {
   return <ProductForm />
 }
+
