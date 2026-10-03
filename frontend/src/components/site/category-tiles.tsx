@@ -7,13 +7,17 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-export function CategoryTiles() {
+export function CategoryTiles({ initialData }: { initialData?: any[] }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const cardsRef = useRef<(HTMLAnchorElement | null)[]>([])
   
-  const [featuredProducts, setFeaturedProducts] = useState<any[]>([])
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>(initialData || [])
 
   useEffect(() => {
+    if (initialData && initialData.length > 0) {
+      setFeaturedProducts(initialData)
+      return
+    }
     const fetchFeatured = async () => {
       try {
         const res = await api.get('/public/products', { params: { page_size: 4 } })
@@ -23,7 +27,7 @@ export function CategoryTiles() {
       }
     }
     fetchFeatured()
-  }, [])
+  }, [initialData])
 
   // Split heading into individual words for GSAP text animation
   const headingWords = ['Playful', '&', 'Breathable']

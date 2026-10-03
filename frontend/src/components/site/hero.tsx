@@ -11,8 +11,8 @@ import { api } from '@/lib/api'
 
 const AUTOPLAY_MS = 5000
 
-export function Hero() {
-  const [cmsData, setCmsData] = useState<{ promoRibbonText: string, slides: any[] } | null>(null)
+export function Hero({ initialData }: { initialData?: { promoRibbonText: string, slides: any[] } | null }) {
+  const [cmsData, setCmsData] = useState<{ promoRibbonText: string, slides: any[] } | null>(initialData || null)
   const [current, setCurrent] = useState(0)
   const [progress, setProgress] = useState(0)
   const isAnimating = useRef(false)
@@ -21,8 +21,12 @@ export function Hero() {
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    api.get('/cms/hero').then(res => setCmsData(res.data)).catch(console.error)
-  }, [])
+    if (!initialData) {
+      api.get('/cms/hero').then(res => setCmsData(res.data)).catch(console.error)
+    } else {
+      setCmsData(initialData)
+    }
+  }, [initialData])
 
   const slides = cmsData?.slides || []
 
@@ -188,6 +192,7 @@ export function Hero() {
               alt={slide.alt}
               className="w-full h-full object-cover"
               loading={idx === 0 ? 'eager' : 'lazy'}
+              {...(idx === 0 ? { fetchpriority: 'high' as any } : {})}
             />
 
             {/* Bottom gradient for readability */}

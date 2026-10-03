@@ -9,10 +9,14 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-export function ProductCarousel() {
-  const [products, setProducts] = useState<any[]>([])
+export function ProductCarousel({ initialData }: { initialData?: any[] }) {
+  const [products, setProducts] = useState<any[]>(initialData || [])
 
   useEffect(() => {
+    if (initialData && initialData.length > 0) {
+      setProducts(initialData)
+      return
+    }
     const fetchNew = async () => {
       try {
         const res = await api.get('/public/products', { 
@@ -24,7 +28,7 @@ export function ProductCarousel() {
       }
     }
     fetchNew()
-  }, [])
+  }, [initialData])
   
   const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
   const containerRef = useRef<HTMLElement>(null)
