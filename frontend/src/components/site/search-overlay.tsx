@@ -184,7 +184,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     className="flex items-center gap-4 p-3 rounded-2xl hover:bg-white transition-colors group"
                   >
                     <div className="w-16 h-16 rounded-xl overflow-hidden bg-ink/5 shrink-0">
-                      <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={product.images[0]} alt={product.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                     <div>
                       <h4 className="font-heading font-bold text-ink group-hover:text-sky transition-colors line-clamp-1">{product.name}</h4>

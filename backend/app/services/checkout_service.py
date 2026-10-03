@@ -129,6 +129,83 @@ def _compute_delivery_fee(subtotal_paise: int, free_shipping_override: bool = Fa
 
 
 # ---------------------------------------------------------------------------
+# Cart Item Validation Helper
+# ---------------------------------------------------------------------------
+
+def _validate_cart_items(db: Client, items: list[dict]) -> tuple[int, list[dict]]:
+    """
+    1. Deduplicates items by variant_id (sums quantities).
+    2. Fetches all variants in a single query.
+    3. Validates stock and active status.
+    4. Computes server-side subtotal (in paise).
+    Returns (subtotal_paise, validated_items).
+    """
+    merged: dict[str, int] = {}
+    for item in items:
+        vid = str(item['variant_id'])
+        merged[vid] = merged.get(vid, 0) + item['quantity']
+
+    for vid, qty in merged.items():
+        if qty > 10:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Quantity for variant {vid} exceeds maximum of 10 per item."
+            )
+
+    unique_variant_ids = list(merged.keys())
+
+    variants_res = (
+        db.table('product_variants')
+        .select('id, sku, size, price, stock, is_active, products(id, name, status, gender)')
+        .in_('id', unique_variant_ids)
+        .execute()
+    )
+
+    variants_by_id: dict[str, dict] = {v['id']: v for v in (variants_res.data or [])}
+
+    validated_items = []
+    subtotal_paise = 0
+
+    for variant_id, requested_qty in merged.items():
+        variant = variants_by_id.get(variant_id)
+        if not variant:
+            raise HTTPException(status_code=404, detail=f"Variant {variant_id} not found.")
+
+        product = variant.get('products') or {}
+
+        if not variant.get('is_active') or product.get('status') != 'Active':
+            raise HTTPException(
+                status_code=400,
+                detail=f"Item '{product.get('name', variant_id)}' is no longer available."
+            )
+
+        if variant['stock'] < requested_qty:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"Insufficient stock for '{product.get('name', variant_id)}'"
+                    f" (size {variant['size']}). "
+                    f"Only {variant['stock']} unit(s) available."
+                )
+            )
+
+        line_total = variant['price'] * requested_qty
+        subtotal_paise += line_total
+
+        validated_items.append({
+            "variant_id": variant_id,
+            "quantity": requested_qty,
+            "price_paise": variant['price'],
+            "product_name_snapshot": product['name'],
+            "sku_snapshot": variant['sku'],
+            "size_snapshot": variant['size'],
+            "product_gender": product.get('gender'),
+        })
+
+    return subtotal_paise, validated_items
+
+
+# ---------------------------------------------------------------------------
 # create_order
 # ---------------------------------------------------------------------------
 
@@ -162,100 +239,20 @@ def create_order(db: Client, user_id: str | None, payload: dict) -> dict:
     coupon_code = payload.get('coupon_code')
 
     # -------------------------------------------------------------------------
-    # Step 1: Deduplicate items by variant_id, summing quantities.
-    #
-    # Input may contain the same variant_id more than once due to a frontend
-    # bug, a double-submit, or a tampered request. We reduce to one entry per
-    # unique variant_id BEFORE validating against stock, so the combined
-    # quantity is checked against a single stock value in one comparison.
-    # This also guarantees validated_items has one row per variant_id, which
-    # is the structural assumption commit_order()'s deduction loop depends on.
+    # Steps 1-3: Deduplicate, fetch, validate, and compute subtotal (Server-side)
     # -------------------------------------------------------------------------
-    merged: dict[str, int] = {}
-    for item in items:
-        vid = str(item['variant_id'])
-        merged[vid] = merged.get(vid, 0) + item['quantity']
+    subtotal_paise, validated_items = _validate_cart_items(db, items)
 
-    # Cap combined quantity at 10 per variant (mirrors the cart cap).
-    # This is a defence-in-depth check; the schema-level Field(le=10) on
-    # individual entries in the request is already enforced by Pydantic,
-    # but a user could send two entries of 8 + 8 for the same variant_id.
-    for vid, qty in merged.items():
-        if qty > 10:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Quantity for variant {vid} exceeds maximum of 10 per item."
-            )
-
-    unique_variant_ids = list(merged.keys())
-
-    # -------------------------------------------------------------------------
-    # Step 2: Fetch ALL variants in ONE query (no N+1).
-    #
-    # We join product_variants with products inline so we get name, status,
-    # and active flag in the same round trip. The result is indexed by
-    # variant id for O(1) lookup in the validation loop below.
-    # -------------------------------------------------------------------------
-    variants_res = (
-        db.table('product_variants')
-        .select('id, sku, size, price, stock, is_active, products(id, name, status)')
-        .in_('id', unique_variant_ids)
-        .execute()
-    )
-
-    # Index fetched rows by variant id for O(1) lookup
-    variants_by_id: dict[str, dict] = {v['id']: v for v in (variants_res.data or [])}
-
-    # -------------------------------------------------------------------------
-    # Step 3: Validate every deduplicated item and build validated_items.
-    #
-    # All checks run against the DB-fetched data. Client-supplied prices are
-    # never referenced. The stock check uses the merged (summed) quantity so
-    # a user splitting a 15-unit request into multiple entries can't bypass it.
-    # -------------------------------------------------------------------------
-    validated_items = []
-    subtotal_paise = 0
-
-    for variant_id, requested_qty in merged.items():
-        variant = variants_by_id.get(variant_id)
-        if not variant:
-            raise HTTPException(status_code=404, detail=f"Variant {variant_id} not found.")
-
-        product = variant.get('products') or {}
-
-        if not variant.get('is_active') or product.get('status') != 'Active':
-            raise HTTPException(
-                status_code=400,
-                detail=f"Item '{product.get('name', variant_id)}' is no longer available."
-            )
-
-        if variant['stock'] < requested_qty:
-            raise HTTPException(
-                status_code=400,
-                detail=(
-                    f"Insufficient stock for '{product.get('name', variant_id)}'"
-                    f" (size {variant['size']}). "
-                    f"Only {variant['stock']} unit(s) available."
-                )
-            )
-
-        line_total = variant['price'] * requested_qty
-        subtotal_paise += line_total
-
-        validated_items.append({
-            "variant_id": variant_id,
-            "quantity": requested_qty,
-            "price_paise": variant['price'],           # paise — from DB, never client
-            "product_name_snapshot": product['name'],
-            "sku_snapshot": variant['sku'],
-            "size_snapshot": variant['size'],
-        })
-
-    delivery_fee_paise = _compute_delivery_fee(subtotal_paise)
-    
     discount_paise = 0
+    free_shipping_override = False
+    
     if coupon_code:
-        discount_paise, _ = validate_coupon_for_cart(db, coupon_code, subtotal_paise, user_id)
+        discount_paise, coupon = validate_coupon_for_cart(db, coupon_code, subtotal_paise, user_id, validated_items)
+        if coupon.get('discount_type') == 'free_shipping':
+            free_shipping_override = True
+
+    delivery_fee_paise = _compute_delivery_fee(subtotal_paise, free_shipping_override=free_shipping_override)
+    
         
     total_paise = subtotal_paise + delivery_fee_paise - discount_paise
 

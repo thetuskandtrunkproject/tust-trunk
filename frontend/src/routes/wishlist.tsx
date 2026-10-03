@@ -49,7 +49,7 @@ function WishlistPage() {
     window.location.href = `/products/${product.slug}`
   }
 
-  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
 
   return (
     <div className="container mx-auto px-4 lg:px-8 py-12 md:py-16 min-h-[70vh]">
@@ -91,6 +91,7 @@ function WishlistPage() {
                 img={p.images[0]}
                 category={p.category}
                 tags={p.tags}
+                eagerLoad={idx < 4}
                 actionButton={
                   <button
                     onClick={(e) => handleMoveToCart(e, p)}

@@ -27,7 +27,7 @@ function AccountSettingsPage() {
   
   // Form state
   const [addressForm, setAddressForm] = useState({
-    name: '', address1: '', address2: '', city: '', state: '', pincode: ''
+    name: '', address1: '', address2: '', city: '', state: '', pincode: '', phone: ''
   })
   const [savingAddress, setSavingAddress] = useState(false)
 
@@ -93,7 +93,7 @@ function AccountSettingsPage() {
       }
       setNewAddressForm(false)
       setEditingAddressId(null)
-      setAddressForm({ name: '', address1: '', address2: '', city: '', state: '', pincode: '' })
+      setAddressForm({ name: '', address1: '', address2: '', city: '', state: '', pincode: '', phone: '' })
       await loadAddresses()
     } catch (error: any) {
       showToast(error.response?.data?.detail || "Failed to save address")
@@ -110,6 +110,7 @@ function AccountSettingsPage() {
       city: address.city,
       state: address.state,
       pincode: address.pincode,
+      phone: address.phone || '',
     })
     setEditingAddressId(address.id)
     setNewAddressForm(true)
@@ -118,7 +119,7 @@ function AccountSettingsPage() {
   const cancelAddressForm = () => {
     setNewAddressForm(false)
     setEditingAddressId(null)
-    setAddressForm({ name: '', address1: '', address2: '', city: '', state: '', pincode: '' })
+    setAddressForm({ name: '', address1: '', address2: '', city: '', state: '', pincode: '', phone: '' })
   }
 
   return (
@@ -202,6 +203,13 @@ function AccountSettingsPage() {
                 <div className="md:col-span-2">
                   <label className="block text-sm font-bold text-ink mb-2 ml-2">Address Line 1</label>
                   <input type="text" required value={addressForm.address1} onChange={e => setAddressForm({...addressForm, address1: e.target.value})} className="w-full bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta transition-all" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-ink mb-2 ml-2">Phone Number</label>
+                  <input type="tel" required pattern="[0-9]{10}" title="10 digit phone number" value={addressForm.phone} onChange={e => {
+                    const val = e.target.value.replace(/\D/g, '')
+                    if (val.length <= 10) setAddressForm({...addressForm, phone: val})
+                  }} className="w-full bg-white border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-coral transition-all" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-bold text-ink mb-2 ml-2">Address Line 2 (Optional)</label>

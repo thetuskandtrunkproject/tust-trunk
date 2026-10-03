@@ -60,15 +60,18 @@ function CheckoutPage() {
     }
   }, [buyNow, qty])
 
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([])
+
   useEffect(() => {
     const fetchAddresses = async () => {
       if (!user) return
       
-      // Auto-fill email from user profile immediately
-      setContact(prev => ({ ...prev, email: user.email || '' }))
+      // Auto-fill email and phone from user profile immediately
+      setContact(prev => ({ ...prev, email: user.email || '', phone: user.phone || '' }))
       
       try {
         const res = await api.get('/api/v1/addresses')
+        setSavedAddresses(res.data)
         const def = res.data.find((a: any) => a.is_default) || res.data[0]
         if (def) {
           setShipping({
@@ -77,12 +80,9 @@ function CheckoutPage() {
             address2: def.address2 || '',
             city: def.city || '',
             state: def.state || '',
-            pincode: def.pincode || ''
+            pincode: def.pincode || '',
+            phone: def.phone || ''
           })
-          setContact(prev => ({
-            ...prev,
-            phone: def.phone || prev.phone
-          }))
         }
       } catch (err) {
         console.error("Failed to load saved addresses")
@@ -95,10 +95,11 @@ function CheckoutPage() {
   
   // Shared Checkout State
   const [contact, setContact] = useState({ email: '', phone: '' })
-  const [shipping, setShipping] = useState({ name: '', address1: '', address2: '', city: '', state: '', pincode: '' })
+  const [shipping, setShipping] = useState({ name: '', address1: '', address2: '', city: '', state: '', pincode: '', phone: '' })
   const [saveDefault, setSaveDefault] = useState(false)
   
   const [couponCode, setCouponCode] = useState<string | null>(null)
+  const [couponType, setCouponType] = useState<string | null>(null)
   const [discountPaise, setDiscountPaise] = useState(0)
   
   // Filter out items missing product data to avoid crashes (guest cart limitation)
@@ -114,8 +115,9 @@ function CheckoutPage() {
     subtotal = user ? cartSubtotal : cartDetails.reduce((sum, item) => sum + (item.variant!.price * item.quantity), 0)
   }
   
-  const deliveryFee = subtotal >= 3000 ? 0 : 60 // Free shipping over ₹3000, else ₹60
-  const discountAmount = discountPaise / 100
+  const isFreeShipping = couponType === 'free_shipping'
+  const deliveryFee = (subtotal >= 300000 || isFreeShipping) ? 0 : 6000 // Free shipping over ₹3000, else ₹60
+  const discountAmount = discountPaise
   const totalAmount = subtotal + deliveryFee - discountAmount
 
 
@@ -170,9 +172,10 @@ function CheckoutPage() {
                 subtotal={subtotal} 
                 couponCode={couponCode}
                 discountAmount={discountAmount}
-                onApplyCoupon={(code, discount) => {
+                onApplyCoupon={(code, discount, type) => {
                   setCouponCode(code)
-                  setDiscountPaise(discount * 100)
+                  setDiscountPaise(discount)
+                  setCouponType(type)
                 }}
               />
             </div>
@@ -187,6 +190,7 @@ function CheckoutPage() {
                 initialShipping={shipping}
                 initialSaveDefault={saveDefault}
                 deliveryFee={deliveryFee}
+                savedAddresses={savedAddresses}
               />
             </div>
           )}

@@ -277,6 +277,7 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
               <img 
                 src={product.images[0]} 
                 alt={product.name} 
+                loading="lazy"
                 className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105"
               />
               

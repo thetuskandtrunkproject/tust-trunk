@@ -251,7 +251,7 @@ export function AdminButton({ variant = 'primary', icon, children, className = '
     <button
       {...props}
       className={`
-        inline-flex items-center justify-center gap-2 rounded-lg font-medium text-[13px] transition-colors
+        inline-flex items-center justify-center gap-2 rounded-lg font-medium text-[13px] transition-colors cursor-pointer
         ${isIconOnly ? 'p-1.5' : 'px-4 h-[36px]'}
         ${BUTTON_CLASSES[variant]}
         disabled:opacity-50 disabled:cursor-not-allowed

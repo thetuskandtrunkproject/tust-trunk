@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { ArrowDown, ArrowUp } from 'lucide-react'
 import type { AdminCustomer } from '@/lib/admin/mock-customers'
 import { AdminFilterBar, AdminSearchInput, AdminTableShell, AdminTh, AdminTd } from '@/components/admin/ui/primitives'
@@ -12,6 +12,7 @@ type SortField = 'joinedDate' | 'totalSpent' | 'lastOrderDate'
 type SortOrder = 'asc' | 'desc'
 
 export function CustomerTable({ customers }: CustomerTableProps) {
+  const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
   const [sortField, setSortField] = useState<SortField>('joinedDate')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
@@ -66,7 +67,7 @@ export function CustomerTable({ customers }: CustomerTableProps) {
     })
   }
 
-  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
 
   return (
     <div className="space-y-6">
@@ -114,11 +115,10 @@ export function CustomerTable({ customers }: CustomerTableProps) {
                 <tr 
                   key={customer.id} 
                   className="border-b border-ink/5 hover:bg-ink/[0.02] transition-colors group cursor-pointer"
+                  onClick={() => navigate({ to: '/admin/customers/$customerId', params: { customerId: customer.id } })}
                 >
                   <AdminTd>
-                    <Link to="/admin/customers/$customerId" params={{ customerId: customer.id }} className="block">
-                      <span className="font-medium text-ink group-hover:text-sky transition-colors">{customer.name}</span>
-                    </Link>
+                    <span className="font-medium text-ink group-hover:text-sky transition-colors">{customer.name}</span>
                   </AdminTd>
                   <AdminTd>
                     <div className="flex flex-col gap-1">

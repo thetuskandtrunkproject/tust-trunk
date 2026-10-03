@@ -89,7 +89,7 @@ function ShopPage() {
     loadProducts(nextPage, false)
   }
 
-  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
 
   return (
     <div className="bg-cloud min-h-screen">
@@ -168,6 +168,7 @@ function ShopPage() {
                       category={p.category}
                       tags={p.tags}
                       sizes={p.available_sizes}
+                      eagerLoad={i < 4}
                     />
                   </div>
                 ))}

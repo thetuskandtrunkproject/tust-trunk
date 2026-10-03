@@ -23,7 +23,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   // Use serverSubtotal if logged in, otherwise local computation (which will be 0 for guests without mock data)
   const subtotal = user ? serverSubtotal : cartDetails.reduce((sum, item) => sum + (item.variant!.price * item.quantity), 0)
   
-  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
 
   return (
     <div className="fixed inset-0 z-[110] flex justify-end">
@@ -60,7 +60,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             cartDetails.map((item, idx) => (
               <div key={`${item.variant_id}-${idx}`} className={`flex gap-4 group ${item.is_available === false ? 'opacity-50 grayscale' : ''}`}>
                 <div className="w-24 aspect-[3/4] bg-ink/5 rounded-2xl overflow-hidden shrink-0">
-                  <img src={item.product!.images[0]} alt={item.product!.name} className="w-full h-full object-cover" />
+                  <img src={item.product!.images[0]} alt={item.product!.name} loading="lazy" className="w-full h-full object-cover" />
                 </div>
                 
                 <div className="flex flex-col flex-1 py-1">
@@ -135,7 +135,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             <div className="flex justify-between items-center mb-6">
               <span className="text-lg text-ink font-medium">Delivery</span>
               <span className="text-xl font-bold text-ink">
-                {subtotal >= 3000 ? <span className="text-mint">Free</span> : '₹60'}
+                {subtotal >= 300000 ? <span className="text-mint">Free</span> : '₹60'}
               </span>
             </div>
             <button 

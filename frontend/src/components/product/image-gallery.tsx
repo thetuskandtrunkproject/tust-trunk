@@ -38,7 +38,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                 : 'border-transparent opacity-60 hover:opacity-100 hover:border-ink/20'
             }`}
           >
-            <img src={img} alt={`${productName} thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+            <img src={img} alt={`${productName} thumbnail ${idx + 1}`} loading="lazy" className="w-full h-full object-cover" />
           </button>
         ))}
       </div>
@@ -53,7 +53,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
         }}>
           {images.map((img, idx) => (
             <div key={idx} className="w-full h-full shrink-0 snap-center">
-              <img src={img} alt={`${productName} view ${idx + 1}`} className="w-full h-full object-cover" />
+              <img src={img} alt={`${productName} view ${idx + 1}`} loading="lazy" className="w-full h-full object-cover" />
             </div>
           ))}
         </div>

@@ -14,9 +14,15 @@ from app.schemas.checkout import (
     GuestOrderResponse,
 )
 from pydantic import BaseModel
+from typing import List
+
+class ApplyCouponRequestItem(BaseModel):
+    variant_id: str
+    quantity: int
+
 class ApplyCouponRequest(BaseModel):
     code: str
-    subtotal_paise: int
+    items: List[ApplyCouponRequestItem]
 from app.services import checkout_service
 
 logger = logging.getLogger(__name__)
@@ -89,16 +95,23 @@ def apply_coupon_endpoint(
     db: Client = Depends(get_db_client),
 ):
     from app.services.coupons_service import validate_coupon_for_cart
+    
+    # 1. Securely compute subtotal server-side based on actual DB prices
+    items_list = [item.model_dump() for item in payload.items]
+    subtotal_paise, validated_items = checkout_service._validate_cart_items(db, items_list)
+    
     user_id = current_user['id'] if current_user else None
     discount_paise, coupon = validate_coupon_for_cart(
         db=db,
         code=payload.code,
-        subtotal_paise=payload.subtotal_paise,
-        user_id=user_id
+        subtotal_paise=subtotal_paise,
+        user_id=user_id,
+        validated_items=validated_items
     )
     return {
         "code": coupon['code'],
-        "discount_paise": discount_paise
+        "discount_paise": discount_paise,
+        "discount_type": coupon['discount_type']
     }
 
 # ---------------------------------------------------------------------------

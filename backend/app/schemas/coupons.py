@@ -1,15 +1,15 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import Optional, Literal
 from datetime import datetime
 
 class CouponBase(BaseModel):
-    code: str
-    discount_type: str
-    discount_value: int
-    min_cart_value_paise: Optional[int] = None
-    max_discount_cap_paise: Optional[int] = None
-    total_usage_limit: Optional[int] = None
-    per_user_limit: Optional[int] = None
+    code: str = Field(..., max_length=50, pattern=r'^[A-Z0-9_-]+$')
+    discount_type: Literal['percent', 'flat', 'free_shipping']
+    discount_value: int = Field(..., ge=0)
+    min_cart_value_paise: Optional[int] = Field(None, ge=0)
+    max_discount_cap_paise: Optional[int] = Field(None, ge=0)
+    total_usage_limit: Optional[int] = Field(None, gt=0)
+    per_user_limit: Optional[int] = Field(None, gt=0)
     scope: str = "store_wide"
     valid_from: datetime
     valid_until: datetime
@@ -19,13 +19,13 @@ class CouponCreate(CouponBase):
     pass
 
 class CouponUpdate(BaseModel):
-    code: Optional[str] = None
-    discount_type: Optional[str] = None
-    discount_value: Optional[int] = None
-    min_cart_value_paise: Optional[int] = None
-    max_discount_cap_paise: Optional[int] = None
-    total_usage_limit: Optional[int] = None
-    per_user_limit: Optional[int] = None
+    code: Optional[str] = Field(None, max_length=50, pattern=r'^[A-Z0-9_-]+$')
+    discount_type: Optional[Literal['percent', 'flat', 'free_shipping']] = None
+    discount_value: Optional[int] = Field(None, ge=0)
+    min_cart_value_paise: Optional[int] = Field(None, ge=0)
+    max_discount_cap_paise: Optional[int] = Field(None, ge=0)
+    total_usage_limit: Optional[int] = Field(None, gt=0)
+    per_user_limit: Optional[int] = Field(None, gt=0)
     scope: Optional[str] = None
     valid_from: Optional[datetime] = None
     valid_until: Optional[datetime] = None

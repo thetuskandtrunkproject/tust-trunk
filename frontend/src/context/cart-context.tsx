@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import type { ReactNode } from 'react'
 import { useAuth } from '@/context/auth-context'
 import { api } from '@/lib/api'
@@ -103,15 +103,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [user]) // Re-run when user changes
 
   // Resolve guest cart items
+  const unresolvedIds = useMemo(() => {
+    if (user) return []
+    return items
+      .filter(i => !i.product && i.is_available !== false && !i.resolve_failed)
+      .map(i => i.variant_id)
+  }, [items, user])
+
+  // CRITICAL FIX: Do NOT change the dependency array of this effect back to `[items, user]`.
+  // Using raw `items` as a dependency creates an infinite re-render/fetch loop for guest users 
+  // because successfully resolving an item calls `setItems`, which changes `items` and re-triggers the effect.
+  // We use `unresolvedIds.join(',')` to ensure the effect only fires when actual unresolved IDs change.
   useEffect(() => {
     let mounted = true
     const resolveGuestCart = async () => {
-      if (user) return // Logged-in cart is handled by fetchBackendCart
-      
-      const unresolvedIds = items
-        .filter(i => !i.product && i.is_available !== false && !i.resolve_failed)
-        .map(i => i.variant_id)
-        
       if (unresolvedIds.length === 0) return
       
       try {
@@ -155,7 +160,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     
     resolveGuestCart()
     return () => { mounted = false }
-  }, [items, user])
+  }, [unresolvedIds.join(',')])
 
   const addItem = async (newItem: CartItem) => {
     if (user) {

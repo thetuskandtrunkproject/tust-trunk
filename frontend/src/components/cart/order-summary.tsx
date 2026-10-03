@@ -43,7 +43,7 @@ export function OrderSummary({ deliveryFee, onDiscountChange }: OrderSummaryProp
     }, 600)
   }
 
-  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
 
   return (
     <div className="bg-ink/5 rounded-2xl p-6 lg:p-8 sticky top-24">

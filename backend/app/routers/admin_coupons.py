@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from supabase import Client
 from typing import List
 from app.core.database import get_db_client
@@ -8,17 +10,33 @@ from app.services import coupons_service
 
 router = APIRouter(prefix="/api/v1/admin/coupons", tags=["Admin Coupons"])
 
+def _admin_key_func(request: Request) -> str:
+    admin = getattr(request.state, 'admin', None)
+    if admin and 'id' in admin:
+        return f"admin:{admin['id']}"
+    return f"ip:{get_remote_address(request)}"
+
+limiter = Limiter(key_func=_admin_key_func)
+
+def get_and_attach_admin(request: Request, admin: dict = Depends(get_current_admin)) -> dict:
+    request.state.admin = admin
+    return admin
+
 @router.get("", response_model=List[CouponResponse])
+@limiter.limit("60/minute")
 def get_coupons(
-    admin_user: dict = Depends(get_current_admin),
+    request: Request,
+    current_admin: dict = Depends(get_and_attach_admin),
     db: Client = Depends(get_db_client)
 ):
     return coupons_service.get_coupons(db)
 
 @router.post("", response_model=CouponResponse)
+@limiter.limit("30/minute")
 def create_coupon(
+    request: Request,
     payload: CouponCreate,
-    admin_user: dict = Depends(get_current_admin),
+    current_admin: dict = Depends(get_and_attach_admin),
     db: Client = Depends(get_db_client)
 ):
     data = payload.model_dump(mode='json')
@@ -26,10 +44,12 @@ def create_coupon(
     return coupons_service.create_coupon(db, data)
 
 @router.patch("/{coupon_id}", response_model=CouponResponse)
+@limiter.limit("30/minute")
 def update_coupon(
+    request: Request,
     coupon_id: str,
     payload: CouponUpdate,
-    admin_user: dict = Depends(get_current_admin),
+    current_admin: dict = Depends(get_and_attach_admin),
     db: Client = Depends(get_db_client)
 ):
     data = payload.model_dump(exclude_unset=True, mode='json')
@@ -38,9 +58,11 @@ def update_coupon(
     return coupons_service.update_coupon(db, coupon_id, data)
 
 @router.delete("/{coupon_id}")
+@limiter.limit("30/minute")
 def delete_coupon(
+    request: Request,
     coupon_id: str,
-    admin_user: dict = Depends(get_current_admin),
+    current_admin: dict = Depends(get_and_attach_admin),
     db: Client = Depends(get_db_client)
 ):
     coupons_service.delete_coupon(db, coupon_id)

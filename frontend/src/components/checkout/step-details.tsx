@@ -8,12 +8,22 @@ interface StepDetailsProps {
   initialShipping: any
   initialSaveDefault: boolean
   deliveryFee: number
+  savedAddresses?: any[]
 }
 
-export function StepDetails({ onNext, onBack, initialContact, initialShipping, initialSaveDefault, deliveryFee }: StepDetailsProps) {
+export function StepDetails({ onNext, onBack, initialContact, initialShipping, initialSaveDefault, deliveryFee, savedAddresses = [] }: StepDetailsProps) {
   const [contact, setContact] = useState(initialContact)
   const [shipping, setShipping] = useState(initialShipping)
   const [saveDefault, setSaveDefault] = useState(initialSaveDefault)
+  const [selectedAddressId, setSelectedAddressId] = useState<string>(
+    savedAddresses.length > 0 
+      ? (savedAddresses.find(a => 
+          a.name === initialShipping.name && 
+          a.address1 === initialShipping.address1 &&
+          a.pincode === initialShipping.pincode
+        )?.id || 'new')
+      : 'new'
+  )
 
   const isFormValid = () => {
     return (
@@ -23,7 +33,8 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
       shipping.address1.trim() !== '' &&
       shipping.city.trim() !== '' &&
       shipping.state.trim() !== '' &&
-      shipping.pincode.length >= 5
+      shipping.pincode.length >= 5 &&
+      shipping.phone.length >= 10
     )
   }
 
@@ -78,8 +89,51 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
         {/* Shipping Address */}
         <section className="bg-white border border-ink/10 rounded-[2rem] p-6 lg:p-8 shadow-sm">
           <h3 className="font-bold text-xl text-ink mb-6">Shipping Address</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
+          
+          {savedAddresses.length > 0 && (
+            <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {savedAddresses.map(addr => (
+                <div 
+                  key={addr.id}
+                  onClick={() => {
+                    setSelectedAddressId(addr.id)
+                    setShipping({
+                      name: addr.name,
+                      address1: addr.address1,
+                      address2: addr.address2 || '',
+                      city: addr.city,
+                      state: addr.state,
+                      pincode: addr.pincode,
+                      phone: addr.phone || ''
+                    })
+                    setSaveDefault(false)
+                  }}
+                  className={`p-5 rounded-[2rem] border-2 cursor-pointer transition-all ${selectedAddressId === addr.id ? 'border-coral bg-coral/5 shadow-sm' : 'border-ink/10 hover:border-ink/30'}`}
+                >
+                  <p className="font-bold text-ink mb-2">{addr.name}</p>
+                  <p className="text-sm text-ink/70 leading-relaxed">
+                    {addr.address1}
+                    {addr.address2 && <><br />{addr.address2}</>}
+                    <br />{addr.city}, {addr.state} {addr.pincode}
+                    {addr.phone && <><br />Phone: {addr.phone}</>}
+                  </p>
+                </div>
+              ))}
+              <div 
+                onClick={() => {
+                  setSelectedAddressId('new')
+                  setShipping({ name: '', address1: '', address2: '', city: '', state: '', pincode: '', phone: '' })
+                }}
+                className={`p-5 rounded-[2rem] border-2 cursor-pointer transition-all flex items-center justify-center min-h-[120px] ${selectedAddressId === 'new' ? 'border-coral bg-coral/5 shadow-sm' : 'border-dashed border-ink/20 hover:border-ink/40'}`}
+              >
+                <span className={`font-bold ${selectedAddressId === 'new' ? 'text-coral' : 'text-ink/60'}`}>+ Add New Address</span>
+              </div>
+            </div>
+          )}
+
+          {selectedAddressId === 'new' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
               <label className="block text-sm font-bold text-ink mb-2 ml-2">Full Name *</label>
               <input 
                 type="text" 
@@ -143,20 +197,41 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 maxLength={6}
                 pattern="[0-9]{6}"
                 title="Please enter a valid 6-digit PIN code"
+                className="w-full bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-bold text-ink mb-2 ml-2">Shipping Phone Number *</label>
+              <input 
+                type="tel" 
+                required
+                value={shipping.phone}
+                onChange={e => {
+                  const val = e.target.value.replace(/\D/g, '')
+                  if (val.length <= 10) {
+                    setShipping({...shipping, phone: val})
+                  }
+                }}
+                maxLength={10}
+                pattern="[0-9]{10}"
+                title="Please enter a valid 10-digit phone number"
                 className="w-full md:w-1/2 bg-cloud border-2 border-ink/10 rounded-full px-6 py-3 font-medium focus:outline-none focus:border-cta focus:ring-4 focus:ring-cta/20 transition-all"
               />
             </div>
-          </div>
+            </div>
+          )}
           
-          <label className="flex items-center gap-3 mt-8 cursor-pointer group w-fit ml-2">
-            <input 
-              type="checkbox" 
-              checked={saveDefault}
-              onChange={e => setSaveDefault(e.target.checked)}
-              className="w-6 h-6 rounded-md border-2 border-ink/20 text-cta focus:ring-cta focus:ring-offset-2 cursor-pointer transition-colors" 
-            />
-            <span className="text-sm font-bold text-ink/80 group-hover:text-ink transition-colors">Save as default address</span>
-          </label>
+          {selectedAddressId === 'new' && (
+            <label className="flex items-center gap-3 mt-8 cursor-pointer group w-fit ml-2">
+              <input 
+                type="checkbox" 
+                checked={saveDefault}
+                onChange={e => setSaveDefault(e.target.checked)}
+                className="w-6 h-6 rounded-md border-2 border-ink/20 text-cta focus:ring-cta focus:ring-offset-2 cursor-pointer transition-colors" 
+              />
+              <span className="text-sm font-bold text-ink/80 group-hover:text-ink transition-colors">Save as default address</span>
+            </label>
+          )}
         </section>
 
         {/* Conditional Delivery Notice */}

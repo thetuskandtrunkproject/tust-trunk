@@ -10,7 +10,7 @@ interface StepReviewProps {
   subtotal: number
   couponCode?: string | null
   discountAmount?: number
-  onApplyCoupon?: (code: string, discount: number) => void
+  onApplyCoupon?: (code: string, discount: number, type: string) => void
 }
 
 export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, discountAmount = 0, onApplyCoupon }: StepReviewProps) {
@@ -25,10 +25,10 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
     try {
       const res = await api.post('/api/v1/checkout/apply-coupon', {
         code: promoInput,
-        subtotal_paise: subtotal * 100
+        items: items.map(i => ({ variant_id: i.variant_id, quantity: i.quantity }))
       })
       if (onApplyCoupon) {
-        onApplyCoupon(res.data.code, res.data.discount_paise / 100)
+        onApplyCoupon(res.data.code, res.data.discount_paise, res.data.discount_type)
       }
       showToast('Coupon applied successfully!', 'success')
     } catch (err: any) {
@@ -44,7 +44,7 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
 
   const total = subtotal + deliveryFee - discountAmount
 
-  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
 
   return (
     <div>
