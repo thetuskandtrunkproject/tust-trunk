@@ -26,7 +26,7 @@ export function ProductCarousel() {
     fetchNew()
   }, [])
   
-  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
   const containerRef = useRef<HTMLElement>(null)
   const scrollerRef = useRef<HTMLDivElement>(null)
 
@@ -156,7 +156,7 @@ export function ProductCarousel() {
                   id={p.id}
                   slug={p.slug}
                   name={p.name}
-                  price={formatPrice(p.price)}
+                  price={formatPrice(p.min_price)}
                   img={p.images[0]}
 
                   category={p.category}

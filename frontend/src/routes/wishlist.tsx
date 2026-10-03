@@ -49,7 +49,7 @@ function WishlistPage() {
     window.location.href = `/products/${product.slug}`
   }
 
-  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
 
   return (
     <div className="container mx-auto px-4 lg:px-8 py-12 md:py-16 min-h-[70vh]">
@@ -87,7 +87,7 @@ function WishlistPage() {
                 id={p.id}
                 slug={p.slug}
                 name={p.name}
-                price={formatPrice(p.price)}
+                price={formatPrice(p.min_price)}
                 img={p.images[0]}
                 category={p.category}
                 tags={p.tags}

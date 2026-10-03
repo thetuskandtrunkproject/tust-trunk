@@ -89,7 +89,7 @@ function ShopPage() {
     loadProducts(nextPage, false)
   }
 
-  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
 
   return (
     <div className="bg-cloud min-h-screen">

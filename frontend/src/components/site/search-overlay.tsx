@@ -191,7 +191,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-sm font-medium text-ink/60">{product.category}</span>
                         <span className="text-ink/30 text-xs">•</span>
-                        <span className="text-sm font-bold text-ink">₹{(product.price / 100).toLocaleString('en-IN')}</span>
+                        <span className="text-sm font-bold text-ink">₹{(product.min_price / 100).toLocaleString('en-IN')}</span>
                       </div>
                     </div>
                   </Link>
