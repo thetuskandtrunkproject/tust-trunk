@@ -506,7 +506,11 @@ def upload_product_image(db: Client, product_id: str, file_bytes: bytes, storage
         db.storage.from_(BUCKET).upload(
             path=storage_path,
             file=processed_bytes,
-            file_options={'upsert': 'false'},
+            file_options={
+                'upsert': 'false',
+                'cache-control': '31536000',
+                'content-type': 'image/webp'
+            },
         )
     except Exception as e:
         err_str = str(e)
