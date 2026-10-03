@@ -141,7 +141,10 @@ export function ProductCarousel({ initialData }: { initialData?: any[] }) {
   }, { scope: containerRef })
 
   return (
-    <section ref={containerRef} className="w-full py-16 md:py-24 bg-sky-soft overflow-hidden">
+    <section ref={containerRef} className="w-full py-16 md:py-24 bg-[#F5F3FF] relative overflow-hidden">
+      {/* Playful background blob */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white rounded-full opacity-60 blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#E8E4FF] rounded-full opacity-60 blur-3xl translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
       <div className="container mx-auto px-4 lg:px-8 mb-6 sm:mb-10 flex items-end justify-between">
         <div>
           <h2 className="font-heading text-2xl sm:text-4xl md:text-5xl text-ink font-bold">New In</h2>
