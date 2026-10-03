@@ -116,8 +116,8 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
 
         {/* GREEN SWEEPING LAYER */}
         <div className="sweep-accent absolute inset-0" style={{ clipPath: 'circle(0% at 0% 50%)', WebkitClipPath: 'circle(0% at 0% 50%)' }}>
-          {/* Green Background */}
-          <div className="absolute inset-0" style={{ backgroundColor: '#E03B8B' }}></div>
+          {/* Candy Gradient Background */}
+          <div className="absolute inset-0 candy-gradient"></div>
           {/* Green Wave */}
           <div className="absolute top-0 left-0 w-full -mt-[8vw] h-[8vw]">
             <div className="absolute inset-0 animate-wave-bg-sweep"></div>
@@ -128,6 +128,16 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
           @keyframes wave-bg-move {
             0% { mask-position-x: 0; -webkit-mask-position-x: 0; }
             100% { mask-position-x: -1440px; -webkit-mask-position-x: -1440px; }
+          }
+          @keyframes candy-gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+          .candy-gradient {
+            background: linear-gradient(120deg, #FF6B8B, #E03B8B, #845EC2, #70A6FF, #FFD93D, #FF6B8B);
+            background-size: 300% 300%;
+            animation: candy-gradient-shift 8s ease infinite;
           }
           .animate-wave-bg {
             -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none"><path fill="black" d="M 0,160 C 180,0 540,320 720,160 C 900,0 1260,320 1440,160 L 1440,320 L 0,320 Z"></path></svg>');
@@ -147,8 +157,9 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
             mask-size: 1440px 100%;
             -webkit-mask-repeat: repeat-x;
             mask-repeat: repeat-x;
-            background-color: #E03B8B; /* Sweeping Magenta CTA */
-            animation: wave-bg-move 15s linear infinite;
+            background: linear-gradient(120deg, #FF6B8B, #E03B8B, #845EC2, #70A6FF, #FFD93D, #FF6B8B); /* Sweeping Candy Gradient */
+            background-size: 300% 300%;
+            animation: wave-bg-move 15s linear infinite, candy-gradient-shift 8s ease infinite;
             transform: translateZ(0); 
           }
           @media (min-width: 1440px) {
@@ -159,7 +170,7 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
             .animate-wave-bg, .animate-wave-bg-sweep {
               -webkit-mask-size: 100vw 100%;
               mask-size: 100vw 100%;
-              animation: wave-bg-move-large 15s linear infinite;
+              animation: wave-bg-move-large 15s linear infinite, candy-gradient-shift 8s ease infinite;
             }
           }
         `}</style>
