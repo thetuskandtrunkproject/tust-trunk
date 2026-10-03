@@ -64,6 +64,10 @@ def list_public_products(
             continue
         if categories_arr and item.get('category', '').lower() not in valid_cat_names:
             continue
+            
+        if item.get('images'):
+            item['images'] = item['images'][:2]
+            
         filtered_items.append(item)
         
     total = len(filtered_items)

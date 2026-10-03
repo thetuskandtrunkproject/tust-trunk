@@ -51,9 +51,13 @@ export type PublicCategory = {
   gender?: string
 }
 
+let categoriesCache: Promise<PublicCategory[]> | null = null
+
 export const fetchPublicCategories = async (): Promise<PublicCategory[]> => {
-  const res = await api.get('/public/categories')
-  return res.data
+  if (!categoriesCache) {
+    categoriesCache = api.get('/public/categories').then(res => res.data)
+  }
+  return categoriesCache
 }
 
 export const searchPublicProducts = async (params: Record<string, any>): Promise<PublicProductListResponse> => {
