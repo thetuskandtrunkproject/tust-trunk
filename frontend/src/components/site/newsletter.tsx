@@ -2,7 +2,7 @@ import { Sparkles, Heart, Shield, Leaf } from 'lucide-react'
 
 export function Newsletter() {
   return (
-    <section className="w-full py-20 md:py-28 bg-mint px-4 relative overflow-hidden">
+    <section className="w-full py-20 md:py-28 bg-coral/20 px-4 relative overflow-hidden">
       {/* Playful background accents with smooth blur */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cloud rounded-full opacity-60 blur-3xl -translate-y-1/2 translate-x-1/3"></div>
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-sunshine rounded-full opacity-30 blur-3xl translate-y-1/3 -translate-x-1/4"></div>

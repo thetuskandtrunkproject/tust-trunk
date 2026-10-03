@@ -51,9 +51,9 @@
     font-size: 16px;
   }
 
-  --background: oklch(1 0 0);
+  --background: var(--bg);
 
-  --foreground: oklch(0.145 0 0);
+  --foreground: var(--text);
 
   --card: oklch(1 0 0);
 

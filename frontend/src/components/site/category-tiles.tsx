@@ -89,7 +89,7 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
         }
       })
       // Animate the Forest Green layers with an organic curved sweep from the left edge!
-      .to('.sweep-green', {
+      .to('.sweep-accent', {
         clipPath: 'circle(150% at 0% 50%)', // Expands to cover the whole screen
         WebkitClipPath: 'circle(150% at 0% 50%)',
         ease: 'none',
@@ -99,7 +99,7 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
   }, { scope: containerRef })
 
   return (
-    <section ref={containerRef} className="w-full py-12 md:py-24 lg:py-40 relative bg-cloud">
+    <section ref={containerRef} className="w-full py-12 md:py-24 lg:py-40 relative bg-coral/20">
       
       {/* --- BACKGROUND LAYERS --- */}
       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -115,12 +115,12 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
         </div>
 
         {/* GREEN SWEEPING LAYER */}
-        <div className="sweep-green absolute inset-0" style={{ clipPath: 'circle(0% at 0% 50%)', WebkitClipPath: 'circle(0% at 0% 50%)' }}>
+        <div className="sweep-accent absolute inset-0" style={{ clipPath: 'circle(0% at 0% 50%)', WebkitClipPath: 'circle(0% at 0% 50%)' }}>
           {/* Green Background */}
-          <div className="absolute inset-0" style={{ backgroundColor: '#1B4332' }}></div>
+          <div className="absolute inset-0" style={{ backgroundColor: '#E03B8B' }}></div>
           {/* Green Wave */}
           <div className="absolute top-0 left-0 w-full -mt-[8vw] h-[8vw]">
-            <div className="absolute inset-0 animate-wave-bg-green"></div>
+            <div className="absolute inset-0 animate-wave-bg-sweep"></div>
           </div>
         </div>
 
@@ -140,14 +140,14 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
             animation: wave-bg-move 15s linear infinite;
             transform: translateZ(0); 
           }
-          .animate-wave-bg-green {
+          .animate-wave-bg-sweep {
             -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none"><path fill="black" d="M 0,160 C 180,0 540,320 720,160 C 900,0 1260,320 1440,160 L 1440,320 L 0,320 Z"></path></svg>');
             mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none"><path fill="black" d="M 0,160 C 180,0 540,320 720,160 C 900,0 1260,320 1440,160 L 1440,320 L 0,320 Z"></path></svg>');
             -webkit-mask-size: 1440px 100%;
             mask-size: 1440px 100%;
             -webkit-mask-repeat: repeat-x;
             mask-repeat: repeat-x;
-            background-color: #1B4332; /* Sweeping Green */
+            background-color: #E03B8B; /* Sweeping Magenta CTA */
             animation: wave-bg-move 15s linear infinite;
             transform: translateZ(0); 
           }
@@ -156,7 +156,7 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
               0% { mask-position-x: 0; -webkit-mask-position-x: 0; }
               100% { mask-position-x: -100vw; -webkit-mask-position-x: -100vw; }
             }
-            .animate-wave-bg, .animate-wave-bg-green {
+            .animate-wave-bg, .animate-wave-bg-sweep {
               -webkit-mask-size: 100vw 100%;
               mask-size: 100vw 100%;
               animation: wave-bg-move-large 15s linear infinite;
@@ -208,8 +208,8 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
         </div>
       </div>
 
-      {/* SWEEPING GREEN TEXT LAYER (z-20 to perfectly overlay original text!) */}
-      <div className="sweep-green absolute inset-0 z-20 pointer-events-none" style={{ clipPath: 'circle(0% at 0% 50%)', WebkitClipPath: 'circle(0% at 0% 50%)' }}>
+      {/* SWEEPING ACCENT TEXT LAYER (z-20 to perfectly overlay original text!) */}
+      <div className="sweep-accent absolute inset-0 z-20 pointer-events-none" style={{ clipPath: 'circle(0% at 0% 50%)', WebkitClipPath: 'circle(0% at 0% 50%)' }}>
         <div className="w-full py-12 md:py-24 lg:py-40 flex flex-col h-full absolute inset-0">
           <div className="container mx-auto px-4 lg:px-8 relative">
             <div className="text-center mb-24 max-w-4xl mx-auto flex flex-col items-center">
@@ -301,4 +301,5 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
     </section>
   )
 }
+
 

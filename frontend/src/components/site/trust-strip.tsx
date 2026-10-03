@@ -35,7 +35,7 @@ export function TrustStrip() {
   }, { scope: containerRef })
 
   return (
-    <div ref={containerRef} className="w-full bg-sky py-10 md:py-16 border-y border-ink/5 overflow-hidden">
+    <div ref={containerRef} className="w-full bg-sunshine py-10 md:py-16 border-y border-ink/5 overflow-hidden">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 text-center">
           {items.map((item, i) => (
