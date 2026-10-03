@@ -250,3 +250,39 @@ input:-webkit-autofill:active {
   }
   @page { margin: 1cm; }
 }
+
+/* Mobile bottom nav safe area */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Add bottom padding to main content for mobile bottom nav */
+@media (max-width: 1023px) {
+  main {
+    padding-bottom: 3.5rem; /* Height of the bottom nav */
+  }
+}
+
+/* Smooth wave animations for category tiles */
+@keyframes wave-slow {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes wave-medium {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes wave-fast {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-wave-slow {
+  animation: wave-slow 25s linear infinite;
+}
+.animate-wave-medium {
+  animation: wave-medium 18s linear infinite;
+}
+.animate-wave-fast {
+  animation: wave-fast 12s linear infinite;
+}

@@ -99,7 +99,7 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
   }, { scope: containerRef })
 
   return (
-    <section ref={containerRef} className="w-full py-24 md:py-40 relative bg-cloud">
+    <section ref={containerRef} className="w-full py-12 md:py-24 lg:py-40 relative bg-cloud">
       
       {/* --- BACKGROUND LAYERS --- */}
       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -210,10 +210,10 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
 
       {/* SWEEPING GREEN TEXT LAYER (z-20 to perfectly overlay original text!) */}
       <div className="sweep-green absolute inset-0 z-20 pointer-events-none" style={{ clipPath: 'circle(0% at 0% 50%)', WebkitClipPath: 'circle(0% at 0% 50%)' }}>
-        <div className="w-full py-24 md:py-40 flex flex-col h-full absolute inset-0">
+        <div className="w-full py-12 md:py-24 lg:py-40 flex flex-col h-full absolute inset-0">
           <div className="container mx-auto px-4 lg:px-8 relative">
             <div className="text-center mb-24 max-w-4xl mx-auto flex flex-col items-center">
-              <h2 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold tracking-tight leading-[1.1] flex flex-wrap justify-center gap-x-5 md:gap-x-8" style={{ perspective: '600px' }}>
+              <h2 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-bold tracking-tight leading-[1.1] flex flex-wrap justify-center gap-x-3 sm:gap-x-5 md:gap-x-8" style={{ perspective: '600px' }}>
                 {headingWords.map((word, i) => (
                   <span
                     key={i}
@@ -224,7 +224,7 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
                   </span>
                 ))}
               </h2>
-              <p className="text-cloud/90 animated-subtext font-medium text-xl mt-8 max-w-2xl mx-auto opacity-0">
+              <p className="text-cloud/90 animated-subtext font-medium text-base sm:text-xl mt-4 sm:mt-8 max-w-2xl mx-auto opacity-0 px-2">
                 Made with skin-friendly fabrics, perfect for India's climate. Explore our vibrant new arrivals designed for everyday adventures.
               </p>
             </div>
@@ -236,7 +236,7 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
         
         {/* GSAP Animated Heading — Each word animates individually */}
         <div className="text-center mb-24 max-w-4xl mx-auto flex flex-col items-center">
-          <h2 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold tracking-tight leading-[1.1] flex flex-wrap justify-center gap-x-5 md:gap-x-8" style={{ perspective: '600px' }}>
+          <h2 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-bold tracking-tight leading-[1.1] flex flex-wrap justify-center gap-x-3 sm:gap-x-5 md:gap-x-8" style={{ perspective: '600px' }}>
             {headingWords.map((word, i) => (
               <span
                 key={i}
@@ -247,20 +247,20 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
               </span>
             ))}
           </h2>
-          <p className="text-ink/80 animated-subtext font-medium text-xl mt-8 max-w-2xl mx-auto opacity-0">
+          <p className="text-ink/80 animated-subtext font-medium text-base sm:text-xl mt-4 sm:mt-8 max-w-2xl mx-auto opacity-0 px-2">
             Made with skin-friendly fabrics, perfect for India's climate. Explore our vibrant new arrivals designed for everyday adventures.
           </p>
         </div>
 
         {/* 4-Product Grid with Professional Hover Overlays */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
           {featuredProducts.map((product, idx) => {
             return (
             <Link 
               key={product.id}
               ref={el => { cardsRef.current[idx] = el }}
               to="/shop" search={{ category: product.category }} 
-              className="group block relative aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-cloud shadow-sm hover:shadow-xl transition-shadow duration-500 will-change-transform opacity-0"
+              className="group block relative aspect-[3/4] sm:aspect-[4/5] rounded-2xl sm:rounded-[2.5rem] overflow-hidden bg-cloud shadow-sm hover:shadow-xl transition-shadow duration-500 will-change-transform opacity-0"
             >
               {/* Image */}
               <img 
@@ -273,9 +273,9 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500"></div>
               
               {/* Content Overlay */}
-              <div className="absolute inset-0 flex flex-col justify-end p-6 lg:p-8">
+              <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 lg:p-8">
                 <div className="flex flex-col items-start transform group-hover:-translate-y-2 transition-transform duration-500 ease-out">
-                  <h3 className="font-heading font-bold text-3xl lg:text-4xl text-white capitalize drop-shadow-sm">
+                  <h3 className="font-heading font-bold text-xl sm:text-3xl lg:text-4xl text-white capitalize drop-shadow-sm">
                     {product.category}
                   </h3>
                   
@@ -291,8 +291,8 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
           )})}
         </div>
         
-        <div className="mt-24 text-center">
-           <Link to="/shop" className="inline-flex items-center gap-3 bg-white text-ink px-10 py-5 rounded-full font-bold text-lg shadow-2xl hover:scale-105 transition-all duration-300">
+        <div className="mt-12 sm:mt-24 text-center">
+           <Link to="/shop" className="inline-flex items-center gap-3 bg-white text-ink px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold text-base sm:text-lg shadow-2xl hover:scale-105 transition-all duration-300">
              View Complete Collection <span className="text-xl">&rarr;</span>
            </Link>
         </div>

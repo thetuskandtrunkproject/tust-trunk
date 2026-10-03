@@ -169,18 +169,18 @@ export function Hero({ initialData }: { initialData?: { promoRibbonText: string,
 
   if (!cmsData || slides.length === 0) {
     return (
-      <section className="sticky top-[80px] w-full overflow-hidden bg-cloud" style={{ aspectRatio: '16/9' }} />
+      <section className="sticky top-[64px] lg:top-[80px] w-full overflow-hidden bg-cloud aspect-[4/5] sm:aspect-[16/9]" />
     )
   }
 
   return (
     <section
-      className="sticky top-[80px] w-full overflow-hidden"
+      className="sticky top-[64px] lg:top-[80px] w-full overflow-hidden"
       onMouseEnter={pauseAutoplay}
       onMouseLeave={resumeAutoplay}
     >
       {/* Slides */}
-      <div ref={containerRef} className="relative w-full" style={{ aspectRatio: '16/9' }}>
+      <div ref={containerRef} className="relative w-full aspect-[4/5] sm:aspect-[16/9]">
         {slides.map((slide, idx) => (
           <div
             key={idx}
@@ -207,33 +207,33 @@ export function Hero({ initialData }: { initialData?: { promoRibbonText: string,
                 }`}
               >
                 <h2 
-                  className="font-heading text-4xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight drop-shadow-xl mb-2"
+                  className="font-heading text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight drop-shadow-xl mb-1 sm:mb-2"
                   style={{ color: slide.textColor || '#FFFFFF' }}
                 >
                   {slide.title}
                 </h2>
                 <h2 
-                  className="font-heading text-4xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight drop-shadow-xl mb-5" 
+                  className="font-heading text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight drop-shadow-xl mb-3 sm:mb-5" 
                   style={{ color: slide.accentColor }}
                 >
                   {slide.titleAccent}
                 </h2>
                 <p 
-                  className="text-base md:text-xl max-w-lg font-medium drop-shadow-lg mb-8"
+                  className="text-sm sm:text-base md:text-xl max-w-lg font-medium drop-shadow-lg mb-4 sm:mb-8 line-clamp-2 sm:line-clamp-none"
                   style={{ color: slide.textColor ? `${slide.textColor}e6` : 'rgba(255,255,255,0.9)' }}
                 >
                   {slide.subtitle}
                 </p>
                 <Link
                   to={slide.ctaLink || '/shop'}
-                  className="inline-flex items-center justify-center gap-2.5 font-bold text-base md:text-lg px-8 py-4 rounded-full shadow-2xl hover:scale-105 transition-all duration-300 group"
+                  className="inline-flex items-center justify-center gap-2 font-bold text-sm sm:text-base md:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-full shadow-2xl hover:scale-105 transition-all duration-300 group"
                   style={{ 
                     backgroundColor: slide.accentColor,
-                    color: '#FFFFFF' // keeping button text white for contrast, as asked to change "button color"
+                    color: '#FFFFFF'
                   }}
                 >
                   {slide.cta}
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             )}
@@ -245,17 +245,17 @@ export function Hero({ initialData }: { initialData?: { promoRibbonText: string,
           <>
             <button
               onClick={prev}
-              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/40 backdrop-blur-lg text-white w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border border-white/30 transition-all hover:scale-110 group shadow-xl"
+              className="absolute left-2 sm:left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/40 backdrop-blur-lg text-white w-9 h-9 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border border-white/30 transition-all hover:scale-110 group shadow-xl"
               aria-label="Previous slide"
             >
-              <ChevronLeft className="w-6 h-6 group-hover:-translate-x-0.5 transition-transform" />
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-x-0.5 transition-transform" />
             </button>
             <button
               onClick={next}
-              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/40 backdrop-blur-lg text-white w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border border-white/30 transition-all hover:scale-110 group shadow-xl"
+              className="absolute right-2 sm:right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/40 backdrop-blur-lg text-white w-9 h-9 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border border-white/30 transition-all hover:scale-110 group shadow-xl"
               aria-label="Next slide"
             >
-              <ChevronRight className="w-6 h-6 group-hover:translate-x-0.5 transition-transform" />
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </>
         )}

@@ -227,9 +227,9 @@ function ProductDetailPage() {
           {/* Info Right */}
           <div className="w-full lg:w-[45%] flex flex-col pt-2">
             {/* Product Tags */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4">
               {productTags.filter(t => t.condition).map((tag, i) => (
-                <span key={i} className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded-full bg-white border border-ink/8 text-ink/70 shadow-sm">
+                <span key={i} className="inline-flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-white border border-ink/8 text-ink/70 shadow-sm">
                   {tag.icon}
                   {tag.label}
                 </span>
@@ -369,22 +369,24 @@ function ProductDetailPage() {
             </div>
 
             {/* Guaranteed Safe Checkout */}
-            <div className="bg-white border border-ink/8 rounded-xl p-4 mb-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                <span className="text-xs font-bold uppercase tracking-wider text-ink/70">Guaranteed Safe Checkout</span>
+            <div className="bg-gradient-to-br from-emerald-50/80 to-white border border-emerald-100 rounded-2xl p-5 mb-6 shadow-sm">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                  <ShieldCheck className="w-3.5 h-3.5 text-white" />
+                </div>
+                <span className="text-sm font-bold uppercase tracking-widest text-emerald-700">Guaranteed Safe Checkout</span>
               </div>
-              <div className="flex items-center gap-3 flex-wrap">
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                 {[
                   { src: visaLogo, alt: 'Visa' },
                   { src: masterLogo, alt: 'Mastercard' },
                   { src: upiLogo, alt: 'UPI' },
                   { src: gpayLogo, alt: 'Google Pay' },
-                  { src: paytmLogo, alt: 'Paytm' },
+                  { src: paytmLogo, alt: 'PhonePe' },
                   { src: codLogo, alt: 'COD' },
                 ].map((logo, i) => (
-                  <div key={i} className="h-7 px-2 bg-[#F8F9FA] rounded-md flex items-center border border-ink/5">
-                    <img src={logo.src} alt={logo.alt} className="h-5 w-auto object-contain max-w-[50px]" />
+                  <div key={i} className="h-10 bg-white rounded-xl flex items-center justify-center border border-ink/5 px-3 shadow-sm hover:shadow-md transition-shadow">
+                    <img src={logo.src} alt={logo.alt} className="h-6 w-auto object-contain max-w-[48px]" />
                   </div>
                 ))}
               </div>
@@ -589,12 +591,12 @@ function ProductDetailPage() {
         </div>
       </div>
 
-      {/* Sticky Mobile Add to Cart */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t border-ink/10 lg:hidden z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+      {/* Sticky Mobile Add to Cart — positioned above the bottom nav */}
+      <div className="fixed bottom-14 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t border-ink/10 lg:hidden z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
         <button 
           onClick={handleAddToCart}
           disabled={totalStock === 0}
-          className="w-full bg-ink text-white py-4 rounded-2xl font-bold shadow-xl disabled:opacity-40 active:scale-[0.98] transition-all"
+          className="w-full bg-ink text-white py-3.5 rounded-2xl font-bold shadow-xl disabled:opacity-40 active:scale-[0.98] transition-all text-sm"
         >
           Add to Cart — {formatPrice(displayPrice * quantity)}
         </button>
