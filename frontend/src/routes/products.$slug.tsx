@@ -96,7 +96,7 @@ function ProductDetailPage() {
       if (user) {
         setReviewForm(prev => ({
           ...prev,
-          name: user.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : prev.name,
+          name: user.full_name ? user.full_name.trim() : prev.name,
           email: user.email || prev.email
         }))
       }
