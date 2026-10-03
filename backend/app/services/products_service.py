@@ -492,11 +492,11 @@ def upload_product_image(db: Client, product_id: str, file_bytes: bytes, storage
             has_alpha = image.mode in ('RGBA', 'LA', 'PA') or 'transparency' in image.info
             image = image.convert('RGBA' if has_alpha else 'RGB')
         # Downscale only — never upscale
-        MAX_SIDE = 1200
+        MAX_SIDE = 1000
         if max(image.width, image.height) > MAX_SIDE:
             image.thumbnail((MAX_SIDE, MAX_SIDE), Image.LANCZOS)
         output = io.BytesIO()
-        image.save(output, format='WEBP', quality=80, method=6)
+        image.save(output, format='WEBP', quality=75, method=6)
         processed_bytes = output.getvalue()
     except Exception as e:
         logger.error(f'Image processing failed for {storage_path}: {e}')
