@@ -190,30 +190,30 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
           {/* Abstract Warm Wave 1 */}
           <div className="absolute -bottom-10 left-0 w-[200%] h-[200px] md:h-[400px] animate-wave-slow opacity-[0.15] flex">
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#FF8A65" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L0,320Z"></path>
+              <path fill="#70A6FF" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L0,320Z"></path>
             </svg>
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#FF8A65" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L0,320Z"></path>
+              <path fill="#70A6FF" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L0,320Z"></path>
             </svg>
           </div>
 
           {/* Abstract Warm Wave 2 */}
           <div className="absolute -bottom-5 left-0 w-[200%] h-[150px] md:h-[300px] animate-wave-medium opacity-[0.12] flex">
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#FF6B8B" d="M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,170.7C672,160,768,192,864,197.3C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L0,320Z"></path>
+              <path fill="#845EC2" d="M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,170.7C672,160,768,192,864,197.3C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L0,320Z"></path>
             </svg>
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#FF6B8B" d="M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,170.7C672,160,768,192,864,197.3C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L0,320Z"></path>
+              <path fill="#845EC2" d="M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,170.7C672,160,768,192,864,197.3C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L0,320Z"></path>
             </svg>
           </div>
 
           {/* Abstract Warm Wave 3 */}
-          <div className="absolute bottom-0 left-0 w-[200%] h-[100px] md:h-[200px] animate-wave-fast opacity-[0.1] flex">
+          <div className="absolute bottom-0 left-0 w-[200%] h-[100px] md:h-[200px] animate-wave-fast opacity-[0.2] flex">
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#FCD34D" d="M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,245.3C840,267,960,277,1080,250.7C1200,224,1320,160,1380,128L1440,96L1440,320L0,320Z"></path>
+              <path fill="#FFD93D" d="M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,245.3C840,267,960,277,1080,250.7C1200,224,1320,160,1380,128L1440,96L1440,320L0,320Z"></path>
             </svg>
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#FCD34D" d="M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,245.3C840,267,960,277,1080,250.7C1200,224,1320,160,1380,128L1440,96L1440,320L0,320Z"></path>
+              <path fill="#FFD93D" d="M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,245.3C840,267,960,277,1080,250.7C1200,224,1320,160,1380,128L1440,96L1440,320L0,320Z"></path>
             </svg>
           </div>
         </div>
