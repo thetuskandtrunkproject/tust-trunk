@@ -23,6 +23,7 @@ export function AboutPageEditor() {
     try {
       const res = await cmsApi.getAboutPage()
       const initial = res || {
+        textColor: '#2D283E', sweepTextColor: '#FF6B8B',
         introHeadline: '', introSubline: '', storyHeadline: '', storyParagraphs: [],
         valuesHeadline: '', valuesSubline: '', values: [],
         brandHeadline: '', brandParagraphs: [], brandImage1: '', brandImage2: '',
@@ -170,6 +171,27 @@ export function AboutPageEditor() {
       </div>
 
       <div className="p-6 space-y-12">
+        {/* Global Colors Section */}
+        <section>
+          <h4 className="text-sm font-medium text-ink mb-4 pb-2 border-b border-ink/10">0. Global Animation Colors</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
+            <div>
+              <label className="block text-sm font-medium text-ink/80 mb-1 flex items-center gap-2">
+                Base Text Color
+                <span className="w-4 h-4 rounded-full border border-ink/20 block" style={{ backgroundColor: data.textColor }} />
+              </label>
+              <input type="color" value={data.textColor} onChange={(e) => setData({ ...data, textColor: e.target.value })} className="h-10 w-full cursor-pointer rounded border border-ink/20 bg-cloud px-1 py-1" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink/80 mb-1 flex items-center gap-2">
+                Animation Scroll Color
+                <span className="w-4 h-4 rounded-full border border-ink/20 block" style={{ backgroundColor: data.sweepTextColor }} />
+              </label>
+              <input type="color" value={data.sweepTextColor} onChange={(e) => setData({ ...data, sweepTextColor: e.target.value })} className="h-10 w-full cursor-pointer rounded border border-ink/20 bg-cloud px-1 py-1" />
+            </div>
+          </div>
+        </section>
+
         {/* Intro Section */}
         <section>
           <h4 className="text-sm font-medium text-ink mb-4 pb-2 border-b border-ink/10">1. Hero Section</h4>

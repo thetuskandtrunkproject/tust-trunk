@@ -79,6 +79,8 @@ DEFAULT_HOME_PRODUCTS = {
 }
 
 DEFAULT_ABOUT_PAGE = {
+    "textColor": "#2D283E",
+    "sweepTextColor": "#FF6B8B",
     "introHeadline": "Everyday essentials, crafted with care.",
     "introSubline": "We believe that what you wear every day matters most. That's why we focus on exceptional comfort, timeless design, and sustainable quality.",
     "storyHeadline": "Our Story",

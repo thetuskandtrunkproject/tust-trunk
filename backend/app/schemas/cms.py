@@ -34,6 +34,8 @@ class AboutValue(BaseModel):
     description: str = ""
 
 class AboutPageData(BaseModel):
+    textColor: str = "#2D283E"
+    sweepTextColor: str = "#FF6B8B"
     introHeadline: str = "Everyday essentials, crafted with care."
     introSubline: str = "We believe that what you wear every day matters most. That's why we focus on exceptional comfort, timeless design, and sustainable quality."
     storyHeadline: str = "Our Story"
