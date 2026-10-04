@@ -28,6 +28,34 @@ class HomeProductsData(BaseModel):
 class HomeProductsUpdate(BaseModel):
     value: HomeProductsData
 
+class AboutValue(BaseModel):
+    icon: str = "leaf"
+    label: str = ""
+    description: str = ""
+
+class AboutPageData(BaseModel):
+    introHeadline: str = "Everyday essentials, crafted with care."
+    introSubline: str = "We believe that what you wear every day matters most. That's why we focus on exceptional comfort, timeless design, and sustainable quality."
+    storyHeadline: str = "Our Story"
+    storyParagraphs: List[str] = []
+    valuesHeadline: str = "What we stand for"
+    valuesSubline: str = "The core principles that guide everything we make."
+    values: List[AboutValue] = []
+    brandHeadline: str = "Behind the brand"
+    brandParagraphs: List[str] = []
+    brandImage1: str = "https://images.unsplash.com/photo-1558769132-cb1fac08404a?q=80&w=1000&auto=format&fit=crop"
+    brandImage2: str = "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop"
+    ctaHeadline: str = "Experience the difference"
+    ctaSubline: str = "Explore our latest arrivals and find your new everyday favorites."
+    ctaButtonText: str = "Shop the collection"
+    ctaButtonLink: str = "/shop"
+    ctaBgColor: str = "#8ce2c5"
+    ctaButtonBgColor: str = "#E03B8B"
+    ctaButtonTextColor: str = "#FFFFFF"
+
+class AboutPageUpdate(BaseModel):
+    value: AboutPageData
+
 class CMSSettingsResponse(BaseModel):
     key: str
     value: Any

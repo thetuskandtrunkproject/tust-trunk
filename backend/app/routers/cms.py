@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Body, File, UploadFile
 from supabase import Client
 from ..core.database import get_db_client
 from ..dependencies.auth import get_current_admin
-from ..schemas.cms import HeroBannerData, HeroBannerUpdate, CategoryTilesData, CategoryTilesUpdate, HomeProductsData, HomeProductsUpdate
+from ..schemas.cms import HeroBannerData, HeroBannerUpdate, CategoryTilesData, CategoryTilesUpdate, HomeProductsData, HomeProductsUpdate, AboutPageData, AboutPageUpdate
 from ..services import cms_service
 import uuid
 
@@ -120,6 +120,42 @@ def set_default_home_products(
     val = data.value.model_dump()
     cms_service.update_setting(db, "home_products_default", val)
     return cms_service.update_setting(db, "home_products", val)
+
+@router.get("/about-page", response_model=AboutPageData)
+def get_about_page(db: Client = Depends(get_db_client)):
+    return cms_service.get_setting(db, "about_page")
+
+@router.put("/about-page", response_model=AboutPageData)
+def update_about_page(
+    data: AboutPageUpdate,
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    try:
+        val = data.value.model_dump()
+        return cms_service.update_setting(db, "about_page", val)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e) + "\n" + traceback.format_exc())
+
+@router.post("/about-page/reset", response_model=AboutPageData)
+def reset_about_page(
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    default_val = cms_service.get_setting(db, "about_page_default")
+    return cms_service.update_setting(db, "about_page", default_val)
+
+@router.post("/about-page/set_default", response_model=AboutPageData)
+def set_default_about_page(
+    data: AboutPageUpdate,
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    val = data.value.model_dump()
+    cms_service.update_setting(db, "about_page_default", val)
+    return cms_service.update_setting(db, "about_page", val)
 
 @router.post("/upload-image")
 async def upload_cms_image(

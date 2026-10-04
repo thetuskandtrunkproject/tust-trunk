@@ -78,6 +78,38 @@ DEFAULT_HOME_PRODUCTS = {
     "productIds": []
 }
 
+DEFAULT_ABOUT_PAGE = {
+    "introHeadline": "Everyday essentials, crafted with care.",
+    "introSubline": "We believe that what you wear every day matters most. That's why we focus on exceptional comfort, timeless design, and sustainable quality.",
+    "storyHeadline": "Our Story",
+    "storyParagraphs": [
+        "The Tusk & Trunk was born out of a simple frustration: why is it so hard to find well-made, comfortable basics that don't cost a fortune or fall apart after a few washes? We set out to change that.",
+        "Starting with just a single perfect t-shirt, we've slowly grown into a full collection of everyday wear for men, women, and kids. We don't believe in fast fashion trends. Instead, we obsess over the details—the exact weight of the cotton, the perfect drape of a linen shirt, and the durability of our stitching.",
+        "Our name represents strength (tusk) and rootedness (trunk). It's a reminder to stay grounded in quality and build things that are meant to last."
+    ],
+    "valuesHeadline": "What we stand for",
+    "valuesSubline": "The core principles that guide everything we make.",
+    "values": [
+        {"icon": "leaf", "label": "Premium Fabrics", "description": "We source the finest, most breathable materials to ensure all-day comfort.", "bgColor": "bg-sky-soft/30", "iconBgColor": "bg-sky"},
+        {"icon": "heart", "label": "Thoughtful Design", "description": "Timeless silhouettes that flatter without restricting your movement.", "bgColor": "bg-mint/10", "iconBgColor": "bg-mint"},
+        {"icon": "shield-check", "label": "Made to Last", "description": "Durability is a feature. Our clothes are stitched to withstand real life.", "bgColor": "bg-sunshine/10", "iconBgColor": "bg-sunshine"}
+    ],
+    "brandHeadline": "Behind the brand",
+    "brandParagraphs": [
+        "Every piece in our collection starts in our small studio, where we obsess over fit, form, and function. We work closely with ethical manufacturing partners who share our commitment to fair labor and sustainable practices.",
+        "When you wear The Tusk & Trunk, you're not just wearing a garment—you're wearing months of careful prototyping and testing."
+    ],
+    "brandImage1": "https://images.unsplash.com/photo-1558769132-cb1fac08404a?q=80&w=1000&auto=format&fit=crop",
+    "brandImage2": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop",
+    "ctaHeadline": "Experience the difference",
+    "ctaSubline": "Explore our latest arrivals and find your new everyday favorites.",
+    "ctaButtonText": "Shop the collection",
+    "ctaButtonLink": "/shop",
+    "ctaBgColor": "#8ce2c5",
+    "ctaButtonBgColor": "#E03B8B",
+    "ctaButtonTextColor": "#FFFFFF"
+}
+
 def get_setting(db: Client, key: str) -> dict:
     """Get a CMS setting by key."""
     try:
@@ -89,6 +121,8 @@ def get_setting(db: Client, key: str) -> dict:
                 return DEFAULT_CATEGORY_TILES
             if key == 'home_products' or key == 'home_products_default':
                 return DEFAULT_HOME_PRODUCTS
+            if key == 'about_page' or key == 'about_page_default':
+                return DEFAULT_ABOUT_PAGE
             return {}
         return res.data[0]['value']
     except Exception as e:
@@ -99,6 +133,8 @@ def get_setting(db: Client, key: str) -> dict:
             return DEFAULT_CATEGORY_TILES
         if key == 'home_products' or key == 'home_products_default':
             return DEFAULT_HOME_PRODUCTS
+        if key == 'about_page' or key == 'about_page_default':
+            return DEFAULT_ABOUT_PAGE
         return {}
 
 def update_setting(db: Client, key: str, value: dict) -> dict:

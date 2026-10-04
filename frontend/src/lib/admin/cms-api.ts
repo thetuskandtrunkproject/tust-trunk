@@ -58,6 +58,23 @@ export const cmsApi = {
     return res.data
   },
 
+  getAboutPage: async () => {
+    const res = await api.get('/cms/about-page')
+    return res.data
+  },
+  updateAboutPage: async (data: any) => {
+    const res = await api.put('/cms/about-page', { value: data })
+    return res.data
+  },
+  resetAboutPage: async () => {
+    const res = await api.post('/cms/about-page/reset')
+    return res.data
+  },
+  setDefaultAboutPage: async (data: any) => {
+    const res = await api.post('/cms/about-page/set_default', { value: data })
+    return res.data
+  },
+
   uploadImage: async (file: File) => {
     const formData = new FormData()
     formData.append('file', file)
