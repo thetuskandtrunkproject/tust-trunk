@@ -170,7 +170,7 @@ export function CategoryTilesEditor() {
             disabled={isSaving}
             className="px-4 py-2 text-sm font-medium text-ink/70 bg-cloud hover:bg-ink/5 border border-ink/10 rounded-lg transition-colors flex items-center gap-2"
           >
-            <RefreshCw className="w-4 h-4" /> Reset
+            <RefreshCw className="w-4 h-4" /> Restore Default
           </button>
           <AdminButton onClick={handleSave} disabled={isSaving || !hasUnsavedChanges} icon={<Save className="w-4 h-4" />}>
             {isSaving ? 'Saving...' : 'Save Changes'}
@@ -356,7 +356,8 @@ export function CategoryTilesEditor() {
       </div>
 
       {showToast && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-ink text-cloud text-sm px-4 py-2 rounded-full shadow-xl animate-in fade-in slide-in-from-bottom-4 z-50">
+        <div className="fixed bottom-6 right-6 bg-ink text-white text-sm font-medium px-6 py-3 rounded-xl shadow-2xl flex items-center gap-2 animate-in slide-in-from-bottom-4 z-[9999]">
+          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
           {showToast}
         </div>
       )}

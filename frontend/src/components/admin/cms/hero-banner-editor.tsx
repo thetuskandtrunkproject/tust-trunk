@@ -4,7 +4,7 @@ import { AdminCard, AdminButton, ConfirmModal } from '@/components/admin/ui/prim
 import { cmsApi } from '@/lib/admin/cms-api'
 
 export function HeroBannerEditor() {
-  const [data, setData] = useState<{ promoRibbonText: string, slides: any[] } | null>(null)
+  const [data, setData] = useState<{ slides: any[] } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [showToast, setShowToast] = useState('')
@@ -193,7 +193,7 @@ export function HeroBannerEditor() {
               className="px-4 py-2 text-sm font-medium text-ink/70 bg-cloud hover:bg-ink/5 border border-ink/10 rounded-lg transition-colors flex items-center gap-2"
             >
               <RefreshCw className="w-4 h-4" />
-              Reset
+              Restore Default
             </button>
             <AdminButton
               onClick={handleSave}
@@ -205,17 +205,7 @@ export function HeroBannerEditor() {
           </div>
         </div>
 
-        {/* Global Settings */}
-        <div className="mb-8 p-4 bg-cloud rounded-xl border border-ink/5">
-          <label className="block text-sm font-medium text-ink/80 mb-1">Global Promo Ribbon Text</label>
-          <input
-            type="text"
-            value={data.promoRibbonText}
-            onChange={(e) => setData({ ...data, promoRibbonText: e.target.value })}
-            className="w-full bg-white border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink"
-            placeholder="e.g. Free shipping on orders over ₹3000"
-          />
-        </div>
+
 
         <div className="mb-4 flex items-center justify-between bg-cloud p-4 rounded-xl border border-ink/5">
           <h4 className="font-medium text-ink flex items-center gap-2">

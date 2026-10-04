@@ -15,8 +15,18 @@ class HeroSlide(BaseModel):
     textColor: str = "#FFFFFF"
 
 class HeroBannerData(BaseModel):
-    promoRibbonText: str = ""
     slides: List[HeroSlide] = []
+
+class HomeProductsData(BaseModel):
+    title: str = "New In"
+    subtitle: str = "The latest additions to our collection."
+    textColor: str = "#2D283E"
+    buttonText: str = "View all"
+    buttonLink: str = "/shop"
+    productIds: List[str] = []
+
+class HomeProductsUpdate(BaseModel):
+    value: HomeProductsData
 
 class CMSSettingsResponse(BaseModel):
     key: str

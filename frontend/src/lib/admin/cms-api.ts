@@ -41,6 +41,23 @@ export const cmsApi = {
     return res.data
   },
 
+  getHomeProducts: async () => {
+    const res = await api.get('/cms/home-products')
+    return res.data
+  },
+  updateHomeProducts: async (data: any) => {
+    const res = await api.put('/cms/home-products', { value: data })
+    return res.data
+  },
+  resetHomeProducts: async () => {
+    const res = await api.post('/cms/home-products/reset')
+    return res.data
+  },
+  setDefaultHomeProducts: async (data: any) => {
+    const res = await api.post('/cms/home-products/set_default', { value: data })
+    return res.data
+  },
+
   uploadImage: async (file: File) => {
     const formData = new FormData()
     formData.append('file', file)

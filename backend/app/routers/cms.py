@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Body, File, UploadFile
 from supabase import Client
 from ..core.database import get_db_client
 from ..dependencies.auth import get_current_admin
-from ..schemas.cms import HeroBannerData, HeroBannerUpdate, CategoryTilesData, CategoryTilesUpdate
+from ..schemas.cms import HeroBannerData, HeroBannerUpdate, CategoryTilesData, CategoryTilesUpdate, HomeProductsData, HomeProductsUpdate
 from ..services import cms_service
 import uuid
 
@@ -84,6 +84,42 @@ def set_default_category_tiles(
     val = data.value.model_dump()
     cms_service.update_setting(db, "category_tiles_default", val)
     return cms_service.update_setting(db, "category_tiles", val)
+
+@router.get("/home-products", response_model=HomeProductsData)
+def get_home_products(db: Client = Depends(get_db_client)):
+    return cms_service.get_setting(db, "home_products")
+
+@router.put("/home-products", response_model=HomeProductsData)
+def update_home_products(
+    data: HomeProductsUpdate,
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    try:
+        val = data.value.model_dump()
+        return cms_service.update_setting(db, "home_products", val)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e) + "\n" + traceback.format_exc())
+
+@router.post("/home-products/reset", response_model=HomeProductsData)
+def reset_home_products(
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    default_val = cms_service.get_setting(db, "home_products_default")
+    return cms_service.update_setting(db, "home_products", default_val)
+
+@router.post("/home-products/set_default", response_model=HomeProductsData)
+def set_default_home_products(
+    data: HomeProductsUpdate,
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    val = data.value.model_dump()
+    cms_service.update_setting(db, "home_products_default", val)
+    return cms_service.update_setting(db, "home_products", val)
 
 @router.post("/upload-image")
 async def upload_cms_image(

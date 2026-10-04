@@ -66,6 +66,15 @@ DEFAULT_CATEGORY_TILES = {
     ]
 }
 
+DEFAULT_HOME_PRODUCTS = {
+    "title": "New In",
+    "subtitle": "The latest additions to our collection.",
+    "textColor": "#2D283E",
+    "buttonText": "View all",
+    "buttonLink": "/shop",
+    "productIds": []
+}
+
 def get_setting(db: Client, key: str) -> dict:
     """Get a CMS setting by key."""
     try:
@@ -73,16 +82,20 @@ def get_setting(db: Client, key: str) -> dict:
         if not res.data:
             if key == 'hero':
                 return DEFAULT_HERO
-            if key == 'category_tiles':
+            if key == 'category_tiles' or key == 'category_tiles_default':
                 return DEFAULT_CATEGORY_TILES
+            if key == 'home_products' or key == 'home_products_default':
+                return DEFAULT_HOME_PRODUCTS
             return {}
         return res.data[0]['value']
     except Exception as e:
         print(f"Error fetching setting {key}: {e}")
-        if key == 'hero':
+        if key == 'hero' or key == 'hero_default':
             return DEFAULT_HERO
-        if key == 'category_tiles':
+        if key == 'category_tiles' or key == 'category_tiles_default':
             return DEFAULT_CATEGORY_TILES
+        if key == 'home_products' or key == 'home_products_default':
+            return DEFAULT_HOME_PRODUCTS
         return {}
 
 def update_setting(db: Client, key: str, value: dict) -> dict:

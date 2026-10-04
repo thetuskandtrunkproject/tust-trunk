@@ -11,24 +11,48 @@ gsap.registerPlugin(ScrollTrigger)
 
 export function ProductCarousel({ initialData }: { initialData?: any[] }) {
   const [products, setProducts] = useState<any[]>(initialData || [])
+  const [cmsData, setCmsData] = useState<any>({
+    title: 'New In',
+    subtitle: 'The latest additions to our collection.',
+    textColor: '#2D283E',
+    buttonText: 'View all',
+    buttonLink: '/shop'
+  })
 
   useEffect(() => {
-    if (initialData && initialData.length > 0) {
-      setProducts(initialData)
-      return
-    }
-    const fetchNew = async () => {
+    const fetchData = async () => {
       try {
+        const cmsRes = await api.get('/cms/home-products').catch(() => null)
+        const config = cmsRes?.data
+        if (config) {
+          setCmsData({
+            title: config.title || 'New In',
+            subtitle: config.subtitle || 'The latest additions to our collection.',
+            textColor: config.textColor || '#2D283E',
+            buttonText: config.buttonText || 'View all',
+            buttonLink: config.buttonLink || '/shop'
+          })
+
+          if (config.productIds && config.productIds.length > 0) {
+            // Fetch selected products
+            const ids = config.productIds.join(',')
+            const pRes = await api.get('/public/products', { params: { ids, limit: 10 } })
+            setProducts(pRes.data.items || [])
+            return
+          }
+        }
+        
+        // Fallback to newest if no CMS or empty
         const res = await api.get('/public/products', { 
           params: { sort: 'newest', page_size: 6 } 
         })
         setProducts(res.data.items || [])
       } catch (err) {
-        console.error("Failed to load new products", err)
+        console.error("Failed to load products", err)
       }
     }
-    fetchNew()
-  }, [initialData])
+    fetchData()
+  }, [])
   
   const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
   const containerRef = useRef<HTMLElement>(null)
@@ -147,11 +171,13 @@ export function ProductCarousel({ initialData }: { initialData?: any[] }) {
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#E8E4FF] rounded-full opacity-60 blur-3xl translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
       <div className="container mx-auto px-4 lg:px-8 mb-6 sm:mb-10 flex items-end justify-between">
         <div>
-          <h2 className="font-heading text-2xl sm:text-4xl md:text-5xl text-ink font-bold">New In</h2>
-          <p className="text-ink/70 mt-1 sm:mt-2 text-sm sm:text-lg">The latest additions to our collection.</p>
+          <h2 className="font-heading text-2xl sm:text-4xl md:text-5xl font-bold" style={{ color: cmsData.textColor }}>
+            {cmsData.title}
+          </h2>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-lg" style={{ color: `${cmsData.textColor}b3` }}>{cmsData.subtitle}</p>
         </div>
-        <Link to="/shop" search={{ sort: 'newest' }} className="hidden md:flex items-center gap-2 font-bold text-ink hover:text-sky transition-colors">
-          View all <ArrowRight className="w-4 h-4" />
+        <Link to={cmsData.buttonLink} className="hidden md:flex items-center gap-2 font-bold transition-opacity hover:opacity-80" style={{ color: cmsData.textColor }}>
+          {cmsData.buttonText} <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
       <div className="relative group/carousel">
