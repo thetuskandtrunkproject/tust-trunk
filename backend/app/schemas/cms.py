@@ -89,3 +89,29 @@ class CategoryTilesData(BaseModel):
 
 class CategoryTilesUpdate(BaseModel):
     value: CategoryTilesData
+
+class FooterSocialLinks(BaseModel):
+    instagram: str = ""
+    whatsapp: str = ""
+    facebook: str = ""
+    youtube: str = ""
+
+class FooterData(BaseModel):
+    tagline: str = "Everyday essentials, crafted with care. Comfort and quality for your whole family."
+    socialLinks: FooterSocialLinks = FooterSocialLinks()
+
+class FooterUpdate(BaseModel):
+    value: FooterData
+
+class FooterSocialLinks(BaseModel):
+    instagram: str = ""
+    whatsapp: str = ""
+    facebook: str = ""
+    youtube: str = ""
+
+class FooterData(BaseModel):
+    tagline: str = "Everyday essentials, crafted with care. Comfort and quality for your whole family."
+    socialLinks: FooterSocialLinks = FooterSocialLinks()
+
+class FooterUpdate(BaseModel):
+    value: FooterData

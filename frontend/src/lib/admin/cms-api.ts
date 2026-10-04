@@ -82,5 +82,14 @@ export const cmsApi = {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     return res.data
+  },
+
+  getFooter: async () => {
+    const res = await api.get('/cms/footer')
+    return res.data
+  },
+  updateFooter: async (data: any) => {
+    const res = await api.put('/cms/footer', { value: data })
+    return res.data
   }
 }

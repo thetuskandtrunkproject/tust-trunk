@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
 import logoImg from '@/assets/New_logo.png'
+import { cmsApi } from '@/lib/admin/cms-api'
 
 const InstagramIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
@@ -21,6 +23,16 @@ const WhatsAppIcon = () => (
 )
 
 export function SiteFooter() {
+  const [cmsData, setCmsData] = useState<any>(null)
+
+  useEffect(() => {
+    cmsApi.getFooter().then(res => {
+      setCmsData(res)
+    }).catch(err => {
+      console.error(err)
+    })
+  }, [])
+
   return (
     <footer className="w-full bg-[#F2F9FF] text-ink pt-16 md:pt-20 pb-8 mt-auto">
       <div className="container mx-auto px-4 lg:px-8">
@@ -32,7 +44,7 @@ export function SiteFooter() {
               <img src={logoImg} alt="The Tusk & Trunk" className="w-28 h-auto object-contain" />
             </div>
             <p className="text-sm md:text-base text-ink/80 leading-relaxed font-medium max-w-sm">
-              Everyday essentials, crafted with care. Comfort and quality for your whole family.
+              {cmsData?.tagline || "Everyday essentials, crafted with care. Comfort and quality for your whole family."}
             </p>
             
             <div className="space-y-1 text-sm md:text-base text-ink/80">
@@ -56,10 +68,18 @@ export function SiteFooter() {
             </div>
 
             <div className="flex gap-4 pt-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-ink/5 flex items-center justify-center hover:bg-ink/10 hover:text-sky transition-colors"><InstagramIcon /></a>
-              <a href="https://wa.me/919443460663" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-ink/5 flex items-center justify-center hover:bg-ink/10 hover:text-sky transition-colors"><WhatsAppIcon /></a>
-              <a href="#" className="w-10 h-10 rounded-full bg-ink/5 flex items-center justify-center hover:bg-ink/10 hover:text-sky transition-colors"><FacebookIcon /></a>
-              <a href="#" className="w-10 h-10 rounded-full bg-ink/5 flex items-center justify-center hover:bg-ink/10 hover:text-sky transition-colors"><YoutubeIcon /></a>
+              {cmsData?.socialLinks?.instagram && (
+                <a href={cmsData.socialLinks.instagram} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-ink/5 flex items-center justify-center hover:bg-ink/10 hover:text-sky transition-colors"><InstagramIcon /></a>
+              )}
+              {cmsData?.socialLinks?.whatsapp && (
+                <a href={cmsData.socialLinks.whatsapp} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-ink/5 flex items-center justify-center hover:bg-ink/10 hover:text-sky transition-colors"><WhatsAppIcon /></a>
+              )}
+              {cmsData?.socialLinks?.facebook && (
+                <a href={cmsData.socialLinks.facebook} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-ink/5 flex items-center justify-center hover:bg-ink/10 hover:text-sky transition-colors"><FacebookIcon /></a>
+              )}
+              {cmsData?.socialLinks?.youtube && (
+                <a href={cmsData.socialLinks.youtube} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-ink/5 flex items-center justify-center hover:bg-ink/10 hover:text-sky transition-colors"><YoutubeIcon /></a>
+              )}
             </div>
           </div>
           

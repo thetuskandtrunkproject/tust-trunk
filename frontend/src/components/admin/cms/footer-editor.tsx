@@ -1,19 +1,34 @@
-import { useState } from 'react'
-import { Save } from 'lucide-react'
-import { mockCmsData } from '@/lib/admin/mock-cms'
+import { useState, useEffect } from 'react'
+import { Save, Loader2 } from 'lucide-react'
+import { cmsApi } from '@/lib/admin/cms-api'
 
 export function FooterEditor() {
-  const [data, setData] = useState(mockCmsData.footer)
+  const [data, setData] = useState<any>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [showToast, setShowToast] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const handleSave = () => {
+  useEffect(() => {
+    cmsApi.getFooter().then((res) => {
+      setData(res)
+      setIsLoading(false)
+    }).catch((e) => {
+      console.error(e)
+      setIsLoading(false)
+    })
+  }, [])
+
+  const handleSave = async () => {
     setIsSaving(true)
-    setTimeout(() => {
-      setIsSaving(false)
+    try {
+      await cmsApi.updateFooter(data)
       setShowToast(true)
       setTimeout(() => setShowToast(false), 3000)
-    }, 600)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleSocialChange = (platform: keyof typeof data.socialLinks, value: string) => {
@@ -21,6 +36,14 @@ export function FooterEditor() {
       ...data,
       socialLinks: { ...data.socialLinks, [platform]: value }
     })
+  }
+
+  if (isLoading || !data) {
+    return (
+      <div className="bg-white border border-ink/10 rounded-2xl p-12 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-ink/20" />
+      </div>
+    )
   }
 
   return (

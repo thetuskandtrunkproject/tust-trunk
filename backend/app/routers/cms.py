@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Body, File, UploadFile
 from supabase import Client
 from ..core.database import get_db_client
 from ..dependencies.auth import get_current_admin
-from ..schemas.cms import HeroBannerData, HeroBannerUpdate, CategoryTilesData, CategoryTilesUpdate, HomeProductsData, HomeProductsUpdate, AboutPageData, AboutPageUpdate
+from ..schemas.cms import HeroBannerData, HeroBannerUpdate, CategoryTilesData, CategoryTilesUpdate, HomeProductsData, HomeProductsUpdate, AboutPageData, AboutPageUpdate, FooterData, FooterUpdate
 from ..services import cms_service
 import uuid
 
@@ -156,6 +156,24 @@ def set_default_about_page(
     val = data.value.model_dump()
     cms_service.update_setting(db, "about_page_default", val)
     return cms_service.update_setting(db, "about_page", val)
+
+@router.get("/footer", response_model=FooterData)
+def get_footer(db: Client = Depends(get_db_client)):
+    return cms_service.get_setting(db, "footer")
+
+@router.put("/footer", response_model=FooterData)
+def update_footer(
+    data: FooterUpdate,
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    try:
+        val = data.value.model_dump()
+        return cms_service.update_setting(db, "footer", val)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e) + "\n" + traceback.format_exc())
 
 @router.post("/upload-image")
 async def upload_cms_image(

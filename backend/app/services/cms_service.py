@@ -112,6 +112,16 @@ DEFAULT_ABOUT_PAGE = {
     "ctaButtonTextColor": "#FFFFFF"
 }
 
+DEFAULT_FOOTER = {
+    "tagline": "Everyday essentials, crafted with care. Comfort and quality for your whole family.",
+    "socialLinks": {
+        "instagram": "",
+        "whatsapp": "",
+        "facebook": "",
+        "youtube": ""
+    }
+}
+
 def get_setting(db: Client, key: str) -> dict:
     """Get a CMS setting by key."""
     try:
@@ -125,6 +135,8 @@ def get_setting(db: Client, key: str) -> dict:
                 return DEFAULT_HOME_PRODUCTS
             if key == 'about_page' or key == 'about_page_default':
                 return DEFAULT_ABOUT_PAGE
+            if key == 'footer':
+                return DEFAULT_FOOTER
             return {}
         return res.data[0]['value']
     except Exception as e:
@@ -137,6 +149,8 @@ def get_setting(db: Client, key: str) -> dict:
             return DEFAULT_HOME_PRODUCTS
         if key == 'about_page' or key == 'about_page_default':
             return DEFAULT_ABOUT_PAGE
+        if key == 'footer':
+            return DEFAULT_FOOTER
         return {}
 
 def update_setting(db: Client, key: str, value: dict) -> dict:
