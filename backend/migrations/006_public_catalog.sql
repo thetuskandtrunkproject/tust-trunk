@@ -100,8 +100,8 @@ BEGIN
             'category', sp.category_name,
             'images', sp.images,
             'tags', sp.tags,
-            'min_price', (sp.min_variant_price / 100)::int,
-            'max_price', (sp.max_variant_price / 100)::int,
+            'min_price', sp.min_variant_price::int,
+            'max_price', sp.max_variant_price::int,
             'available_sizes', sp.available_sizes,
             'total_stock', sp.total_stock
         )

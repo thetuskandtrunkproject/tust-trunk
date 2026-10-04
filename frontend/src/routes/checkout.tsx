@@ -177,6 +177,11 @@ function CheckoutPage() {
                   setDiscountPaise(discount)
                   setCouponType(type)
                 }}
+                onRemoveCoupon={() => {
+                  setCouponCode(null)
+                  setDiscountPaise(0)
+                  setCouponType(null)
+                }}
               />
             </div>
           )}

@@ -98,9 +98,10 @@ def get_public_product(db: Client, slug: str) -> dict:
     # Format category
     product['category'] = product['categories']['name']
 
-    # Format variant prices to rupees
+    # Prices are already in paise, leave them as is for the frontend
+    # (The frontend divides by 100 when displaying)
     for variant in product.get('product_variants', []):
-        variant['price'] = int(variant['price'] / 100)
+        variant['price'] = variant['price']
 
     product['variants'] = product.get('product_variants', [])
     product.pop('product_variants', None)
@@ -151,7 +152,7 @@ def resolve_variants(db: Client, ids_str: str) -> dict:
                 'id': row['id'],
                 'sku': row['sku'],
                 'size': row['size'],
-                'price': int(row['price'] / 100),
+                'price': row['price'],
                 'stock': row['stock'],
                 'is_active': row['is_active']
             },
@@ -200,10 +201,10 @@ def resolve_products(db: Client, ids_str: str) -> dict:
             if v.get('is_active') is True and v.get('stock', 0) > 0
         ]
 
-        # Determine price (lowest among active variants)
+        # Determine price (lowest among active variants) in paise
         current_price = 0
         if active_variants:
-            current_price = int(min(v.get('price', 0) for v in active_variants) / 100)
+            current_price = min(v.get('price', 0) for v in active_variants)
 
         items.append({
             'id': product['id'],

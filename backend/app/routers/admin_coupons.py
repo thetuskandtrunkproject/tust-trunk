@@ -41,6 +41,8 @@ def create_coupon(
 ):
     data = payload.model_dump(mode='json')
     data['code'] = data['code'].upper()
+    if data.get('discount_type') == 'percent' and data.get('discount_value', 0) > 100:
+        raise HTTPException(status_code=400, detail="Percentage discount cannot exceed 100%")
     return coupons_service.create_coupon(db, data)
 
 @router.patch("/{coupon_id}", response_model=CouponResponse)
@@ -55,6 +57,8 @@ def update_coupon(
     data = payload.model_dump(exclude_unset=True, mode='json')
     if 'code' in data:
         data['code'] = data['code'].upper()
+    if data.get('discount_type') == 'percent' and data.get('discount_value', 0) > 100:
+        raise HTTPException(status_code=400, detail="Percentage discount cannot exceed 100%")
     return coupons_service.update_coupon(db, coupon_id, data)
 
 @router.delete("/{coupon_id}")

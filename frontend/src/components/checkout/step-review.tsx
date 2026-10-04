@@ -11,9 +11,10 @@ interface StepReviewProps {
   couponCode?: string | null
   discountAmount?: number
   onApplyCoupon?: (code: string, discount: number, type: string) => void
+  onRemoveCoupon?: () => void
 }
 
-export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, discountAmount = 0, onApplyCoupon }: StepReviewProps) {
+export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, discountAmount = 0, onApplyCoupon, onRemoveCoupon }: StepReviewProps) {
   const [promoInput, setPromoInput] = useState(couponCode || '')
   const [isApplying, setIsApplying] = useState(false)
   const { showToast } = useToast()
@@ -25,7 +26,7 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
     try {
       const res = await api.post('/api/v1/checkout/apply-coupon', {
         code: promoInput,
-        items: items.map(i => ({ variant_id: i.variant_id, quantity: i.quantity }))
+        items: cartDetails.map(i => ({ variant_id: i.variant_id, quantity: i.quantity }))
       })
       if (onApplyCoupon) {
         onApplyCoupon(res.data.code, res.data.discount_paise, res.data.discount_type)
@@ -38,6 +39,15 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
       setIsApplying(false)
     }
   }
+
+  const handleRemovePromo = () => {
+    setPromoInput('')
+    if (onRemoveCoupon) {
+      onRemoveCoupon()
+    }
+    showToast('Coupon removed', 'success')
+  }
+
   // Guest carts missing product data will be filtered out to avoid crashes,
   // but guests should be logged in to sync and render correctly.
   const cartDetails = items.filter(item => item.product !== undefined && item.variant !== undefined)
@@ -89,13 +99,23 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
               disabled={!!couponCode || isApplying}
               className="flex-1 bg-white border border-ink/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-ink/30 focus:ring-1 focus:ring-ink/30 transition-all disabled:opacity-50"
             />
-            <button
-              type="submit"
-              disabled={!!couponCode || isApplying || !promoInput.trim()}
-              className="bg-ink text-cloud px-6 py-3 rounded-lg text-sm font-bold hover:bg-sky-soft hover:text-ink transition-colors disabled:opacity-50"
-            >
-              {isApplying ? 'Applying...' : couponCode ? 'Applied' : 'Apply'}
-            </button>
+            {couponCode ? (
+              <button
+                type="button"
+                onClick={handleRemovePromo}
+                className="bg-rust text-white px-6 py-3 rounded-lg text-sm font-bold hover:bg-rust/90 transition-colors"
+              >
+                Remove
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={isApplying || !promoInput.trim()}
+                className="bg-ink text-cloud px-6 py-3 rounded-lg text-sm font-bold hover:bg-sky-soft hover:text-ink transition-colors disabled:opacity-50"
+              >
+                {isApplying ? 'Applying...' : 'Apply'}
+              </button>
+            )}
           </form>
           {couponCode && (
             <p className="text-xs text-sky mt-3 font-medium">Coupon '{couponCode}' applied!</p>

@@ -32,7 +32,7 @@ function AdminCouponsPage() {
         id: c.id,
         code: c.code,
         type: c.discount_type,
-        value: c.discount_value,
+        value: c.discount_type === 'flat' ? c.discount_value / 100 : c.discount_value,
         minCartValue: c.min_cart_value_paise ? c.min_cart_value_paise / 100 : 0,
         totalUsageLimit: c.total_usage_limit,
         perCustomerLimit: c.per_user_limit,

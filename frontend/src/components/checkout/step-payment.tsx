@@ -41,14 +41,14 @@ export function StepPayment({ onBack, contact, shipping, totalAmount, items, isB
     
     try {
       // 1. Create order
-      const createRes = await api.post('/api/v1/checkout/create-order', {
-        items: items.map(i => ({ variant_id: i.variant_id, quantity: i.quantity })),
+      const res = await api.post('/api/v1/checkout/create-order', {
+        items: items.filter(i => i.product !== undefined && i.variant !== undefined).map(i => ({ variant_id: i.variant_id, quantity: i.quantity })),
         contact,
         shipping,
         coupon_code: couponCode
       })
       
-      const { razorpay_order_id, amount_paise, currency, key_id } = createRes.data
+      const { razorpay_order_id, amount_paise, currency, key_id } = res.data
       
       // 2. Init Razorpay
       const options = {

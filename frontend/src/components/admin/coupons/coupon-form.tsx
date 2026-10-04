@@ -37,6 +37,10 @@ export function CouponForm({ initialData, onSubmit }: CouponFormProps) {
       showToast("Please enter a valid discount amount")
       return
     }
+    if (type === 'percent' && Number(value) > 100) {
+      showToast("Percentage discount cannot exceed 100%")
+      return
+    }
     if (endDate && new Date(endDate) < new Date(startDate)) {
       showToast("End date cannot be before start date")
       return

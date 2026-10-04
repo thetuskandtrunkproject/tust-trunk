@@ -16,7 +16,7 @@ function AdminNewCouponPage() {
       await api.post('/api/v1/admin/coupons', {
         code: data.code,
         discount_type: data.type,
-        discount_value: data.value,
+        discount_value: data.type === 'flat' ? Number(data.value) * 100 : Number(data.value),
         min_cart_value_paise: data.minCartValue ? Number(data.minCartValue) * 100 : null,
         total_usage_limit: data.totalUsageLimit,
         per_user_limit: data.perCustomerLimit,
