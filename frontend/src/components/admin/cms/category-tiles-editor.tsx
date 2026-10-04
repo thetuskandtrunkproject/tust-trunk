@@ -38,6 +38,7 @@ export function CategoryTilesEditor() {
         title: '', titleAccent: '', subtitle: '', textColor: '#2D283E',
         sweepTextColor: '#FFFFFF', baseBgColor: '#FAF7F9', sweepBgColor: '#FF6B8B',
         waveColor1: '#70A6FF', waveColor2: '#845EC2', waveColor3: '#FFD93D',
+        buttonText: 'View Complete Collection', buttonLink: '/shop?sort=newest', buttonTextColor: '#2D283E',
         tiles: []
       }
       setData(JSON.parse(JSON.stringify(initial)))
@@ -244,6 +245,24 @@ export function CategoryTilesEditor() {
               <div className="flex items-center gap-2">
                 <input type="color" value={data.waveColor3} onChange={(e) => setData({ ...data, waveColor3: e.target.value })} className="w-8 h-8 rounded cursor-pointer" />
               </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-ink/5 mt-6">
+            <div>
+              <label className="block text-sm font-medium text-ink/80 mb-2">Bottom Button Text</label>
+              <input type="text" value={data.buttonText || ''} onChange={(e) => setData({ ...data, buttonText: e.target.value })} className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink/80 mb-2">Bottom Button Link</label>
+              <input type="text" value={data.buttonLink || ''} onChange={(e) => setData({ ...data, buttonLink: e.target.value })} className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink/80 mb-2 flex items-center gap-2">
+                Button Text Color
+                <span className="w-4 h-4 rounded-full border border-ink/20 block" style={{ backgroundColor: data.buttonTextColor || '#2D283E' }} />
+              </label>
+              <input type="color" value={data.buttonTextColor || '#2D283E'} onChange={(e) => setData({ ...data, buttonTextColor: e.target.value })} className="h-10 w-full cursor-pointer rounded border border-ink/20 bg-cloud px-1 py-1" />
             </div>
           </div>
         </div>

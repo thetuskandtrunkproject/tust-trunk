@@ -308,8 +308,8 @@ export function CategoryTiles({ initialData }: { initialData?: any }) {
         </div>
         
         <div className="mt-12 sm:mt-24 text-center">
-           <Link to="/shop" className="inline-flex items-center gap-3 bg-white text-ink px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold text-base sm:text-lg shadow-2xl hover:scale-105 transition-all duration-300">
-             View Complete Collection <span className="text-xl">&rarr;</span>
+           <Link to={cmsData?.buttonLink || "/shop"} style={{ color: cmsData?.buttonTextColor || '#2D283E' }} className="inline-flex items-center gap-3 bg-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold text-base sm:text-lg shadow-2xl hover:scale-105 transition-all duration-300">
+             {cmsData?.buttonText || "View Complete Collection"} <span className="text-xl">&rarr;</span>
            </Link>
         </div>
 

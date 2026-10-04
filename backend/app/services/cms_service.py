@@ -59,6 +59,9 @@ DEFAULT_CATEGORY_TILES = {
     "waveColor1": "#70A6FF",
     "waveColor2": "#845EC2",
     "waveColor3": "#FFD93D",
+    "buttonText": "View Complete Collection",
+    "buttonLink": "/shop?sort=newest",
+    "buttonTextColor": "#2D283E",
     "tiles": [
         {"id": "women", "image": "https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=600&auto=format&fit=crop", "label": "Women", "link": "/shop?category=Women"},
         {"id": "kids", "image": "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?q=80&w=600&auto=format&fit=crop", "label": "Kids", "link": "/shop?category=Kids"},

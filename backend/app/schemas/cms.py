@@ -52,6 +52,9 @@ class CategoryTilesData(BaseModel):
     waveColor1: str = "#70A6FF"
     waveColor2: str = "#845EC2"
     waveColor3: str = "#FFD93D"
+    buttonText: str = "View Complete Collection"
+    buttonLink: str = "/shop?sort=newest"
+    buttonTextColor: str = "#2D283E"
     tiles: List[CategoryTile] = []
 
 class CategoryTilesUpdate(BaseModel):
