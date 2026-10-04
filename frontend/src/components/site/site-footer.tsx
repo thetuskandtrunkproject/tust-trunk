@@ -62,7 +62,7 @@ export function SiteFooter() {
                 <li><Link to="/shop" search={{ sort: 'newest' }} className="hover:text-[#8ce2c5] transition-colors">New Arrivals</Link></li>
                 <li><Link to="/shop" search={{ gender: 'Women' }} className="hover:text-[#8ce2c5] transition-colors">Women</Link></li>
                 <li><Link to="/shop" search={{ gender: 'Kids' }} className="hover:text-[#8ce2c5] transition-colors">Kids</Link></li>
-                <li><Link to="/shop" search={{ sale: true }} className="hover:text-[#8ce2c5] transition-colors">Offers</Link></li>
+                <li><Link to="/shop" search={{ tag: 'Sale' }} className="hover:text-[#8ce2c5] transition-colors">Offers</Link></li>
               </ul>
             </div>
             
