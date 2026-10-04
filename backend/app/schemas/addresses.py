@@ -11,6 +11,7 @@ class AddressBase(BaseModel):
     city: str = Field(..., min_length=1)
     state: str = Field(..., min_length=1)
     pincode: str = Field(..., min_length=1)
+    phone: Optional[str] = None
     is_default: Optional[bool] = False
 
     @field_validator('pincode')

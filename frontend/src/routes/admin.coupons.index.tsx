@@ -89,9 +89,11 @@ function AdminCouponsPage() {
         title="Coupons"
         description={`Active: ${activeCount} · Expired: ${expiredCount}`}
         actions={
-          <AdminButton icon={<Plus className="w-4 h-4" />}>
-            <Link to="/admin/coupons/new">New Coupon</Link>
-          </AdminButton>
+          <Link to="/admin/coupons/new">
+            <AdminButton icon={<Plus className="w-4 h-4" />}>
+              New Coupon
+            </AdminButton>
+          </Link>
         }
       />
 

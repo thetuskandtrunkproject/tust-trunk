@@ -100,6 +100,7 @@ export function VariantEditor({ variants, onChange }: VariantEditorProps) {
                         min="0"
                         value={v.stock}
                         onChange={(e) => handleUpdateVariant(v.id, 'stock', parseInt(e.target.value) || 0)}
+                        onKeyDown={(e) => { if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault() }}
                         placeholder="0"
                         className={inputClassName}
                       />
@@ -108,9 +109,10 @@ export function VariantEditor({ variants, onChange }: VariantEditorProps) {
                       <input 
                         type="number"
                         min="0"
-                        step="0.01"
+                        step="1"
                         value={v.price ? (v.price / 100).toString() : ''}
                         onChange={(e) => handleUpdateVariant(v.id, 'price', Math.round(parseFloat(e.target.value) * 100) || 0)}
+                        onKeyDown={(e) => { if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault() }}
                         placeholder="Default"
                         className={inputClassName}
                       />

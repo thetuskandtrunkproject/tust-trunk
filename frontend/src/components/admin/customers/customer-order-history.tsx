@@ -8,7 +8,7 @@ interface CustomerOrderHistoryProps {
 }
 
 export function CustomerOrderHistory({ orders }: CustomerOrderHistoryProps) {
-  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-IN', {
       day: 'numeric', month: 'short', year: 'numeric'

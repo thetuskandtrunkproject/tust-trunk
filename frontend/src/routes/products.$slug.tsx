@@ -186,7 +186,7 @@ function ProductDetailPage() {
     })
   }
 
-  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
 
   // Generate product tags
   const productTags = [
@@ -338,7 +338,7 @@ function ProductDetailPage() {
               </div>
 
               <button 
-                onClick={handleAddToCart}
+                onClick={handleBuyNow}
                 disabled={totalStock === 0}
                 className="w-full bg-cta text-white py-3.5 rounded-xl font-bold text-base hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-40 shadow-md hover:shadow-lg"
               >
@@ -385,8 +385,8 @@ function ProductDetailPage() {
                   { src: paytmLogo, alt: 'PhonePe' },
                   { src: codLogo, alt: 'COD' },
                 ].map((logo, i) => (
-                  <div key={i} className="h-10 bg-white rounded-xl flex items-center justify-center border border-ink/5 px-3 shadow-sm hover:shadow-md transition-shadow">
-                    <img src={logo.src} alt={logo.alt} className="h-6 w-auto object-contain max-w-[48px]" />
+                  <div key={i} className="h-7 px-2 bg-[#F8F9FA] rounded-md flex items-center border border-ink/5">
+                    <img src={logo.src} alt={logo.alt} loading="lazy" className="h-5 w-auto object-contain max-w-[50px]" />
                   </div>
                 ))}
               </div>

@@ -1,8 +1,10 @@
+import io
 import logging
 import uuid
 import math
 from typing import Optional
 from fastapi import HTTPException
+from PIL import Image, ImageOps
 from supabase import Client
 
 from app.schemas.products import (
@@ -461,15 +463,49 @@ def upload_product_image(db: Client, product_id: str, file_bytes: bytes, storage
 
     storage_path: pre-computed path in format products/{product_id}/{uuid4}-{filename}
     Returns the updated product row (without variants for speed).
+
+    NOTE: file_bytes are resized server-side (max 1200px longest edge, WebP quality=80)
+    before upload. The router's magic-byte WebP validation still runs on the *original*
+    bytes prior to reaching this function — that check is unaffected.
     """
     product = _get_product_or_404(db, product_id)
 
     BUCKET = 'product-images'
 
+    # --- Server-side resize + re-encode ---
+    # Constrains the longest edge to 1200px and re-encodes as WebP at quality=80.
+    # This typically reduces a raw 2-5 MB upload to ~80-200 KB, which is served
+    # on every product card, gallery, cart thumbnail, and search result.
+    try:
+        image = Image.open(io.BytesIO(file_bytes))
+        # Preserve EXIF orientation if present
+        try:
+            image = ImageOps.exif_transpose(image)
+        except Exception:
+            pass  # Non-fatal: proceed without EXIF correction
+        # Convert to RGB or RGBA for safe WebP encoding.
+        # Check for alpha by mode name (covers RGBA, LA, PA) AND by image.info
+        # (covers P-mode palette PNGs with a transparency index). Both checks
+        # are needed: LA/PA have alpha in their mode but not in image.info,
+        # while P-with-transparency has it in image.info but not the mode name.
+        if image.mode not in ('RGB', 'RGBA'):
+            has_alpha = image.mode in ('RGBA', 'LA', 'PA') or 'transparency' in image.info
+            image = image.convert('RGBA' if has_alpha else 'RGB')
+        # Downscale only — never upscale
+        MAX_SIDE = 1200
+        if max(image.width, image.height) > MAX_SIDE:
+            image.thumbnail((MAX_SIDE, MAX_SIDE), Image.LANCZOS)
+        output = io.BytesIO()
+        image.save(output, format='WEBP', quality=80, method=6)
+        processed_bytes = output.getvalue()
+    except Exception as e:
+        logger.error(f'Image processing failed for {storage_path}: {e}')
+        raise HTTPException(status_code=400, detail='Failed to process image. Ensure the file is a valid WebP.')
+
     try:
         db.storage.from_(BUCKET).upload(
             path=storage_path,
-            file=file_bytes,
+            file=processed_bytes,
             file_options={'upsert': 'false'},
         )
     except Exception as e:

@@ -188,6 +188,7 @@ export function DiscountManagerPanel({ onClose }: DiscountManagerPanelProps) {
                     placeholder="Set bulk price"
                     value={bulkPrice}
                     onChange={e => setBulkPrice(e.target.value)}
+                    onKeyDown={(e) => { if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault() }}
                     className="w-28 bg-transparent text-[14px] py-1 px-2 focus:outline-none font-medium"
                   />
                   <button 
@@ -275,7 +276,10 @@ export function DiscountManagerPanel({ onClose }: DiscountManagerPanelProps) {
                               placeholder="New price"
                               value={editPrice}
                               onChange={e => setEditPrice(e.target.value)}
-                              onKeyDown={e => { if (e.key === 'Enter') handleSaveDiscount(p.id) }}
+                              onKeyDown={e => { 
+                                if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault()
+                                if (e.key === 'Enter') handleSaveDiscount(p.id) 
+                              }}
                               className="w-28 pl-7 pr-3 py-2 text-[14px] font-semibold border-2 border-[#005bd3] rounded-lg focus:outline-none ring-4 ring-[#005bd3]/10"
                             />
                           </div>

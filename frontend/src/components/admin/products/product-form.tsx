@@ -299,7 +299,8 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
                     type="number"
                     value={basePrice}
                     onChange={e => setBasePrice(e.target.value)}
-                    placeholder="0.00"
+                    onKeyDown={(e) => { if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault() }}
+                    placeholder="0"
                     className={`${inputClassName} pl-7`}
                   />
                 </div>
@@ -325,7 +326,8 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
                         type="number"
                         value={salePrice}
                         onChange={e => setSalePrice(e.target.value)}
-                        placeholder="0.00"
+                        onKeyDown={(e) => { if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault() }}
+                        placeholder="0"
                         className={`${inputClassName} pl-7`}
                       />
                     </div>

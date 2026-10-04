@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Outlet, useLocation } from '@tanstack/react-router'
+import { Outlet, useLocation, Navigate } from '@tanstack/react-router'
 import { AdminSidebar } from './admin-sidebar'
 import { Menu } from 'lucide-react'
 import { useAuth } from '@/context/auth-context'
@@ -25,6 +25,11 @@ export function AdminLayout() {
         <div className="w-8 h-8 rounded-full border-4 border-[#C9CCCF] border-t-[#005bd3] animate-spin"></div>
       </div>
     )
+  }
+
+  // Redirect to home if not logged in or not an admin
+  if (!user || user.role !== 'admin') {
+    return <Navigate to="/" />
   }
 
   return (

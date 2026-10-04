@@ -133,7 +133,11 @@ def get_admin_orders(
         query = query.eq('status', status)
         
     if customer_id:
-        query = query.eq('user_id', customer_id)
+        if customer_id.startswith('guest:'):
+            guest_email = customer_id.replace('guest:', '')
+            query = query.eq('guest_email', guest_email)
+        else:
+            query = query.eq('user_id', customer_id)
     
     if search:
         query = query.or_(f"order_number.ilike.%{search}%,guest_email.ilike.%{search}%,guest_phone.ilike.%{search}%")

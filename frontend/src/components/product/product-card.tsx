@@ -13,9 +13,10 @@ interface ProductCardProps {
   tags?: string[]
   sizes?: string[]
   actionButton?: React.ReactNode
+  eagerLoad?: boolean
 }
 
-export function ProductCard({ id, slug, name, price, img, hoverImg, category, tags = [], sizes = ['S', 'M', 'L', 'XL'], actionButton }: ProductCardProps) {
+export function ProductCard({ id, slug, name, price, img, hoverImg, category, tags = [], sizes = ['S', 'M', 'L', 'XL'], actionButton, eagerLoad }: ProductCardProps) {
   const { isWishlisted, toggleWishlist } = useWishlist()
   const wishlisted = isWishlisted(id)
 
@@ -42,12 +43,14 @@ export function ProductCard({ id, slug, name, price, img, hoverImg, category, ta
           <img 
             src={img} 
             alt={name} 
+            loading={eagerLoad ? undefined : "lazy"}
             className={`w-full h-full object-cover object-center transition-all duration-700 ease-in-out ${hoverImg ? 'group-hover:opacity-0 group-hover:scale-105' : 'group-hover:scale-105'}`}
           />
           {hoverImg && (
             <img 
               src={hoverImg} 
               alt={name} 
+              loading={eagerLoad ? undefined : "lazy"}
               className="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-in-out"
             />
           )}

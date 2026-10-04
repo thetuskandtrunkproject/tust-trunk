@@ -48,6 +48,8 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
 
   // Parse current arrays
   const activeSizes = currentFilters.sizes ? currentFilters.sizes.split(',') : []
+  const activeGenders = currentFilters.gender ? currentFilters.gender.split(',') : []
+  const activeCategories = currentFilters.category ? currentFilters.category.split(',') : []
   
   const hasActiveFilters = Object.values(currentFilters).some(v => v !== undefined && v !== '')
 
@@ -71,6 +73,20 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
       ? activeSizes.filter(s => s !== size)
       : [...activeSizes, size]
     updateSearch({ sizes: newSizes.length > 0 ? newSizes.join(',') : undefined })
+  }
+
+  const handleGenderToggle = (g: string) => {
+    const newGenders = activeGenders.includes(g)
+      ? activeGenders.filter(x => x !== g)
+      : [...activeGenders, g]
+    updateSearch({ gender: newGenders.length > 0 ? newGenders.join(',') : undefined })
+  }
+
+  const handleCategoryToggle = (c: string) => {
+    const newCats = activeCategories.includes(c)
+      ? activeCategories.filter(x => x !== c)
+      : [...activeCategories, c]
+    updateSearch({ category: newCats.length > 0 ? newCats.join(',') : undefined })
   }
 
   const clearAllFilters = () => {
@@ -145,15 +161,16 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
           {expandedSections.gender && (
             <div className="mt-4 flex flex-col gap-3">
               {['Women', 'Kids'].map(g => {
+                const isActive = activeGenders.includes(g)
                 return (
                   <button 
                     key={g} 
                     className="flex items-center justify-between cursor-pointer group w-full text-left"
-                    onClick={() => updateSearch({ gender: currentFilters.gender === g ? undefined : g })}
+                    onClick={() => handleGenderToggle(g)}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300 ${currentFilters.gender === g ? 'bg-mint border-mint scale-110' : 'border-ink/20 group-hover:border-ink/50'}`}>
-                        {currentFilters.gender === g && <Check className="w-3 h-3 text-ink" />}
+                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-mint border-mint scale-110' : 'border-ink/20 group-hover:border-ink/50'}`}>
+                        {isActive && <Check className="w-3 h-3 text-ink" />}
                       </div>
                       <span className="text-ink/80 text-sm font-bold group-hover:text-ink">{g}</span>
                     </div>
@@ -178,15 +195,16 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
               {loadingCats ? (
                 <div className="flex justify-center p-4"><Loader2 className="w-5 h-5 animate-spin text-ink/40" /></div>
               ) : categories.map(cat => {
+                const isActive = activeCategories.includes(cat.slug)
                 return (
                   <button 
                     key={cat.id} 
                     className="flex items-center justify-between cursor-pointer group w-full text-left"
-                    onClick={() => updateSearch({ category: currentFilters.category === cat.slug ? undefined : cat.slug })}
+                    onClick={() => handleCategoryToggle(cat.slug)}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300 ${currentFilters.category === cat.slug ? 'bg-sunshine border-sunshine scale-110' : 'border-ink/20 group-hover:border-ink/50'}`}>
-                        {currentFilters.category === cat.slug && <Check className="w-3 h-3 text-ink" />}
+                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-sunshine border-sunshine scale-110' : 'border-ink/20 group-hover:border-ink/50'}`}>
+                        {isActive && <Check className="w-3 h-3 text-ink" />}
                       </div>
                       <span className="text-ink/80 text-sm font-bold group-hover:text-ink">{cat.name}</span>
                     </div>

@@ -57,7 +57,7 @@ function AdminCustomerDetailPage() {
 
   const averageOrderValue = customer.total_orders > 0 ? customer.total_spent_paise / customer.total_orders : 0
 
-  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => (price ?? 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-IN', {
       day: 'numeric', month: 'short', year: 'numeric'

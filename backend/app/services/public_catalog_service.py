@@ -29,18 +29,24 @@ def list_public_products(
     min_price_paise = min_price * 100 if min_price is not None else None
     max_price_paise = max_price * 100 if max_price is not None else None
     
-    # Call the RPC
+    genders_arr = [g.strip().lower() for g in gender.split(',')] if gender else []
+    categories_arr = [c.strip().lower() for c in category.split(',')] if category else []
+    
+    valid_cat_names = []
+    if categories_arr:
+        cats_res = db.table('categories').select('name').in_('slug', categories_arr).execute()
+        valid_cat_names = [c['name'].lower() for c in (cats_res.data or [])]
+    
+    # Call the RPC with max limits, ignoring gender and category for SQL
     rpc_params = {
         'search_term': search,
-        'filter_gender': gender,
-        'filter_category': category,
         'filter_sizes': sizes_arr,
         'min_price': min_price_paise,
         'max_price': max_price_paise,
         'filter_tag': tag,
         'sort_by': sort,
-        'page_num': page,
-        'page_size': page_size
+        'page_num': 1,
+        'page_size': 10000
     }
     
     # Clean up None values so Postgres uses defaults correctly
@@ -48,15 +54,27 @@ def list_public_products(
     
     res = db.rpc('search_public_products', rpc_params).execute()
     
-    total = 0
-    items = []
-    
+    all_items = []
     if res.data:
-        total = res.data[0]['total_count']
-        items = [row['product_data'] for row in res.data]
+        all_items = [row['product_data'] for row in res.data]
+        
+    filtered_items = []
+    for item in all_items:
+        if genders_arr and item.get('gender', '').lower() not in genders_arr:
+            continue
+        if categories_arr and item.get('category', '').lower() not in valid_cat_names:
+            continue
+        filtered_items.append(item)
+        
+    total = len(filtered_items)
+    
+    # Paginate in python
+    start_idx = (page - 1) * page_size
+    end_idx = start_idx + page_size
+    paged_items = filtered_items[start_idx:end_idx]
         
     return {
-        'items': items,
+        'items': paged_items,
         'total': total,
         'page': page,
         'page_size': page_size,

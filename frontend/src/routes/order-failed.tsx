@@ -24,10 +24,10 @@ function OrderFailedPage() {
           Try Again
         </Link>
         <Link 
-          to="/shop" 
+          to="/" 
           className="bg-transparent border-2 border-ink/20 text-ink px-10 py-4 rounded-full font-bold hover:scale-105 hover:bg-ink/5 transition-all text-center"
         >
-          Contact Support
+          Return to Home
         </Link>
       </div>
     </div>

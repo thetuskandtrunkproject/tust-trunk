@@ -6,6 +6,14 @@ import { useAuth } from '@/context/auth-context'
 
 export const Route = createFileRoute('/order-success')({
   component: OrderSuccessPage,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      order_id: search.order_id as string | undefined,
+      order_number: search.order_number as string | undefined,
+      guest_email: search.guest_email as string | undefined,
+      requires_review: search.requires_review as boolean | string | undefined,
+    }
+  }
 })
 
 function OrderSuccessPage() {
@@ -163,15 +171,15 @@ function OrderSuccessPage() {
             <div className="flex flex-col gap-2 text-sm text-ink/80 font-medium">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span>₹{(order.subtotal_paise / 100).toLocaleString('en-IN')}</span>
+                <span>₹{(order.subtotal_paise / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
               </div>
               <div className="flex justify-between">
                 <span>Delivery:</span>
-                <span>{order.delivery_fee_paise === 0 ? <span className="text-mint font-bold">Free</span> : `₹${order.delivery_fee_paise / 100}`}</span>
+                <span>{order.delivery_fee_paise === 0 ? <span className="text-mint font-bold">Free</span> : `₹${(order.delivery_fee_paise / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`}</span>
               </div>
               <div className="flex justify-between pt-2 mt-2 border-t border-ink/10">
                 <span className="font-bold text-ink">Total Paid:</span>
-                <span className="font-bold text-ink">₹{(order.total_paise / 100).toLocaleString('en-IN')}</span>
+                <span className="font-bold text-ink">₹{(order.total_paise / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
               </div>
               <p className="text-xs text-ink/50 mt-2">Paid securely via Razorpay</p>
               <p className="text-xs text-ink/50">Estimated Delivery: Arriving in 5–7 business days</p>

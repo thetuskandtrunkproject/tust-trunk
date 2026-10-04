@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from supabase import Client
 from datetime import datetime, timezone
 
-def validate_coupon_for_cart(db: Client, code: str, subtotal_paise: int, user_id: str | None = None) -> tuple[int, dict]:
+def validate_coupon_for_cart(db: Client, code: str, subtotal_paise: int, user_id: str | None = None, validated_items: list | None = None) -> tuple[int, dict]:
     """
     Validates a coupon code against cart requirements and returns (discount_paise, coupon_row).
     """
@@ -50,24 +50,44 @@ def validate_coupon_for_cart(db: Client, code: str, subtotal_paise: int, user_id
         # Require login for per-user limit coupons
         raise HTTPException(status_code=400, detail="You must be logged in to use this coupon.")
         
-    # 6. Calculate discount
+    # 6. Check scope and calculate applicable subtotal
+    scope = coupon.get('scope', 'store_wide')
+    applicable_subtotal = 0
+    has_applicable_items = False
+
+    if scope == 'store_wide':
+        applicable_subtotal = subtotal_paise
+        has_applicable_items = True
+    elif validated_items:
+        for item in validated_items:
+            # Check if the product gender matches the scope (e.g., 'Kids', 'Women')
+            if item.get('product_gender') == scope:
+                applicable_subtotal += item.get('price_paise', 0) * item.get('quantity', 1)
+                has_applicable_items = True
+
+    if scope != 'store_wide' and not has_applicable_items:
+        raise HTTPException(status_code=400, detail="Not applicable for the items in your cart.")
+
+    # 7. Calculate discount
     discount_paise = 0
     dtype = coupon['discount_type']
     val = coupon['discount_value']
     
     if dtype == 'percent':
-        discount_paise = int(subtotal_paise * (val / 100.0))
+        discount_paise = int(applicable_subtotal * (val / 100.0))
         cap = coupon.get('max_discount_cap_paise')
         if cap and discount_paise > cap:
             discount_paise = cap
     elif dtype == 'flat':
+        # Flat discounts could theoretically apply proportionally, but for now we just 
+        # ensure there is at least one applicable item.
         discount_paise = val
     elif dtype == 'free_shipping':
         # Handled in checkout_service's compute_delivery_fee by passing free_shipping=True
         pass
         
-    # Ensure discount doesn't exceed subtotal
-    discount_paise = min(discount_paise, subtotal_paise)
+    # Ensure discount doesn't exceed applicable subtotal
+    discount_paise = min(discount_paise, applicable_subtotal)
     
     return discount_paise, coupon
 
@@ -80,7 +100,19 @@ def create_coupon(db: Client, data: dict) -> dict:
         res = db.table('coupons').insert(data).execute()
         return res.data[0]
     except Exception as e:
-        raise HTTPException(status_code=400, detail="Could not create coupon. Code might already exist.")
+        code = getattr(e, 'code', None)
+        if code == '23505': # unique_violation
+            raise HTTPException(status_code=409, detail=f"Coupon code '{data.get('code')}' already exists.")
+        
+        # If it's a dict containing code, handle Supabase errors
+        if code is None and e.args and isinstance(e.args[0], dict):
+            code = e.args[0].get('code')
+            if code == '23505':
+                raise HTTPException(status_code=409, detail=f"Coupon code '{data.get('code')}' already exists.")
+
+        import logging
+        logging.getLogger(__name__).error(f"Failed to create coupon: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create coupon due to an internal error.")
 
 def update_coupon(db: Client, coupon_id: str, data: dict) -> dict:
     res = db.table('coupons').update(data).eq('id', coupon_id).execute()

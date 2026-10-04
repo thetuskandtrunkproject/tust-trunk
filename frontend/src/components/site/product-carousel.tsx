@@ -30,7 +30,7 @@ export function ProductCarousel({ initialData }: { initialData?: any[] }) {
     fetchNew()
   }, [initialData])
   
-  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
   const containerRef = useRef<HTMLElement>(null)
   const scrollerRef = useRef<HTMLDivElement>(null)
 
@@ -156,18 +156,18 @@ export function ProductCarousel({ initialData }: { initialData?: any[] }) {
       </div>
       <div className="relative group/carousel">
         <div ref={scrollerRef} className="w-full pl-4 lg:pl-8 overflow-x-auto pb-8 hide-scrollbar snap-x snap-mandatory flex cursor-grab active:cursor-grabbing">
-          <div className="flex gap-3 sm:gap-6 pr-4 lg:pr-8 w-max items-center py-4">
-            {products.map(p => (
-              <div key={p.id} className="carousel-card w-[180px] sm:w-[280px] lg:w-[320px] snap-center shrink-0 transition-shadow">
+          <div className="flex gap-6 pr-4 lg:pr-8 w-max items-center py-4">
+            {products.map((p, i) => (
+              <div key={p.id} className="carousel-card w-[280px] lg:w-[320px] snap-center shrink-0 transition-shadow">
                 <ProductCard 
                   id={p.id}
                   slug={p.slug}
                   name={p.name}
                   price={formatPrice(p.min_price)}
                   img={p.images[0]}
-
                   category={p.category}
                   tags={p.tags}
+                  eagerLoad={i < 4}
                 />
               </div>
             ))}

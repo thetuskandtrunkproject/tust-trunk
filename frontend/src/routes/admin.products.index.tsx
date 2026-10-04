@@ -186,9 +186,11 @@ function AdminProductsPage() {
             >
               Discounts
             </button>
-            <AdminButton icon={<Plus className="w-4 h-4" />}>
-              <Link to="/admin/products/new">Add Product</Link>
-            </AdminButton>
+            <Link to="/admin/products/new">
+              <AdminButton icon={<Plus className="w-4 h-4" />}>
+                Add Product
+              </AdminButton>
+            </Link>
           </>
         }
       />

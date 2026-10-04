@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from supabase import Client
 
-MAX_ADDRESSES_PER_USER = 10
+MAX_ADDRESSES_PER_USER = 5
 
 def list_addresses(db: Client, user_id: str) -> list[dict]:
     res = db.table('addresses').select('*').eq('user_id', user_id).order('created_at', desc=True).execute()

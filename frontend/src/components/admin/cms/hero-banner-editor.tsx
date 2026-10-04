@@ -170,30 +170,30 @@ export function HeroBannerEditor() {
   const activeSlide = data.slides[activeSlideIndex]
 
   return (
-    <AdminCard padding={false} className="overflow-hidden flex flex-col xl:flex-row">
+    <AdminCard padding={false} className="flex flex-col xl:flex-row relative">
       {/* Editor Form */}
-      <div className="flex-1 p-6 border-b xl:border-b-0 xl:border-r border-ink/10 flex flex-col h-[800px] overflow-y-auto">
-        <div className="flex items-center justify-between mb-6 sticky top-0 bg-white z-10 pb-4 border-b border-ink/5 gap-2">
+      <div className="flex-1 p-6 border-b xl:border-b-0 xl:border-r border-ink/10 flex flex-col">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-4 border-b border-ink/5 gap-4">
           <div>
-            <h3 className="font-medium text-ink">Hero Banner Carousel</h3>
+            <h3 className="font-medium text-ink text-lg">Hero Banner Carousel</h3>
             <p className="text-sm text-ink/60">Manage carousel slides & banner</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={handleSetDefault}
               disabled={isSaving}
-              className="px-3 py-1.5 text-xs font-medium text-ink/70 bg-cloud hover:bg-ink/5 border border-ink/10 rounded-md transition-colors flex items-center gap-1.5"
+              className="px-4 py-2 text-sm font-medium text-ink/70 bg-cloud hover:bg-ink/5 border border-ink/10 rounded-lg transition-colors flex items-center gap-2"
             >
-              <Bookmark className="w-3.5 h-3.5" />
+              <Bookmark className="w-4 h-4" />
               Set Default
             </button>
             <button
               onClick={handleResetDefault}
               disabled={isSaving}
-              className="px-3 py-1.5 text-xs font-medium text-ink/70 bg-cloud hover:bg-ink/5 border border-ink/10 rounded-md transition-colors flex items-center gap-1.5"
+              className="px-4 py-2 text-sm font-medium text-ink/70 bg-cloud hover:bg-ink/5 border border-ink/10 rounded-lg transition-colors flex items-center gap-2"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
-              Reset Default
+              <RefreshCw className="w-4 h-4" />
+              Reset
             </button>
             <AdminButton
               onClick={handleSave}
@@ -217,14 +217,16 @@ export function HeroBannerEditor() {
           />
         </div>
 
-        {/* Slides Management */}
-        <div className="mb-4 flex items-center justify-between">
-          <h4 className="font-medium text-ink">Carousel Slides</h4>
+        <div className="mb-4 flex items-center justify-between bg-cloud p-4 rounded-xl border border-ink/5">
+          <h4 className="font-medium text-ink flex items-center gap-2">
+            <ImageIcon className="w-4 h-4 text-ink/50" />
+            Carousel Slides
+          </h4>
           <button 
             onClick={addSlide}
-            className="text-xs bg-cta text-white px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-opacity-90 transition-opacity"
+            className="text-sm bg-cta text-white px-4 py-2 rounded-lg font-medium shadow-sm flex items-center gap-2 hover:bg-opacity-90 transition-opacity"
           >
-            <Plus className="w-3 h-3" /> Add Slide
+            <Plus className="w-4 h-4" /> Add Slide
           </button>
         </div>
 
@@ -393,7 +395,7 @@ export function HeroBannerEditor() {
       </div>
 
       {/* Live Preview Pane */}
-      <div className="w-full xl:w-[600px] bg-ink/5 p-6 flex flex-col relative h-[800px] overflow-hidden">
+      <div className="w-full xl:w-[600px] bg-ink/5 p-6 flex flex-col relative xl:sticky xl:top-[20px] xl:max-h-[calc(100vh-40px)] overflow-hidden rounded-r-2xl">
         <h4 className="text-xs font-medium text-ink/50 uppercase tracking-wider mb-4 flex justify-between items-center">
           <span>Live Preview</span>
           <span className="bg-white px-2 py-1 rounded shadow-sm text-[10px]">Slide {activeSlideIndex + 1} of {data.slides.length}</span>
