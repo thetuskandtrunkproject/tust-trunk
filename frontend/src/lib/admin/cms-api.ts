@@ -39,5 +39,14 @@ export const cmsApi = {
   setDefaultCategoryTiles: async (data: any) => {
     const res = await api.post('/cms/category-tiles/set_default', { value: data })
     return res.data
+  },
+
+  uploadImage: async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const res = await api.post('/cms/upload-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    return res.data
   }
 }

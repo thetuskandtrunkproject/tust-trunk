@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, File, UploadFile
 from supabase import Client
 from ..core.database import get_db_client
 from ..dependencies.auth import get_current_admin
 from ..schemas.cms import HeroBannerData, HeroBannerUpdate, CategoryTilesData, CategoryTilesUpdate
 from ..services import cms_service
+import uuid
 
 router = APIRouter(prefix="/cms", tags=["CMS"])
 
@@ -50,14 +51,19 @@ def set_default_hero_banner(
 def get_category_tiles(db: Client = Depends(get_db_client)):
     return cms_service.get_setting(db, "category_tiles")
 
-@router.put("/category-tiles", response_model=CategoryTilesData)
+@router.put("/category-tiles")
 def update_category_tiles(
     data: CategoryTilesUpdate,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
 ):
-    val = data.value.model_dump()
-    return cms_service.update_setting(db, "category_tiles", val)
+    try:
+        val = data.value.model_dump()
+        return cms_service.update_setting(db, "category_tiles", val)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e) + "\n" + traceback.format_exc())
 
 @router.post("/category-tiles/reset", response_model=CategoryTilesData)
 def reset_category_tiles(
@@ -78,4 +84,35 @@ def set_default_category_tiles(
     val = data.value.model_dump()
     cms_service.update_setting(db, "category_tiles_default", val)
     return cms_service.update_setting(db, "category_tiles", val)
+
+@router.post("/upload-image")
+async def upload_cms_image(
+    file: UploadFile = File(...),
+    admin: dict = Depends(get_current_admin),
+    db: Client = Depends(get_db_client)
+):
+    """Upload an image to the product-images bucket for CMS use."""
+    try:
+        if not file.content_type.startswith('image/'):
+            raise HTTPException(status_code=400, detail="Must be an image")
+            
+        file_ext = file.filename.split('.')[-1]
+        filename = f"cms/{uuid.uuid4()}.{file_ext}"
+        
+        file_bytes = await file.read()
+        if len(file_bytes) > 5 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Image must be < 5MB")
+            
+        res = db.storage.from_('product-images').upload(
+            path=filename,
+            file=file_bytes,
+            file_options={"content-type": file.content_type}
+        )
+        
+        public_url = db.storage.from_('product-images').get_public_url(filename)
+        return {"url": public_url}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 

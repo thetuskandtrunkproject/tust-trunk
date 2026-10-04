@@ -291,16 +291,24 @@ export function CategoryTilesEditor() {
                       Upload 4:5 .webp
                       <input
                         type="file"
-                        accept="image/webp"
+                        accept="image/webp,image/png,image/jpeg"
                         className="hidden"
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const file = e.target.files?.[0]
                           if (file) {
-                            const reader = new FileReader()
-                            reader.onload = (event) => {
-                              updateTile(idx, { image: event.target?.result as string })
+                            setIsLoading(true)
+                            try {
+                              const res = await cmsApi.uploadImage(file)
+                              updateTile(idx, { image: res.url })
+                              setShowToast('Image uploaded!')
+                              setTimeout(() => setShowToast(''), 3000)
+                            } catch (err) {
+                              console.error(err)
+                              setShowToast('Failed to upload image')
+                              setTimeout(() => setShowToast(''), 3000)
+                            } finally {
+                              setIsLoading(false)
                             }
-                            reader.readAsDataURL(file)
                           }
                         }}
                       />
