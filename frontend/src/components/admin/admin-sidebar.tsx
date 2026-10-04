@@ -18,7 +18,6 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
     { name: 'Reviews', path: '/admin/reviews', icon: Star },
     { name: 'Customers', path: '/admin/customers', icon: Users },
     { name: 'CMS', path: '/admin/cms', icon: FileText },
-    { name: 'Contact', path: '/admin/contact', icon: Mail },
     { name: 'Shop', path: '/admin/shop', icon: Building2 },
   ]
 
