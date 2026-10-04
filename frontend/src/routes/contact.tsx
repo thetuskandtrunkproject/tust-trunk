@@ -1,8 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useRef } from 'react'
-import { useToast } from '@/context/toast-context'
-import { submitContactForm } from '@/lib/contact-stub'
-import { Mail, Phone, MapPin, ChevronDown } from 'lucide-react'
+import { useRef } from 'react'
+import { Mail, Phone, MapPin, ArrowRight } from 'lucide-react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -14,28 +12,26 @@ export const Route = createFileRoute('/contact')({
 })
 
 function ContactPage() {
-  const { showToast } = useToast()
-  const { showToast } = useToast()
-
   const containerRef = useRef<HTMLDivElement>(null)
 
   useGSAP(() => {
     const sections = gsap.utils.toArray('.reveal-section') as HTMLElement[]
     
-    sections.forEach((section) => {
+    sections.forEach((section, i) => {
       gsap.fromTo(section,
         { 
           opacity: 0,
-          y: 40
+          y: 30
         },
         {
           opacity: 1,
           y: 0,
           duration: 0.8,
+          delay: i * 0.1,
           ease: "power3.out",
           scrollTrigger: {
             trigger: section,
-            start: "top 85%",
+            start: "top 90%",
             toggleActions: "play none none none"
           }
         }
@@ -43,74 +39,87 @@ function ContactPage() {
     })
   }, { scope: containerRef })
 
-
-
   return (
-    <div ref={containerRef} className="min-h-screen bg-gradient-to-b from-sky/10 via-cloud to-cloud pt-16 md:pt-24 pb-24 overflow-hidden relative">
+    <div ref={containerRef} className="min-h-screen bg-cloud pt-20 md:pt-32 pb-24 overflow-hidden relative font-sans">
       
-      {/* Decorative Blobs */}
-      <div className="absolute top-40 left-10 w-64 h-64 bg-sunshine rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob pointer-events-none"></div>
-      <div className="absolute top-80 right-10 w-64 h-64 bg-mint rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000 pointer-events-none"></div>
+      {/* Subtle Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-[#F2F9FF] to-transparent pointer-events-none"></div>
 
       {/* Page Header */}
-      <section className="container mx-auto px-4 lg:px-8 max-w-4xl text-center mb-20 reveal-section relative z-10">
-        <h1 className="font-heading font-bold text-5xl md:text-6xl text-ink mb-6 drop-shadow-sm">Contact Us</h1>
-        <p className="text-lg md:text-xl text-ink/70 max-w-xl mx-auto font-medium leading-relaxed">
-          Have a question about an order, a product, or just want to say hi? We'd love to hear from you.
+      <section className="container mx-auto px-4 lg:px-8 max-w-4xl text-center mb-24 reveal-section relative z-10">
+        <h1 className="font-heading font-bold text-5xl md:text-7xl text-ink mb-6 tracking-tight">Contact Us</h1>
+        <p className="text-lg md:text-xl text-ink/60 max-w-2xl mx-auto font-medium leading-relaxed">
+          We're here to help. Whether you have a question about an order, need sizing advice, or want to explore wholesale opportunities, reach out to us.
         </p>
       </section>
 
-      <section className="container mx-auto px-4 lg:px-8 max-w-4xl mb-32 reveal-section relative z-10 flex justify-center">
-        
-          {/* Contact Details */}
-          <div className="w-full max-w-2xl flex flex-col gap-8 h-full">
-            <div className="bg-white/90 backdrop-blur-xl p-8 sm:p-12 rounded-[2.5rem] h-full flex flex-col shadow-xl border border-white">
-              <h3 className="font-heading font-bold text-3xl text-ink mb-10">Get in touch</h3>
-              
-              <div className="flex flex-col gap-8 text-ink/80 mb-12 flex-grow">
-                <div className="flex items-start gap-5 hover:-translate-y-1 transition-transform duration-300">
-                  <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-sky shadow-sm shrink-0">
-                    <Mail className="w-6 h-6" />
-                  </div>
-                  <div className="pt-1">
-                    <p className="font-bold text-ink mb-1 text-lg">Email us</p>
-                    <a href="mailto:hello@tuskandtrunk.com" className="font-medium hover:text-sky transition-colors text-lg">hello@tuskandtrunk.com</a>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-5 hover:-translate-y-1 transition-transform duration-300">
-                  <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-mint shadow-sm shrink-0">
-                    <Phone className="w-6 h-6" />
-                  </div>
-                  <div className="pt-1">
-                    <p className="font-bold text-ink mb-1 text-lg">Call us</p>
-                    <p className="font-medium text-lg">+91 1800 123 4567</p>
-                    <p className="text-sm font-medium text-ink/60 mt-1">Mon-Fri, 9am - 6pm IST</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-5 hover:-translate-y-1 transition-transform duration-300">
-                  <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-sunshine shadow-sm shrink-0">
-                    <MapPin className="w-6 h-6" />
-                  </div>
-                  <div className="pt-1">
-                    <p className="font-bold text-ink mb-1 text-lg">Studio</p>
-                    <p className="font-medium leading-relaxed">123 Creative Avenue, <br/>Koramangala, <br/>Bangalore 560034</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-auto bg-white/50 p-6 rounded-3xl">
-                <p className="font-bold text-ink mb-4 text-center">Follow us</p>
-                <div className="flex justify-center gap-6 text-base">
-                  <a href="#" className="font-bold text-sky hover:text-cta transition-colors">Instagram</a>
-                  <a href="#" className="font-bold text-sky hover:text-cta transition-colors">Twitter</a>
-                  <a href="#" className="font-bold text-sky hover:text-cta transition-colors">Facebook</a>
-                </div>
-              </div>
+      {/* Contact Cards Grid */}
+      <section className="container mx-auto px-4 lg:px-8 max-w-6xl mb-24 reveal-section relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          
+          {/* Email Card */}
+          <div className="bg-white p-8 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-ink/5 flex flex-col group hover:-translate-y-2 transition-all duration-300 ease-out">
+            <div className="w-16 h-16 bg-[#F2F9FF] rounded-2xl flex items-center justify-center text-sky mb-8 group-hover:scale-110 transition-transform duration-300">
+              <Mail className="w-7 h-7" />
             </div>
+            <h3 className="font-heading font-bold text-2xl text-ink mb-3">Email Support</h3>
+            <p className="text-ink/60 font-medium mb-8 leading-relaxed flex-grow">
+              Send us an email anytime. Our support team typically responds within 24 hours.
+            </p>
+            <a href="mailto:hello@tuskandtrunk.com" className="inline-flex items-center gap-2 font-bold text-sky hover:text-ink transition-colors group/link">
+              hello@tuskandtrunk.com
+              <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+            </a>
+          </div>
+
+          {/* Phone Card */}
+          <div className="bg-white p-8 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-ink/5 flex flex-col group hover:-translate-y-2 transition-all duration-300 ease-out">
+            <div className="w-16 h-16 bg-[#F2F9FF] rounded-2xl flex items-center justify-center text-sky mb-8 group-hover:scale-110 transition-transform duration-300">
+              <Phone className="w-7 h-7" />
+            </div>
+            <h3 className="font-heading font-bold text-2xl text-ink mb-3">Call Us</h3>
+            <p className="text-ink/60 font-medium mb-8 leading-relaxed flex-grow">
+              Speak directly with our team. We're available Monday through Friday, 9am - 6pm IST.
+            </p>
+            <div className="flex flex-col gap-1">
+              <p className="font-bold text-ink text-lg">+91 1800 123 4567</p>
+              <p className="font-bold text-ink text-lg">+91 94434 60663</p>
             </div>
           </div>
+
+          {/* Studio Card */}
+          <div className="bg-white p-8 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-ink/5 flex flex-col group hover:-translate-y-2 transition-all duration-300 ease-out">
+            <div className="w-16 h-16 bg-[#F2F9FF] rounded-2xl flex items-center justify-center text-sky mb-8 group-hover:scale-110 transition-transform duration-300">
+              <MapPin className="w-7 h-7" />
+            </div>
+            <h3 className="font-heading font-bold text-2xl text-ink mb-3">Our Studio</h3>
+            <p className="text-ink/60 font-medium mb-8 leading-relaxed flex-grow">
+              No: 23, Muthaiyan Kovil, 4th Street, 60 Feet Road, Vellaiyan Kadu, Tirupur - 641 604
+            </p>
+            <a href="https://maps.google.com" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-bold text-sky hover:text-ink transition-colors group/link">
+              Get Directions
+              <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+            </a>
+          </div>
+
+        </div>
+      </section>
+
+      {/* Map Section */}
+      <section className="container mx-auto px-4 lg:px-8 max-w-6xl reveal-section">
+        <div className="w-full h-[400px] md:h-[500px] bg-ink/5 rounded-[2rem] overflow-hidden relative shadow-sm border border-ink/5">
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15655.454261763784!2d77.3444!3d11.1085!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba907b8b4b00001%3A0x8b0b8b0b8b0b8b0b!2sTiruppur%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1650000000000!5m2!1sen!2sin" 
+            width="100%" 
+            height="100%" 
+            style={{ border: 0 }} 
+            allowFullScreen={false} 
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Tusk and Trunk Studio Location"
+            className="absolute inset-0 grayscale hover:grayscale-0 transition-all duration-1000"
+          ></iframe>
+        </div>
       </section>
 
     </div>
