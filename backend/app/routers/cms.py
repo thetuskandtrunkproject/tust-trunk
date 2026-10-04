@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Body
 from supabase import Client
 from ..core.database import get_db_client
 from ..dependencies.auth import get_current_admin
-from ..schemas.cms import HeroBannerData, HeroBannerUpdate
+from ..schemas.cms import HeroBannerData, HeroBannerUpdate, CategoryTilesData, CategoryTilesUpdate
 from ..services import cms_service
 
 router = APIRouter(prefix="/cms", tags=["CMS"])
@@ -45,3 +45,17 @@ def set_default_hero_banner(
     val = data.value.model_dump()
     cms_service.update_setting(db, "hero_default", val)
     return cms_service.update_setting(db, "hero", val)
+
+@router.get("/category-tiles", response_model=CategoryTilesData)
+def get_category_tiles(db: Client = Depends(get_db_client)):
+    return cms_service.get_setting(db, "category_tiles")
+
+@router.put("/category-tiles", response_model=CategoryTilesData)
+def update_category_tiles(
+    data: CategoryTilesUpdate,
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    val = data.value.model_dump()
+    return cms_service.update_setting(db, "category_tiles", val)
+

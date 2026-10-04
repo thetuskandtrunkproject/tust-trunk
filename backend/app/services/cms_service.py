@@ -48,6 +48,21 @@ DEFAULT_HERO = {
     ]
 }
 
+DEFAULT_CATEGORY_TILES = {
+    "title": "Playful & ",
+    "titleAccent": "Breathable",
+    "subtitle": "Made with skin-friendly fabrics, perfect for India's climate. Explore our vibrant new arrivals designed for everyday adventures.",
+    "textColor": "#2D283E",
+    "waveColor1": "#70A6FF",
+    "waveColor2": "#845EC2",
+    "waveColor3": "#FFD93D",
+    "tiles": [
+        {"id": "women", "image": "https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=600&auto=format&fit=crop", "label": "Women", "link": "/shop?category=Women"},
+        {"id": "kids", "image": "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?q=80&w=600&auto=format&fit=crop", "label": "Kids", "link": "/shop?category=Kids"},
+        {"id": "new", "image": "https://images.unsplash.com/photo-1471286174890-9c112ffeca76?q=80&w=600&auto=format&fit=crop", "label": "New In", "link": "/shop?sort=newest"}
+    ]
+}
+
 def get_setting(db: Client, key: str) -> dict:
     """Get a CMS setting by key."""
     try:
@@ -55,12 +70,16 @@ def get_setting(db: Client, key: str) -> dict:
         if not res.data:
             if key == 'hero':
                 return DEFAULT_HERO
+            if key == 'category_tiles':
+                return DEFAULT_CATEGORY_TILES
             return {}
         return res.data[0]['value']
     except Exception as e:
         print(f"Error fetching setting {key}: {e}")
         if key == 'hero':
             return DEFAULT_HERO
+        if key == 'category_tiles':
+            return DEFAULT_CATEGORY_TILES
         return {}
 
 def update_setting(db: Client, key: str, value: dict) -> dict:

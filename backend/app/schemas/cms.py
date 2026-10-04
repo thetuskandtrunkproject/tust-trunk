@@ -24,3 +24,22 @@ class CMSSettingsResponse(BaseModel):
 
 class HeroBannerUpdate(BaseModel):
     value: HeroBannerData
+
+class CategoryTile(BaseModel):
+    id: str
+    image: str = ""
+    label: str = ""
+    link: str = ""
+
+class CategoryTilesData(BaseModel):
+    title: str = "Playful & Breathable"
+    titleAccent: str = "Breathable"
+    subtitle: str = "Made with skin-friendly fabrics, perfect for India's climate. Explore our vibrant new arrivals designed for everyday adventures."
+    textColor: str = "#2D283E"
+    waveColor1: str = "#70A6FF"
+    waveColor2: str = "#845EC2"
+    waveColor3: str = "#FFD93D"
+    tiles: List[CategoryTile] = []
+
+class CategoryTilesUpdate(BaseModel):
+    value: CategoryTilesData

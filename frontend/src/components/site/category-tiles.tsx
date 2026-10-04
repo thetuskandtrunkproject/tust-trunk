@@ -7,30 +7,30 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-export function CategoryTiles({ initialData }: { initialData?: any[] }) {
+export function CategoryTiles({ initialData }: { initialData?: any }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const cardsRef = useRef<(HTMLAnchorElement | null)[]>([])
   
-  const [featuredProducts, setFeaturedProducts] = useState<any[]>(initialData || [])
+  const [cmsData, setCmsData] = useState<any>(initialData || null)
 
   useEffect(() => {
-    if (initialData && initialData.length > 0) {
-      setFeaturedProducts(initialData)
+    if (initialData && initialData.tiles) {
+      setCmsData(initialData)
       return
     }
-    const fetchFeatured = async () => {
+    const fetchCms = async () => {
       try {
-        const res = await api.get('/public/products', { params: { page_size: 4 } })
-        setFeaturedProducts(res.data.items || [])
+        const res = await api.get('/cms/category-tiles')
+        setCmsData(res.data)
       } catch (err) {
-        console.error("Failed to load featured products", err)
+        console.error("Failed to load category tiles CMS data", err)
       }
     }
-    fetchFeatured()
+    fetchCms()
   }, [initialData])
 
   // Split heading into individual words for GSAP text animation
-  const headingWords = ['Playful', '&', 'Breathable']
+  const headingWords = cmsData ? `${cmsData.title} ${cmsData.titleAccent}`.trim().split(' ') : ['Playful', '&', 'Breathable']
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -190,30 +190,30 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
           {/* Abstract Warm Wave 1 */}
           <div className="absolute -bottom-10 left-0 w-[200%] h-[200px] md:h-[400px] animate-wave-slow opacity-[0.15] flex">
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#70A6FF" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L0,320Z"></path>
+              <path fill={cmsData?.waveColor1 || "#70A6FF"} d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L0,320Z"></path>
             </svg>
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#70A6FF" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L0,320Z"></path>
+              <path fill={cmsData?.waveColor1 || "#70A6FF"} d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L0,320Z"></path>
             </svg>
           </div>
 
           {/* Abstract Warm Wave 2 */}
           <div className="absolute -bottom-5 left-0 w-[200%] h-[150px] md:h-[300px] animate-wave-medium opacity-[0.12] flex">
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#845EC2" d="M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,170.7C672,160,768,192,864,197.3C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L0,320Z"></path>
+              <path fill={cmsData?.waveColor2 || "#845EC2"} d="M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,170.7C672,160,768,192,864,197.3C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L0,320Z"></path>
             </svg>
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#845EC2" d="M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,170.7C672,160,768,192,864,197.3C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L0,320Z"></path>
+              <path fill={cmsData?.waveColor2 || "#845EC2"} d="M0,160L48,181.3C96,203,192,245,288,240C384,235,480,181,576,170.7C672,160,768,192,864,197.3C960,203,1056,181,1152,160C1248,139,1344,117,1392,106.7L1440,96L1440,320L0,320Z"></path>
             </svg>
           </div>
 
           {/* Abstract Warm Wave 3 */}
           <div className="absolute bottom-0 left-0 w-[200%] h-[100px] md:h-[200px] animate-wave-fast opacity-[0.2] flex">
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#FFD93D" d="M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,245.3C840,267,960,277,1080,250.7C1200,224,1320,160,1380,128L1440,96L1440,320L0,320Z"></path>
+              <path fill={cmsData?.waveColor3 || "#FFD93D"} d="M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,245.3C840,267,960,277,1080,250.7C1200,224,1320,160,1380,128L1440,96L1440,320L0,320Z"></path>
             </svg>
             <svg className="w-full h-full flex-1" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="#FFD93D" d="M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,245.3C840,267,960,277,1080,250.7C1200,224,1320,160,1380,128L1440,96L1440,320L0,320Z"></path>
+              <path fill={cmsData?.waveColor3 || "#FFD93D"} d="M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,245.3C840,267,960,277,1080,250.7C1200,224,1320,160,1380,128L1440,96L1440,320L0,320Z"></path>
             </svg>
           </div>
         </div>
@@ -236,7 +236,7 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
                 ))}
               </h2>
               <p className="text-cloud/90 animated-subtext font-medium text-base sm:text-xl mt-4 sm:mt-8 max-w-2xl mx-auto opacity-0 px-2">
-                Made with skin-friendly fabrics, perfect for India's climate. Explore our vibrant new arrivals designed for everyday adventures.
+                {cmsData?.subtitle || "Made with skin-friendly fabrics, perfect for India's climate. Explore our vibrant new arrivals designed for everyday adventures."}
               </p>
             </div>
           </div>
@@ -258,25 +258,25 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
               </span>
             ))}
           </h2>
-          <p className="text-ink/80 animated-subtext font-medium text-base sm:text-xl mt-4 sm:mt-8 max-w-2xl mx-auto opacity-0 px-2">
-            Made with skin-friendly fabrics, perfect for India's climate. Explore our vibrant new arrivals designed for everyday adventures.
+          <p className="animated-subtext font-medium text-base sm:text-xl mt-4 sm:mt-8 max-w-2xl mx-auto opacity-0 px-2" style={{ color: cmsData?.textColor || '#2D283E', opacity: 0 }}>
+            {cmsData?.subtitle || "Made with skin-friendly fabrics, perfect for India's climate. Explore our vibrant new arrivals designed for everyday adventures."}
           </p>
         </div>
 
-        {/* 4-Product Grid with Professional Hover Overlays */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
-          {featuredProducts.map((product, idx) => {
+        {/* Tiles Grid with Professional Hover Overlays */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 justify-center">
+          {cmsData?.tiles?.map((tile: any, idx: number) => {
             return (
             <Link 
-              key={product.id}
+              key={idx}
               ref={el => { cardsRef.current[idx] = el }}
-              to="/shop" search={{ category: product.category }} 
-              className="group block relative aspect-[3/4] sm:aspect-[4/5] rounded-2xl sm:rounded-[2.5rem] overflow-hidden bg-cloud shadow-sm hover:shadow-xl transition-shadow duration-500 will-change-transform opacity-0"
+              to={tile.link} 
+              className="group block relative aspect-[4/5] rounded-2xl sm:rounded-[2.5rem] overflow-hidden bg-cloud shadow-sm hover:shadow-xl transition-shadow duration-500 will-change-transform opacity-0"
             >
               {/* Image */}
               <img 
-                src={product.images[0]} 
-                alt={product.name} 
+                src={tile.image} 
+                alt={tile.label} 
                 loading="lazy"
                 className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105"
               />
@@ -288,13 +288,13 @@ export function CategoryTiles({ initialData }: { initialData?: any[] }) {
               <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 lg:p-8">
                 <div className="flex flex-col items-start transform group-hover:-translate-y-2 transition-transform duration-500 ease-out">
                   <h3 className="font-heading font-bold text-xl sm:text-3xl lg:text-4xl text-white capitalize drop-shadow-sm">
-                    {product.category}
+                    {tile.label}
                   </h3>
                   
                   {/* Hover Button */}
                   <div className="overflow-hidden h-0 group-hover:h-10 transition-all duration-500 ease-out mt-1">
                     <span className="inline-flex items-center gap-2 bg-cta/90 backdrop-blur-sm text-white text-sm font-medium px-4 py-1.5 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
-                      Explore {product.category.toLowerCase()} <span className="text-lg leading-none">&rarr;</span>
+                      Explore {tile.label} <span className="text-lg leading-none">&rarr;</span>
                     </span>
                   </div>
                 </div>
