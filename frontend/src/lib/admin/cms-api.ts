@@ -29,5 +29,15 @@ export const cmsApi = {
   updateCategoryTiles: async (data: any) => {
     const res = await api.put('/cms/category-tiles', { value: data })
     return res.data
+  },
+
+  resetCategoryTiles: async () => {
+    const res = await api.post('/cms/category-tiles/reset')
+    return res.data
+  },
+
+  setDefaultCategoryTiles: async (data: any) => {
+    const res = await api.post('/cms/category-tiles/set_default', { value: data })
+    return res.data
   }
 }

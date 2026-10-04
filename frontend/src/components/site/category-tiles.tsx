@@ -30,9 +30,13 @@ export function CategoryTiles({ initialData }: { initialData?: any }) {
   }, [initialData])
 
   // Split heading into individual words for GSAP text animation
-  const headingWords = cmsData ? `${cmsData.title} ${cmsData.titleAccent}`.trim().split(' ') : ['Playful', '&', 'Breathable']
+  const headingWords = cmsData 
+    ? `${cmsData.title} ${cmsData.titleAccent}`.trim().split(/\s+/).filter(Boolean) 
+    : ['Playful', '&', 'Breathable']
 
   useGSAP(() => {
+    if (!headingWords || headingWords.length === 0) return;
+    
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
@@ -73,7 +77,7 @@ export function CategoryTiles({ initialData }: { initialData?: any }) {
       0.55
     )
 
-  }, { scope: containerRef })
+  }, { scope: containerRef, dependencies: [headingWords, cmsData?.tiles] })
 
   // GSAP Scroll Animation for Background Color
   useGSAP(() => {
@@ -99,7 +103,7 @@ export function CategoryTiles({ initialData }: { initialData?: any }) {
   }, { scope: containerRef })
 
   return (
-    <section ref={containerRef} className="w-full py-12 md:py-24 lg:py-40 relative bg-coral/20">
+    <section ref={containerRef} className="w-full py-12 md:py-24 lg:py-40 relative" style={{ backgroundColor: cmsData?.baseBgColor || '#FAF7F9' }}>
       
       {/* --- BACKGROUND LAYERS --- */}
       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -107,7 +111,7 @@ export function CategoryTiles({ initialData }: { initialData?: any }) {
         {/* PEACH BASE LAYER */}
         <div className="absolute inset-0">
           {/* Peach Background */}
-          <div className="absolute inset-0" style={{ backgroundColor: '#FFF0ED' }}></div>
+          <div className="absolute inset-0" style={{ backgroundColor: cmsData?.baseBgColor || '#FAF7F9' }}></div>
           {/* Peach Wave */}
           <div className="absolute top-0 left-0 w-full -mt-[8vw] h-[8vw]">
             <div className="absolute inset-0 animate-wave-bg"></div>
@@ -135,7 +139,7 @@ export function CategoryTiles({ initialData }: { initialData?: any }) {
             100% { background-position: 0% 50%; }
           }
           .candy-gradient {
-            background: linear-gradient(120deg, #FF6B8B, #E03B8B, #845EC2, #70A6FF, #FFD93D, #FF6B8B);
+            background: ${cmsData?.sweepBgColor || 'linear-gradient(120deg, #FF6B8B, #E03B8B, #845EC2, #70A6FF, #FFD93D, #FF6B8B)'};
             background-size: 300% 300%;
             animation: candy-gradient-shift 8s ease infinite;
           }
@@ -146,7 +150,7 @@ export function CategoryTiles({ initialData }: { initialData?: any }) {
             mask-size: 1440px 100%;
             -webkit-mask-repeat: repeat-x;
             mask-repeat: repeat-x;
-            background-color: #FFF0ED; /* Base Peach */
+            background-color: ${cmsData?.baseBgColor || '#FAF7F9'};
             animation: wave-bg-move 15s linear infinite;
             transform: translateZ(0); 
           }
@@ -157,7 +161,7 @@ export function CategoryTiles({ initialData }: { initialData?: any }) {
             mask-size: 1440px 100%;
             -webkit-mask-repeat: repeat-x;
             mask-repeat: repeat-x;
-            background: linear-gradient(120deg, #FF6B8B, #E03B8B, #845EC2, #70A6FF, #FFD93D, #FF6B8B); /* Sweeping Candy Gradient */
+            background: ${cmsData?.sweepBgColor || 'linear-gradient(120deg, #FF6B8B, #E03B8B, #845EC2, #70A6FF, #FFD93D, #FF6B8B)'};
             background-size: 300% 300%;
             animation: wave-bg-move 15s linear infinite, candy-gradient-shift 8s ease infinite;
             transform: translateZ(0); 
@@ -228,14 +232,14 @@ export function CategoryTiles({ initialData }: { initialData?: any }) {
                 {headingWords.map((word, i) => (
                   <span
                     key={i}
-                    className={`inline-block opacity-0 text-cloud animated-word-${i}`}
-                    style={{ transformStyle: 'preserve-3d' }}
+                    className={`inline-block opacity-0 animated-word-${i}`}
+                    style={{ transformStyle: 'preserve-3d', color: cmsData?.sweepTextColor || '#FFFFFF' }}
                   >
                     {word}
                   </span>
                 ))}
               </h2>
-              <p className="text-cloud/90 animated-subtext font-medium text-base sm:text-xl mt-4 sm:mt-8 max-w-2xl mx-auto opacity-0 px-2">
+              <p className="animated-subtext font-medium text-base sm:text-xl mt-4 sm:mt-8 max-w-2xl mx-auto opacity-0 px-2" style={{ color: cmsData?.sweepTextColor || '#FFFFFF' }}>
                 {cmsData?.subtitle || "Made with skin-friendly fabrics, perfect for India's climate. Explore our vibrant new arrivals designed for everyday adventures."}
               </p>
             </div>
@@ -251,8 +255,8 @@ export function CategoryTiles({ initialData }: { initialData?: any }) {
             {headingWords.map((word, i) => (
               <span
                 key={i}
-                className={`inline-block opacity-0 text-ink animated-word-${i}`}
-                style={{ transformStyle: 'preserve-3d' }}
+                className={`inline-block opacity-0 animated-word-${i}`}
+                style={{ transformStyle: 'preserve-3d', color: cmsData?.textColor || '#2D283E' }}
               >
                 {word}
               </span>

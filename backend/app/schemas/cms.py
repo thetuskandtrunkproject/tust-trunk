@@ -32,10 +32,13 @@ class CategoryTile(BaseModel):
     link: str = ""
 
 class CategoryTilesData(BaseModel):
-    title: str = "Playful & Breathable"
+    title: str = "Playful & "
     titleAccent: str = "Breathable"
     subtitle: str = "Made with skin-friendly fabrics, perfect for India's climate. Explore our vibrant new arrivals designed for everyday adventures."
     textColor: str = "#2D283E"
+    sweepTextColor: str = "#FFFFFF"
+    baseBgColor: str = "#FAF7F9"
+    sweepBgColor: str = "linear-gradient(135deg, #FF6B8B 0%, #E03B8B 50%, #845EC2 100%)"
     waveColor1: str = "#70A6FF"
     waveColor2: str = "#845EC2"
     waveColor3: str = "#FFD93D"

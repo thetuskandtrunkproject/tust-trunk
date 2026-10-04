@@ -59,3 +59,23 @@ def update_category_tiles(
     val = data.value.model_dump()
     return cms_service.update_setting(db, "category_tiles", val)
 
+@router.post("/category-tiles/reset", response_model=CategoryTilesData)
+def reset_category_tiles(
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    default_val = cms_service.get_setting(db, "category_tiles_default")
+    if not default_val:
+        default_val = cms_service.DEFAULT_CATEGORY_TILES
+    return cms_service.update_setting(db, "category_tiles", default_val)
+
+@router.post("/category-tiles/set_default", response_model=CategoryTilesData)
+def set_default_category_tiles(
+    data: CategoryTilesUpdate,
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    val = data.value.model_dump()
+    cms_service.update_setting(db, "category_tiles_default", val)
+    return cms_service.update_setting(db, "category_tiles", val)
+
