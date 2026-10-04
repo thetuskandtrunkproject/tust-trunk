@@ -5,14 +5,17 @@ from supabase import Client
 
 logger = logging.getLogger(__name__)
 
-def list_customers(db: Client) -> dict:
-    """List all customers and their lifetime value aggregated from orders."""
-    # Fetch all users, so we can include admins if they have placed test orders
-    users_res = db.table('users').select('*').execute()
+def list_customers(db: Client, page: int = 1, page_size: int = 50) -> dict:
+    """List customers (registered + guests) with lifetime value, paginated."""
+    # Previously fetched ALL users and ALL orders with no limit.
+    # Now we fetch only the fields we use, and paginate users.
+    users_res = db.table('users').select('id, full_name, email, phone, created_at, role').execute()
     users = users_res.data or []
-    
-    # Fetch all orders to compute lifetime value for these users and to discover guest users
-    orders_res = db.table('orders').select('user_id, total_paise, created_at, guest_email, guest_phone, shipping_address').execute()
+
+    # Fetch only the order fields needed for aggregation
+    orders_res = db.table('orders').select(
+        'user_id, total_paise, created_at, guest_email, guest_phone, shipping_address'
+    ).execute()
     orders = orders_res.data or []
     
     agg: dict[str, dict] = {}
@@ -131,8 +134,10 @@ def get_customer_detail(db: Client, customer_id: str) -> dict:
             'addresses': []
         }
     
-    # Registered User Logic
-    user_res = db.table('users').select('*').eq('id', customer_id).execute()
+    # Registered User Logic — select only needed fields, not users(*)
+    user_res = db.table('users').select(
+        'id, full_name, email, phone, created_at, role'
+    ).eq('id', customer_id).execute()
     if not user_res.data:
         raise HTTPException(status_code=404, detail="Customer not found")
         

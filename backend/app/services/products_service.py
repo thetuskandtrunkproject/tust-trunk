@@ -212,7 +212,11 @@ def list_products(
     if gender:
         q = q.eq('gender', gender)
     if category:
-        pass
+        # Resolve category name/slug to ID and apply filter
+        cat_res = db.table('categories').select('id').ilike('name', category).execute()
+        if cat_res.data:
+            q = q.eq('category_id', cat_res.data[0]['id'])
+
     if search:
         q = q.ilike('name', f'%{search}%')
 

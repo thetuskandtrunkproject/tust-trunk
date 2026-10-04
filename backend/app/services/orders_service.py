@@ -51,7 +51,7 @@ def _format_items(order_items):
                 imgs = p.get('images')
                 if imgs and len(imgs) > 0:
                     image_url = imgs[0]
-        
+
         items_data.append({
             "variant_id": item.get('variant_id'),
             "product_name_snapshot": item['product_name_snapshot'],
@@ -62,13 +62,19 @@ def _format_items(order_items):
         })
     return items_data
 
+
 def get_user_orders(db: Client, user_id: str) -> dict:
+    # Limit to 20 most recent orders. Select only needed fields — not order(*) + products(*).
+    # The account orders page shows status, total, and a thumbnail; no need for all columns.
     res = (
         db.table('orders')
-        .select('*, order_items(*, product_variants(products(images)))')
+        .select('id, order_number, created_at, status, total_paise, subtotal_paise, '
+                'delivery_fee_paise, shipping_address, '
+                'order_items(variant_id, product_name_snapshot, size_snapshot, quantity, '
+                'price_at_purchase, product_variants(products(id, images)))')
         .eq('user_id', user_id)
         .order('created_at', desc=True)
-        .limit(50)
+        .limit(20)
         .execute()
     )
     
@@ -127,7 +133,15 @@ def get_admin_orders(
     page: int = 1, 
     page_size: int = 25
 ) -> dict:
-    query = db.table('orders').select('*, order_items(*, product_variants(products(images))), users(full_name, email, phone)', count='exact')
+    # Select only needed columns. order_items only needs thumbnail — images sliced to 1 in _format_items.
+    query = db.table('orders').select(
+        'id, order_number, created_at, status, razorpay_payment_id, total_paise, '
+        'subtotal_paise, delivery_fee_paise, shipping_address, guest_email, guest_phone, '
+        'order_items(variant_id, product_name_snapshot, size_snapshot, quantity, '
+        'price_at_purchase, product_variants(products(id, images))), '
+        'users(full_name, email, phone)',
+        count='exact'
+    )
     
     if status:
         query = query.eq('status', status)
@@ -198,7 +212,13 @@ def get_admin_orders(
 def get_admin_order_detail(db: Client, order_id: str) -> dict:
     res = (
         db.table('orders')
-        .select('*, order_items(*, product_variants(products(images))), users(full_name, email, phone)')
+        .select(
+            'id, order_number, created_at, status, razorpay_payment_id, total_paise, '
+            'subtotal_paise, delivery_fee_paise, shipping_address, guest_email, guest_phone, '
+            'order_items(variant_id, product_name_snapshot, size_snapshot, quantity, '
+            'price_at_purchase, product_variants(products(id, images))), '
+            'users(full_name, email, phone)'
+        )
         .eq('id', order_id)
         .execute()
     )

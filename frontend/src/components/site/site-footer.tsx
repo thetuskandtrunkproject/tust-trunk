@@ -27,6 +27,8 @@ export function SiteFooter() {
   const [shopData, setShopData] = useState<any>(null)
 
   useEffect(() => {
+    // Both calls use module-level caches in cmsApi so Supabase is only hit once
+    // per browser session, not on every page that renders the footer.
     cmsApi.getFooter().then(res => {
       setCmsData(res)
     }).catch(err => {
@@ -38,6 +40,7 @@ export function SiteFooter() {
       console.error(err)
     })
   }, [])
+
 
   return (
     <footer className="w-full bg-[#F2F9FF] text-ink pt-16 md:pt-20 pb-8 mt-auto">

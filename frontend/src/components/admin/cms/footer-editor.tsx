@@ -31,7 +31,7 @@ export function FooterEditor() {
     }
   }
 
-  const handleSocialChange = (platform: keyof typeof data.socialLinks, value: string) => {
+  const handleSocialChange = (platform: string, value: string) => {
     setData({
       ...data,
       socialLinks: { ...data.socialLinks, [platform]: value }
@@ -78,7 +78,7 @@ export function FooterEditor() {
         <div>
           <h4 className="text-sm font-medium text-ink mb-4 pb-2 border-b border-ink/10">Social Links</h4>
           <div className="space-y-4">
-            {(Object.keys(data.socialLinks) as Array<keyof typeof data.socialLinks>).map(platform => (
+            {Object.keys(data.socialLinks).map(platform => (
               <div key={platform} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                 <label className="sm:w-24 text-sm font-medium text-ink/80 capitalize">{platform}</label>
                 <input

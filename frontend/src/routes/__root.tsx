@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
 import { MaintenancePage } from '@/components/site/maintenance-page'
-import { api } from '@/lib/api'
+import { cmsApi } from '@/lib/admin/cms-api'
 
 function RootComponent() {
   const location = useLocation()
@@ -12,10 +12,10 @@ function RootComponent() {
   const [maintenance, setMaintenance] = useState<{ enabled: boolean; message: string; timerEnd: string } | null>(null)
 
   useEffect(() => {
-    // Only check maintenance for non-exempt pages
+    // Only check maintenance for non-exempt pages.
+    // cmsApi.getShopSettings() is module-level cached — only hits Supabase once per session.
     if (!isExempt) {
-      api.get('/cms/shop-settings').then(res => {
-        const data = res.data
+      cmsApi.getShopSettings().then((data: any) => {
         if (data.maintenanceMode) {
           setMaintenance({
             enabled: true,
@@ -50,4 +50,3 @@ function RootComponent() {
 export const Route = createRootRoute({
   component: RootComponent,
 })
-

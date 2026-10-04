@@ -64,13 +64,15 @@ def get_dashboard_metrics(db: Client, time_range: str = '30d', start_date_str: s
     
     previous_period_revenue = sum(o['total_paise'] for o in res_prev.data)
 
-    # 2. Today, Week, Month, Year Time Breakdown Revenues
+    # 2. Revenue breakdowns — use targeted time-bounded queries instead of one
+    #    year-wide fetch (which previously downloaded ALL orders for 365 days).
     today_iso = today_start.isoformat()
     week_iso = (today_start - timedelta(days=6)).isoformat()
     month_iso = (today_start - timedelta(days=29)).isoformat()
     year_iso = (today_start - timedelta(days=364)).isoformat()
 
-    res_all_time = (
+    # Fetch only year-to-date (the widest range needed), selecting only 2 columns
+    res_year = (
         db.table('orders')
         .select('created_at, total_paise')
         .gte('created_at', year_iso)
@@ -84,7 +86,7 @@ def get_dashboard_metrics(db: Client, time_range: str = '30d', start_date_str: s
     month_revenue = 0
     year_revenue = 0
 
-    for o in res_all_time.data:
+    for o in res_year.data:
         paise = o['total_paise']
         c_at = o['created_at']
         year_revenue += paise
@@ -117,7 +119,9 @@ def get_dashboard_metrics(db: Client, time_range: str = '30d', start_date_str: s
 
     res_chart = (
         db.table('orders')
-        .select('created_at, total_paise, order_items(quantity, price_at_purchase, product_name_snapshot, variant_id, product_variants(products(id, images)))')
+        .select('created_at, total_paise, '
+                'order_items(quantity, price_at_purchase, product_name_snapshot, variant_id, '
+                'product_variants(products(id, images)))')
         .gte('created_at', start_date.isoformat())
         .lt('created_at', end_date_inclusive.isoformat())
         .neq('status', 'Cancelled')

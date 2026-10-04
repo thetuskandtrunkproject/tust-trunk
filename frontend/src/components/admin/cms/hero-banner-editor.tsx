@@ -4,7 +4,7 @@ import { AdminCard, AdminButton, ConfirmModal } from '@/components/admin/ui/prim
 import { cmsApi } from '@/lib/admin/cms-api'
 
 export function HeroBannerEditor() {
-  const [data, setData] = useState<{ slides: any[] } | null>(null)
+  const [data, setData] = useState<{ promoRibbonText?: string; slides: any[] } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [showToast, setShowToast] = useState('')

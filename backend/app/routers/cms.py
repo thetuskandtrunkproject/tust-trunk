@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Body, File, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, Body, File, UploadFile, Response
 from supabase import Client
 from ..core.database import get_db_client
 from ..dependencies.auth import get_current_admin
@@ -8,10 +8,17 @@ import uuid
 
 router = APIRouter(prefix="/cms", tags=["CMS"])
 
+# Cache-Control header value for public CMS read endpoints.
+# CMS content changes rarely — 5 min cache + 10 min stale-while-revalidate
+# means a CDN/browser only calls Supabase once per ~15 min instead of on every page load.
+_CMS_CACHE = "public, max-age=300, stale-while-revalidate=600"
+
 @router.get("/hero", response_model=HeroBannerData)
-def get_hero_banner(db: Client = Depends(get_db_client)):
+def get_hero_banner(response: Response, db: Client = Depends(get_db_client)):
     """Fetch the hero banner configuration. Publicly accessible."""
+    response.headers["Cache-Control"] = _CMS_CACHE
     return cms_service.get_setting(db, "hero")
+
 
 @router.put("/hero", response_model=HeroBannerData)
 def update_hero_banner(
@@ -48,7 +55,8 @@ def set_default_hero_banner(
     return cms_service.update_setting(db, "hero", val)
 
 @router.get("/category-tiles", response_model=CategoryTilesData)
-def get_category_tiles(db: Client = Depends(get_db_client)):
+def get_category_tiles(response: Response, db: Client = Depends(get_db_client)):
+    response.headers["Cache-Control"] = _CMS_CACHE
     return cms_service.get_setting(db, "category_tiles")
 
 @router.put("/category-tiles")
@@ -86,7 +94,8 @@ def set_default_category_tiles(
     return cms_service.update_setting(db, "category_tiles", val)
 
 @router.get("/home-products", response_model=HomeProductsData)
-def get_home_products(db: Client = Depends(get_db_client)):
+def get_home_products(response: Response, db: Client = Depends(get_db_client)):
+    response.headers["Cache-Control"] = _CMS_CACHE
     return cms_service.get_setting(db, "home_products")
 
 @router.put("/home-products", response_model=HomeProductsData)
@@ -122,7 +131,8 @@ def set_default_home_products(
     return cms_service.update_setting(db, "home_products", val)
 
 @router.get("/about-page", response_model=AboutPageData)
-def get_about_page(db: Client = Depends(get_db_client)):
+def get_about_page(response: Response, db: Client = Depends(get_db_client)):
+    response.headers["Cache-Control"] = _CMS_CACHE
     return cms_service.get_setting(db, "about_page")
 
 @router.put("/about-page", response_model=AboutPageData)
@@ -158,7 +168,8 @@ def set_default_about_page(
     return cms_service.update_setting(db, "about_page", val)
 
 @router.get("/footer", response_model=FooterData)
-def get_footer(db: Client = Depends(get_db_client)):
+def get_footer(response: Response, db: Client = Depends(get_db_client)):
+    response.headers["Cache-Control"] = _CMS_CACHE
     return cms_service.get_setting(db, "footer")
 
 @router.put("/footer", response_model=FooterData)
@@ -176,7 +187,8 @@ def update_footer(
         raise HTTPException(status_code=500, detail=str(e) + "\n" + traceback.format_exc())
 
 @router.get("/shop-settings", response_model=ShopSettingsData)
-def get_shop_settings(db: Client = Depends(get_db_client)):
+def get_shop_settings(response: Response, db: Client = Depends(get_db_client)):
+    response.headers["Cache-Control"] = _CMS_CACHE
     return cms_service.get_setting(db, "shop_settings")
 
 @router.put("/shop-settings", response_model=ShopSettingsData)

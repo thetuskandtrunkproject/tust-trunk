@@ -1,5 +1,12 @@
 import { api } from '@/lib/api'
 
+// Module-level promise caches — each CMS value is fetched at most once per
+// browser session. These mirror the server-side Cache-Control headers (5 min)
+// but also prevent duplicate parallel requests from multiple components
+// (e.g. SiteFooter + __root.tsx both reading shop-settings on first load).
+let footerCache: Promise<any> | null = null
+let shopSettingsCache: Promise<any> | null = null
+
 export const cmsApi = {
   getHeroBanner: async () => {
     const res = await api.get('/cms/hero')
@@ -84,20 +91,29 @@ export const cmsApi = {
     return res.data
   },
 
+  // Cached: fetched once per session. Admin editors bypass this by calling the
+  // update endpoint directly (which invalidates by reloading the editor state).
   getFooter: async () => {
-    const res = await api.get('/cms/footer')
-    return res.data
+    if (!footerCache) {
+      footerCache = api.get('/cms/footer').then(res => res.data)
+    }
+    return footerCache
   },
   updateFooter: async (data: any) => {
+    footerCache = null  // Invalidate cache on write
     const res = await api.put('/cms/footer', { value: data })
     return res.data
   },
 
+  // Cached: fetched once per session.
   getShopSettings: async () => {
-    const res = await api.get('/cms/shop-settings')
-    return res.data
+    if (!shopSettingsCache) {
+      shopSettingsCache = api.get('/cms/shop-settings').then(res => res.data)
+    }
+    return shopSettingsCache
   },
   updateShopSettings: async (data: any) => {
+    shopSettingsCache = null  // Invalidate cache on write
     const res = await api.put('/cms/shop-settings', { value: data })
     return res.data
   }
