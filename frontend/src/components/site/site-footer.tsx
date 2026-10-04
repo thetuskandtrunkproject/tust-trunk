@@ -22,14 +22,14 @@ const WhatsAppIcon = () => (
 
 export function SiteFooter() {
   return (
-    <footer className="w-full bg-sky-soft/50 text-ink pt-16 md:pt-20 pb-8 mt-auto">
+    <footer className="w-full bg-[#F2F9FF] text-ink pt-16 md:pt-20 pb-8 mt-auto">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-16">
           
           {/* Column 1: Info & Map */}
           <div className="col-span-1 md:col-span-5 space-y-6">
-            <div className="bg-white p-3 rounded-2xl inline-block">
-              <img src={logoImg} alt="The Tusk & Trunk" className="w-24 h-auto object-contain" />
+            <div className="inline-block">
+              <img src={logoImg} alt="The Tusk & Trunk" className="w-28 h-auto object-contain" />
             </div>
             <p className="text-sm md:text-base text-ink/80 leading-relaxed font-medium max-w-sm">
               Everyday essentials, crafted with care. Comfort and quality for your whole family.
