@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, Response
 from typing import Optional, List
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -22,8 +22,9 @@ limiter = Limiter(key_func=get_remote_address, default_limits=["120/minute"])
 
 @router.get('/categories', response_model=List[PublicCategoryResponse])
 @limiter.limit('120/minute')
-def list_categories(request: Request, db: Client = Depends(get_db_client)):
+def list_categories(request: Request, response: Response, db: Client = Depends(get_db_client)):
     """Fetch active categories for public storefront."""
+    response.headers["Cache-Control"] = "public, max-age=300, stale-while-revalidate=600"
     return public_catalog_service.list_public_categories(db)
 
 
@@ -31,6 +32,7 @@ def list_categories(request: Request, db: Client = Depends(get_db_client)):
 @limiter.limit('120/minute')
 def list_products(
     request: Request,
+    response: Response,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=24, ge=1, le=48),
     search: Optional[str] = None,
@@ -43,6 +45,7 @@ def list_products(
     sort: str = Query(default='newest')
 ):
     """Fetch active, in-stock public products with filters."""
+    response.headers["Cache-Control"] = "public, max-age=60, stale-while-revalidate=300"
     db = get_db_client()
     return public_catalog_service.list_public_products(
         db=db,
@@ -71,8 +74,9 @@ def resolve_products(
 
 @router.get('/products/{slug}', response_model=PublicProductDetailResponse)
 @limiter.limit('60/minute')
-def get_product(request: Request, slug: str, db: Client = Depends(get_db_client)):
+def get_product(request: Request, response: Response, slug: str, db: Client = Depends(get_db_client)):
     """Fetch full public product details including active variants."""
+    response.headers["Cache-Control"] = "public, max-age=60, stale-while-revalidate=300"
     return public_catalog_service.get_public_product(db, slug)
 
 @router.get('/variants/resolve', response_model=PublicResolveResponse)
