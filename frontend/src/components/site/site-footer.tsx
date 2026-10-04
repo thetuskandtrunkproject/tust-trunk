@@ -24,10 +24,16 @@ const WhatsAppIcon = () => (
 
 export function SiteFooter() {
   const [cmsData, setCmsData] = useState<any>(null)
+  const [shopData, setShopData] = useState<any>(null)
 
   useEffect(() => {
     cmsApi.getFooter().then(res => {
       setCmsData(res)
+    }).catch(err => {
+      console.error(err)
+    })
+    cmsApi.getShopSettings().then(res => {
+      setShopData(res)
     }).catch(err => {
       console.error(err)
     })
@@ -48,11 +54,10 @@ export function SiteFooter() {
             </p>
             
             <div className="space-y-1 text-sm md:text-base text-ink/80">
-              <p><strong>Store:</strong> No : 23, Muthaiyan Kovil,</p>
-              <p>4th Street 60 Feet Road,</p>
-              <p>Vellaiyan Kadu, Tirupur - 641 604.</p>
-              <p className="pt-2"><strong>Mob:</strong> <a href="tel:+918220127475" className="hover:text-sky">+91 82201 27475</a></p>
-              <p><strong>WA:</strong> <a href="https://wa.me/919443460663" className="hover:text-sky" target="_blank" rel="noreferrer">+91 94434 60663</a></p>
+              {shopData?.addressLine && <p><strong>Store:</strong> {shopData.addressLine}</p>}
+              {shopData?.city && <p>{shopData.city}{shopData.state ? `, ${shopData.state}` : ''}{shopData.pincode ? ` - ${shopData.pincode}` : ''}</p>}
+              {shopData?.primaryPhone && <p className="pt-2"><strong>Mob:</strong> <a href={`tel:${shopData.primaryPhone}`} className="hover:text-sky">{shopData.primaryPhone}</a></p>}
+              {shopData?.secondaryPhone && <p><strong>WA:</strong> <a href={`https://wa.me/${shopData.secondaryPhone.replace(/[^0-9]/g, '')}`} className="hover:text-sky" target="_blank" rel="noreferrer">{shopData.secondaryPhone}</a></p>}
             </div>
 
             <div className="w-full h-32 md:h-40 rounded-xl overflow-hidden border border-ink/10 mt-4 max-w-md">

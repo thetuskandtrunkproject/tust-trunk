@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Body, File, UploadFile
 from supabase import Client
 from ..core.database import get_db_client
 from ..dependencies.auth import get_current_admin
-from ..schemas.cms import HeroBannerData, HeroBannerUpdate, CategoryTilesData, CategoryTilesUpdate, HomeProductsData, HomeProductsUpdate, AboutPageData, AboutPageUpdate, FooterData, FooterUpdate
+from ..schemas.cms import HeroBannerData, HeroBannerUpdate, CategoryTilesData, CategoryTilesUpdate, HomeProductsData, HomeProductsUpdate, AboutPageData, AboutPageUpdate, FooterData, FooterUpdate, ShopSettingsData, ShopSettingsUpdate
 from ..services import cms_service
 import uuid
 
@@ -170,6 +170,24 @@ def update_footer(
     try:
         val = data.value.model_dump()
         return cms_service.update_setting(db, "footer", val)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e) + "\n" + traceback.format_exc())
+
+@router.get("/shop-settings", response_model=ShopSettingsData)
+def get_shop_settings(db: Client = Depends(get_db_client)):
+    return cms_service.get_setting(db, "shop_settings")
+
+@router.put("/shop-settings", response_model=ShopSettingsData)
+def update_shop_settings(
+    data: ShopSettingsUpdate,
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    try:
+        val = data.value.model_dump()
+        return cms_service.update_setting(db, "shop_settings", val)
     except Exception as e:
         import traceback
         traceback.print_exc()

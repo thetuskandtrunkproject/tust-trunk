@@ -91,5 +91,14 @@ export const cmsApi = {
   updateFooter: async (data: any) => {
     const res = await api.put('/cms/footer', { value: data })
     return res.data
+  },
+
+  getShopSettings: async () => {
+    const res = await api.get('/cms/shop-settings')
+    return res.data
+  },
+  updateShopSettings: async (data: any) => {
+    const res = await api.put('/cms/shop-settings', { value: data })
+    return res.data
   }
 }

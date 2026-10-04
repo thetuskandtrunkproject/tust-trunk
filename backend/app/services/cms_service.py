@@ -122,6 +122,35 @@ DEFAULT_FOOTER = {
     }
 }
 
+DEFAULT_SHOP_SETTINGS = {
+    "companyName": "The Tusk & Trunk",
+    "gstNumber": "",
+    "businessWebsite": "",
+    "primaryPhone": "",
+    "secondaryPhone": "",
+    "businessEmail": "",
+    "supportEmail": "",
+    "addressLine": "",
+    "city": "",
+    "state": "",
+    "country": "India",
+    "pincode": "",
+    "whatsappNumber": "",
+    "instagramUrl": "",
+    "facebookUrl": "",
+    "youtubeUrl": "",
+    "maintenanceMode": False,
+    "maintenanceMessage": "We're making things better! We'll be back shortly.",
+    "maintenanceTimerEnd": "",
+    "gstEnabled": False,
+    "gstPercentage": 5,
+    "homeStatePincodePrefixes": "60,61,62,63,64",
+    "shippingChargeHomeState": 60,
+    "shippingChargeOtherStates": 80,
+    "freeShippingEnabled": True,
+    "freeShippingThreshold": 3000
+}
+
 def get_setting(db: Client, key: str) -> dict:
     """Get a CMS setting by key."""
     try:
@@ -137,6 +166,8 @@ def get_setting(db: Client, key: str) -> dict:
                 return DEFAULT_ABOUT_PAGE
             if key == 'footer':
                 return DEFAULT_FOOTER
+            if key == 'shop_settings':
+                return DEFAULT_SHOP_SETTINGS
             return {}
         return res.data[0]['value']
     except Exception as e:
@@ -151,6 +182,8 @@ def get_setting(db: Client, key: str) -> dict:
             return DEFAULT_ABOUT_PAGE
         if key == 'footer':
             return DEFAULT_FOOTER
+        if key == 'shop_settings':
+            return DEFAULT_SHOP_SETTINGS
         return {}
 
 def update_setting(db: Client, key: str, value: dict) -> dict:

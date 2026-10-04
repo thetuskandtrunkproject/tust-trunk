@@ -103,15 +103,47 @@ class FooterData(BaseModel):
 class FooterUpdate(BaseModel):
     value: FooterData
 
-class FooterSocialLinks(BaseModel):
-    instagram: str = ""
-    whatsapp: str = ""
-    facebook: str = ""
-    youtube: str = ""
+class ShopSettingsData(BaseModel):
+    # Core Information
+    companyName: str = "The Tusk & Trunk"
+    gstNumber: str = ""
+    businessWebsite: str = ""
 
-class FooterData(BaseModel):
-    tagline: str = "Everyday essentials, crafted with care. Comfort and quality for your whole family."
-    socialLinks: FooterSocialLinks = FooterSocialLinks()
+    # Contact Details
+    primaryPhone: str = ""
+    secondaryPhone: str = ""
+    businessEmail: str = ""
+    supportEmail: str = ""
 
-class FooterUpdate(BaseModel):
-    value: FooterData
+    # Registered Address
+    addressLine: str = ""
+    city: str = ""
+    state: str = ""
+    country: str = "India"
+    pincode: str = ""
+
+    # Social Links
+    whatsappNumber: str = ""
+    instagramUrl: str = ""
+    facebookUrl: str = ""
+    youtubeUrl: str = ""
+
+    # Maintenance Mode
+    maintenanceMode: bool = False
+    maintenanceMessage: str = "We're making things better! We'll be back shortly."
+    maintenanceTimerEnd: str = ""  # ISO 8601 datetime string
+
+    # Tax Settings
+    gstEnabled: bool = False
+    gstPercentage: float = 5
+
+    # Shipping Settings
+    homeStatePincodePrefixes: str = "60,61,62,63,64"
+    shippingChargeHomeState: float = 60
+    shippingChargeOtherStates: float = 80
+    freeShippingEnabled: bool = True
+    freeShippingThreshold: float = 3000
+
+class ShopSettingsUpdate(BaseModel):
+    value: ShopSettingsData
+
