@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Save, Plus, Trash2, ChevronUp, ChevronDown, Image as ImageIcon, RefreshCw, Bookmark } from 'lucide-react'
+import { Save, Plus, Trash2, ChevronUp, ChevronDown, Image as ImageIcon, RefreshCw, Bookmark, CloudUpload, X } from 'lucide-react'
 import { AdminCard, AdminButton, ConfirmModal } from '@/components/admin/ui/primitives'
 import { cmsApi } from '@/lib/admin/cms-api'
 import { Hero } from '@/components/site/hero'
@@ -9,7 +9,7 @@ export function HeroBannerEditor() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [showToast, setShowToast] = useState('')
-  const [activeSlideIndex, setActiveSlideIndex] = useState(0)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
   
   // Modal states
   const [confirmModal, setConfirmModal] = useState<{
@@ -112,68 +112,51 @@ export function HeroBannerEditor() {
     setData({ ...data, slides: newSlides })
   }
 
-  const updateGlobal = (updates: any) => {
-    if (!data) return
-    setData({ ...data, ...updates })
-  }
-
-  const addSlide = () => {
-    if (!data) return
-    setData({
-      ...data,
-      slides: [
-        ...data.slides,
-        {
-          id: Math.random().toString(),
-          img: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=2000&auto=format&fit=crop',
-          hasOverlay: true,
-          title: 'New Slide',
-          titleAccent: '',
-          subtitle: 'Add a description here',
-          cta: 'Shop Now',
-          ctaLink: '/shop',
-          align: 'left',
-          accentColor: '#FF6B8B',
-          textColor: '#FFFFFF'
-        }
-      ]
-    })
-    setActiveSlideIndex(data.slides.length)
+  const handleAddImages = async (files: FileList | null) => {
+    if (!data || !files) return
+    
+    const newImages = await Promise.all(
+      Array.from(files).map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader()
+          reader.onload = (e) => resolve(e.target?.result as string)
+          reader.readAsDataURL(file)
+        })
+      })
+    )
+    
+    const addedSlides = newImages.map(img => ({
+      id: Math.random().toString(),
+      img,
+      hasOverlay: false
+    }))
+    
+    setData(prev => prev ? { ...prev, slides: [...prev.slides, ...addedSlides] } : null)
   }
 
   const removeSlide = (index: number) => {
     if (!data) return
     const newSlides = data.slides.filter((_, i) => i !== index)
     setData({ ...data, slides: newSlides })
-    if (activeSlideIndex >= newSlides.length) {
-      setActiveSlideIndex(Math.max(0, newSlides.length - 1))
-    }
   }
 
-  const moveSlide = (index: number, direction: 'up' | 'down') => {
-    if (!data) return
-    if (direction === 'up' && index === 0) return
-    if (direction === 'down' && index === data.slides.length - 1) return
-
+  const reorderSlide = (dragIndex: number, hoverIndex: number) => {
+    if (!data || dragIndex === hoverIndex) return
     const newSlides = [...data.slides]
-    const swapIndex = direction === 'up' ? index - 1 : index + 1
-    const temp = newSlides[index]
-    newSlides[index] = newSlides[swapIndex]
-    newSlides[swapIndex] = temp
-
+    const [draggedSlide] = newSlides.splice(dragIndex, 1)
+    newSlides.splice(hoverIndex, 0, draggedSlide)
     setData({ ...data, slides: newSlides })
-    if (activeSlideIndex === index) {
-      setActiveSlideIndex(swapIndex)
-    } else if (activeSlideIndex === swapIndex) {
-      setActiveSlideIndex(index)
-    }
+  }
+
+  const updateGlobal = (updates: any) => {
+    if (!data) return
+    setData({ ...data, ...updates })
   }
 
   if (isLoading || !data) {
     return <div className="p-8 text-center text-ink/60">Loading CMS Data...</div>
   }
 
-  const activeSlide = data.slides[activeSlideIndex]
 
   return (
     <AdminCard padding={false} className="flex flex-col xl:flex-row relative">
@@ -274,108 +257,81 @@ export function HeroBannerEditor() {
           </div>
         </div>
 
-        <div className="mb-4 flex items-center justify-between bg-cloud p-4 rounded-xl border border-ink/5">
-          <h4 className="font-medium text-ink flex items-center gap-2">
-            <ImageIcon className="w-4 h-4 text-ink/50" />
-            Image Carousel Slides
-          </h4>
-          <button 
-            onClick={addSlide}
-            className="text-sm bg-cta text-white px-4 py-2 rounded-lg font-medium shadow-sm flex items-center gap-2 hover:bg-opacity-90 transition-opacity"
-          >
-            <Plus className="w-4 h-4" /> Add Slide
-          </button>
-        </div>
-
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide flex-shrink-0">
-          {data.slides.map((slide, idx) => (
-            <div 
-              key={slide.id}
-              onClick={() => setActiveSlideIndex(idx)}
-              className={`flex-shrink-0 relative w-32 h-20 min-h-[80px] rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${activeSlideIndex === idx ? 'border-cta' : 'border-transparent hover:border-ink/20'}`}
-            >
-              <img src={slide.img} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <span className="text-white text-xs font-bold bg-black/50 px-2 py-1 rounded">Slide {idx + 1}</span>
-              </div>
+        <div className="bg-white border border-ink/10 rounded-xl p-5 shadow-sm mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 border-b border-ink/5 pb-4 gap-4">
+            <div>
+              <h4 className="font-medium text-ink flex items-center gap-2">
+                Default Slide Images
+              </h4>
+              <p className="text-xs text-ink/60 mt-1">Manage the default rotating images. (Recommended: 1080x1350, .webp only)</p>
             </div>
-          ))}
-        </div>
-
-        {/* Active Slide Editor */}
-        {activeSlide && (
-          <div className="bg-white border border-ink/10 rounded-xl p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4 border-b border-ink/5 pb-4">
-              <h5 className="font-medium text-ink flex items-center gap-2">
-                Image for Slide {activeSlideIndex + 1}
-              </h5>
-              <div className="flex items-center gap-2">
-                <button onClick={() => moveSlide(activeSlideIndex, 'up')} disabled={activeSlideIndex === 0} className="p-1.5 text-ink/60 hover:text-ink disabled:opacity-30 rounded hover:bg-cloud transition-colors">
-                  <ChevronUp className="w-4 h-4" />
-                </button>
-                <button onClick={() => moveSlide(activeSlideIndex, 'down')} disabled={activeSlideIndex === data.slides.length - 1} className="p-1.5 text-ink/60 hover:text-ink disabled:opacity-30 rounded hover:bg-cloud transition-colors">
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-                <div className="w-px h-4 bg-ink/20 mx-1"></div>
-                <button onClick={() => removeSlide(activeSlideIndex)} className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors" title="Delete Slide">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-ink/80 mb-1 flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4" /> Upload Slide Image (.webp only)
-                </label>
-                <input
-                  type="file"
-                  accept="image/webp"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) {
-                      const reader = new FileReader()
-                      reader.onload = (event) => {
-                        updateSlide(activeSlideIndex, { img: event.target?.result as string })
-                      }
-                      reader.readAsDataURL(file)
-                    }
-                  }}
-                  className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-coral file:text-white hover:file:bg-opacity-90"
-                />
-              </div>
-            </div>
+            <label className="text-sm font-medium text-ink/70 bg-cloud hover:bg-ink/5 border border-ink/10 rounded-full px-4 py-2 transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap self-start sm:self-auto">
+              <CloudUpload className="w-4 h-4" />
+              Add Images
+              <input type="file" multiple accept="image/webp,image/jpeg,image/png" className="hidden" onChange={(e) => handleAddImages(e.target.files)} />
+            </label>
           </div>
-        )}
+          
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-ink/10 scrollbar-track-transparent">
+            {data.slides.map((slide, idx) => (
+              <div 
+                key={slide.id}
+                draggable
+                onDragStart={(e) => e.dataTransfer.setData('text/plain', idx.toString())}
+                onDragOver={(e) => { e.preventDefault(); setDragOverIndex(idx); }}
+                onDragLeave={() => setDragOverIndex(null)}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  setDragOverIndex(null)
+                  const dragIndex = parseInt(e.dataTransfer.getData('text/plain'))
+                  if (!isNaN(dragIndex)) reorderSlide(dragIndex, idx)
+                }}
+                className={`flex-shrink-0 relative w-32 aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer transition-all bg-cloud ${
+                  dragOverIndex === idx ? 'border-2 border-coral scale-105' : 'border border-ink/10 hover:border-ink/30'
+                }`}
+              >
+                {slide.img ? (
+                  <img src={slide.img} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-ink/40 text-xs">No Image</div>
+                )}
+                
+                {/* Overlay actions */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                  <button 
+                    onClick={() => removeSlide(idx)}
+                    className="self-end p-1.5 bg-white/20 hover:bg-red-500 text-white rounded-full transition-colors backdrop-blur-sm"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                  <span className="text-white text-xs font-bold self-start">Slide {idx + 1}</span>
+                </div>
+              </div>
+            ))}
+            
+            {/* Empty state / Add button at end of list */}
+            {data.slides.length === 0 && (
+              <div className="w-full h-40 flex flex-col items-center justify-center border-2 border-dashed border-ink/20 rounded-2xl text-ink/40">
+                <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
+                <span className="text-sm">No slides added</span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Live Preview Pane */}
       <div className="w-full xl:w-[600px] bg-ink/5 p-6 flex flex-col relative xl:sticky xl:top-[20px] xl:max-h-[calc(100vh-40px)] overflow-hidden rounded-r-2xl">
         <h4 className="text-xs font-medium text-ink/50 uppercase tracking-wider mb-4 flex justify-between items-center">
           <span>Live Preview</span>
-          <span className="bg-white px-2 py-1 rounded shadow-sm text-[10px]">Slide {activeSlideIndex + 1} of {data.slides.length}</span>
         </h4>
-        
-        {/* Mock Promo Ribbon */}
-        {data.promoRibbonText && (
-          <div className="bg-sand text-ink text-xs text-center py-2 font-medium truncate mb-4 shadow-sm relative z-20">
-            {data.promoRibbonText}
-          </div>
-        )}
-
         {/* Carousel Preview Area */}
-        {activeSlide ? (
-          <div className="w-full relative rounded-2xl overflow-hidden shadow-xl bg-cloud mt-4" style={{ height: '400px' }}>
-            {/* We render the actual Hero component locked to the currently edited slide, scaled down to fit the preview pane */}
-            <div className="absolute top-0 left-0 w-[1400px] h-[800px] origin-top-left" style={{ transform: 'scale(0.39)', pointerEvents: 'none' }}>
-              <Hero initialData={{ ...data, promoRibbonText: '', slides: [activeSlide] }} />
-            </div>
+        <div className="w-full relative rounded-2xl overflow-hidden shadow-xl bg-cloud" style={{ height: '312px' }}>
+          {/* We render the actual Hero component with the full data so the carousel animates */}
+          <div className="absolute top-0 left-0 w-[1400px] h-[800px] origin-top-left" style={{ transform: 'scale(0.39)', pointerEvents: 'none' }}>
+            <Hero initialData={{ ...data, promoRibbonText: '' }} />
           </div>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-ink/40 bg-white rounded-2xl border-2 border-dashed border-ink/10">
-            No slides available
-          </div>
-        )}
+        </div>
 
         {/* Toast */}
         {showToast && (

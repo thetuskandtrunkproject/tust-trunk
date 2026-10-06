@@ -90,20 +90,20 @@ export function CustomerTable({ customers }: CustomerTableProps) {
                 <AdminTh>Customer</AdminTh>
                 <AdminTh>Contact</AdminTh>
                 <AdminTh 
-                  className="cursor-pointer hover:text-ink transition-colors"
+                  className="hidden sm:table-cell cursor-pointer hover:text-ink transition-colors"
                   onClick={() => handleSort('joinedDate')}
                 >
                   Joined <SortIcon field="joinedDate" />
                 </AdminTh>
-                <AdminTh className="text-right">Orders</AdminTh>
+                <AdminTh className="hidden md:table-cell text-right">Orders</AdminTh>
                 <AdminTh 
-                  className="text-right cursor-pointer hover:text-ink transition-colors"
+                  className="hidden sm:table-cell text-right cursor-pointer hover:text-ink transition-colors"
                   onClick={() => handleSort('totalSpent')}
                 >
                   Total Spent <SortIcon field="totalSpent" />
                 </AdminTh>
                 <AdminTh 
-                  className="text-right cursor-pointer hover:text-ink transition-colors"
+                  className="hidden lg:table-cell text-right cursor-pointer hover:text-ink transition-colors"
                   onClick={() => handleSort('lastOrderDate')}
                 >
                   Last Order <SortIcon field="lastOrderDate" />
@@ -126,16 +126,16 @@ export function CustomerTable({ customers }: CustomerTableProps) {
                       <span className="text-xs text-ink/50">{customer.phone}</span>
                     </div>
                   </AdminTd>
-                  <AdminTd className="text-ink/70">
+                  <AdminTd className="hidden sm:table-cell text-ink/70">
                     {formatDate(customer.joined_date)}
                   </AdminTd>
-                  <AdminTd className="text-right text-ink/70">
+                  <AdminTd className="hidden md:table-cell text-right text-ink/70">
                     {customer.total_orders}
                   </AdminTd>
-                  <AdminTd className="text-right font-medium text-ink">
+                  <AdminTd className="hidden sm:table-cell text-right font-medium text-ink">
                     {formatPrice(customer.total_spent_paise / 100)}
                   </AdminTd>
-                  <AdminTd className="text-right text-ink/70">
+                  <AdminTd className="hidden lg:table-cell text-right text-ink/70">
                     {formatDate(customer.last_order_date)}
                   </AdminTd>
                 </tr>

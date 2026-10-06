@@ -54,8 +54,8 @@ export function InventoryTable({ products, onStockUpdate }: InventoryTableProps)
     return 'In Stock'
   }
 
-  const Th = ({ children, sortable }: { children: React.ReactNode, sortable?: boolean }) => (
-    <th className="px-4 py-3 text-left text-[12px] font-bold text-[#202223] whitespace-nowrap bg-white border-b border-[#E3E3E3]">
+  const Th = ({ children, sortable, className = '' }: { children: React.ReactNode, sortable?: boolean, className?: string }) => (
+    <th className={`px-4 py-3 text-left text-[12px] font-bold text-[#202223] whitespace-nowrap bg-white border-b border-[#E3E3E3] ${className}`}>
       <div className="flex items-center gap-1.5">
         {children}
         {sortable && <ArrowUpDown className="w-3.5 h-3.5 text-[#5C5F62]" />}
@@ -75,13 +75,13 @@ export function InventoryTable({ products, onStockUpdate }: InventoryTableProps)
         <thead>
           <tr>
             <Th>Product</Th>
-            <Th>Variant</Th>
-            <Th>SKU</Th>
-            <Th sortable>Total Stock</Th>
-            <Th sortable>Reserved</Th>
+            <Th className="hidden sm:table-cell">Variant</Th>
+            <Th className="hidden md:table-cell">SKU</Th>
+            <Th className="hidden lg:table-cell" sortable>Total Stock</Th>
+            <Th className="hidden xl:table-cell" sortable>Reserved</Th>
             <Th sortable>Available</Th>
-            <Th sortable>Sold</Th>
-            <Th>Status</Th>
+            <Th className="hidden xl:table-cell" sortable>Sold</Th>
+            <Th className="hidden sm:table-cell">Status</Th>
           </tr>
         </thead>
         <tbody className="bg-white">
@@ -96,7 +96,7 @@ export function InventoryTable({ products, onStockUpdate }: InventoryTableProps)
                 {/* Parent Row */}
                 <tr className="border-b border-[#E3E3E3] hover:bg-[#F4F6F8] transition-colors">
                   <Td>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <button 
                         onClick={() => toggleRow(product.id)}
                         className="p-1 hover:bg-black/5 rounded text-[#5C5F62]"
@@ -105,18 +105,18 @@ export function InventoryTable({ products, onStockUpdate }: InventoryTableProps)
                       </button>
                       <AdminThumbnail src={product.images[0]} alt={product.name} />
                       <div className="flex flex-col">
-                        <span className="font-semibold">{product.name}</span>
-                        <span className="text-[#6D7175] text-[12px]">{product.category || 'Uncategorized'}</span>
+                        <span className="font-semibold text-xs sm:text-sm line-clamp-1">{product.name}</span>
+                        <span className="text-[#6D7175] text-[10px] sm:text-[12px]">{product.category || 'Uncategorized'}</span>
                       </div>
                     </div>
                   </Td>
-                  <Td className="text-[#6D7175]">{product.variants.length} Variants</Td>
-                  <Td className="text-[#6D7175]">{product.variants.length > 1 ? 'Multiple' : product.variants[0]?.sku || 'N/A'}</Td>
+                  <Td className="text-[#6D7175] hidden sm:table-cell">{product.variants.length} Variants</Td>
+                  <Td className="text-[#6D7175] hidden md:table-cell">{product.variants.length > 1 ? 'Multiple' : product.variants[0]?.sku || 'N/A'}</Td>
+                  <Td className="font-medium hidden lg:table-cell">{isTracking ? totalStock : '-'}</Td>
+                  <Td className="hidden xl:table-cell">0</Td>
                   <Td className="font-medium">{isTracking ? totalStock : '-'}</Td>
-                  <Td>0</Td>
-                  <Td className="font-medium">{isTracking ? totalStock : '-'}</Td>
-                  <Td>0</Td>
-                  <Td>
+                  <Td className="hidden xl:table-cell">0</Td>
+                  <Td className="hidden sm:table-cell">
                     {isTracking && <StatusBadge status={stockStatus} />}
                   </Td>
                 </tr>
@@ -125,33 +125,31 @@ export function InventoryTable({ products, onStockUpdate }: InventoryTableProps)
                 {isExpanded && product.variants.map((variant) => (
                   <tr key={variant.id} className="border-b border-[#E3E3E3] bg-[#FAFAFA] hover:bg-[#F4F6F8] transition-colors">
                     <Td>
-                      <div className="flex items-center gap-3 pl-9">
-                        <AdminThumbnail src={product.images[0]} alt={product.name} />
+                      <div className="flex items-center gap-2 sm:gap-3 pl-6 sm:pl-9">
                         <div className="flex flex-col">
-                          <span className="font-semibold">{product.name}</span>
-                          <span className="text-[#6D7175] text-[12px]">{product.category || 'Uncategorized'}</span>
+                          <span className="font-semibold text-xs sm:text-sm">{variant.size}</span>
                         </div>
                       </div>
                     </Td>
-                    <Td className="text-[#6D7175]">{variant.size}</Td>
-                    <Td className="font-mono text-[12px] text-[#6D7175]">{variant.sku}</Td>
-                    <Td className="font-medium">{variant.stock}</Td>
-                    <Td>0</Td>
+                    <Td className="text-[#6D7175] hidden sm:table-cell">{variant.size}</Td>
+                    <Td className="font-mono text-[12px] text-[#6D7175] hidden md:table-cell">{variant.sku}</Td>
+                    <Td className="font-medium hidden lg:table-cell">{variant.stock}</Td>
+                    <Td className="hidden xl:table-cell">0</Td>
                     <Td>
                       <input 
                         type="number"
                         min="0"
                         defaultValue={variant.stock}
                         onBlur={(e) => handleStockBlur(product.id, variant.id, variant.stock, e.target.value)}
-                        className={`w-20 bg-white border rounded px-2 py-1 text-[13px] font-medium focus:outline-none focus:ring-2 focus:ring-[#005bd3] focus:border-transparent transition-all ${
+                        className={`w-16 sm:w-20 bg-white border rounded px-2 py-1 text-[13px] font-medium focus:outline-none focus:ring-2 focus:ring-[#005bd3] focus:border-transparent transition-all ${
                           variant.stock === 0 ? 'border-red-300 text-red-600' :
                           variant.stock < 5 ? 'border-amber-300 text-amber-700' :
                           'border-[#C9CCCF] text-[#202223]'
                         }`}
                       />
                     </Td>
-                    <Td>0</Td>
-                    <Td>
+                    <Td className="hidden xl:table-cell">0</Td>
+                    <Td className="hidden sm:table-cell">
                       <StatusBadge status={getStockStatus(variant.stock)} />
                     </Td>
                   </tr>

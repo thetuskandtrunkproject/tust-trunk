@@ -315,7 +315,7 @@ export function Hero({ initialData }: { initialData?: { promoRibbonText: string,
           </div>
 
           {/* Right Column: Full Bleed Half-Screen Image Frame */}
-          <div className="order-1 lg:order-2 w-full lg:w-1/2 h-[400px] md:h-[500px] lg:h-auto lg:absolute lg:right-0 lg:top-0 lg:bottom-0">
+          <div className="order-1 lg:order-2 w-full lg:w-1/2 aspect-[4/5] md:aspect-auto md:h-[500px] lg:h-auto lg:absolute lg:right-0 lg:top-0 lg:bottom-0">
             <div 
               className="relative w-full h-full overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-[1.02] group lg:rounded-none lg:rounded-bl-[4rem] bg-white/90"
             >

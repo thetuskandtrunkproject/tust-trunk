@@ -307,7 +307,7 @@ interface AdminTableShellProps {
 export function AdminTableShell({ children, emptyMessage = 'No data found.', isEmpty }: AdminTableShellProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-[#E3E3E3]">
-      <div className="">
+      <div className="overflow-x-auto">
         {children}
       </div>
       {isEmpty && (
