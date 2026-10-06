@@ -260,6 +260,7 @@ def get_admin_order_detail(db: Client, order_id: str) -> dict:
         "delivery_fee_paise": order['delivery_fee_paise'],
         "total_paise": order['total_paise']
     }
+from app.services import payperwa_service
 
 def update_admin_order_status(db: Client, order_id: str, new_status: str) -> dict:
     try:
@@ -267,6 +268,27 @@ def update_admin_order_status(db: Client, order_id: str, new_status: str) -> dic
             'p_order_id': order_id,
             'p_new_status': new_status
         }).execute()
+        
+        # Send WhatsApp status update
+        try:
+            order_details_res = db.table('orders').select('order_number, guest_phone, users(phone)').eq('id', order_id).execute()
+            if order_details_res.data:
+                order_info = order_details_res.data[0]
+                phone = order_info.get('guest_phone') or (order_info.get('users') or {}).get('phone') or ""
+                order_num = order_info['order_number']
+                
+                if phone:
+                    if len(phone) == 10:
+                        phone = f"+91{phone}"
+                    elif phone.startswith("91") and len(phone) == 12:
+                        phone = f"+{phone}"
+                    
+                    # We reuse the order_confirmation template but pass the status as the second variable
+                    # based on the prompt's instructions for order status messages.
+                    payperwa_service.send_order_confirmation(phone, order_num, f"Status: {new_status}")
+        except Exception as e:
+            logger.error(f"Failed to send PayPerWA status update for order {order_id}: {e}")
+            
         return {"status": "success", "new_status": new_status}
     except Exception as e:
         _map_errcode_to_http(e)

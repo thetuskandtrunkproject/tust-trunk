@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { handleLogin, handleGoogleLogin } from '@/lib/auth-actions'
-import { Eye, EyeOff } from 'lucide-react'
+import { handleGoogleLogin } from '@/lib/auth-actions'
 import { useAuth } from '@/context/auth-context'
+import { api } from '@/lib/api'
+import { signInWithCustomToken } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -10,14 +12,15 @@ export const Route = createFileRoute('/login')({
 
 function LoginPage() {
   const navigate = useNavigate()
-  const { firebaseUser } = useAuth()
+  const { firebaseUser, refreshUser } = useAuth()
   
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+  const [phone, setPhone] = useState('')
+  const [otp, setOtp] = useState('')
+  const [step, setStep] = useState<'phone' | 'otp'>('phone')
 
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [countdown, setCountdown] = useState(0)
 
   useEffect(() => {
     if (firebaseUser) {
@@ -25,16 +28,46 @@ function LoginPage() {
     }
   }, [firebaseUser, navigate])
 
-  const onSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(c => c - 1), 1000)
+    }
+    return () => clearTimeout(timer)
+  }, [countdown])
+
+  const onSendOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    setError(null)
+    setLoading(true)
+    try {
+      await api.post('/api/v1/auth/send-otp', { phone })
+      setStep('otp')
+      setCountdown(60) // 60s cooldown for resend
+    } catch (err: any) {
+      setError(err.response?.data?.detail || "Failed to send OTP. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const onVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
-    const res = await handleLogin(email, password)
-    setLoading(false)
-    if (res.success) {
-      navigate({ to: '/account' })
-    } else {
-      setError(res.error || "Login failed")
+    try {
+      const res = await api.post('/api/v1/auth/verify-otp', { phone, otp })
+      if (res.data.success && res.data.token) {
+        await signInWithCustomToken(auth, res.data.token)
+        await refreshUser()
+        navigate({ to: '/account' })
+      } else {
+        setError("Invalid response from server.")
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.detail || "Invalid OTP. Please try again.")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -61,58 +94,84 @@ function LoginPage() {
         </div>
 
         {error && (
-          <div className="bg-rust/10 border border-rust text-rust p-3 rounded-lg mb-6 text-sm font-medium">
+          <div className="bg-rust/10 border border-rust text-rust p-3 rounded-lg mb-6 text-sm font-medium text-center">
             {error}
           </div>
         )}
 
-        <form onSubmit={onSubmit} className="flex flex-col gap-6">
-          <div>
-            <label className="block text-sm font-bold text-ink mb-2 ml-2">Email Address</label>
-            <input 
-              type="email" 
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full bg-white border-2 border-ink/10 rounded-2xl px-6 py-4 text-ink font-medium placeholder:text-ink/30 focus:border-peach focus:ring-0 outline-none transition-colors"
-            />
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2 ml-2 mr-2">
-              <label className="block text-sm font-bold text-ink">Password</label>
-              <button type="button" className="text-sm font-bold text-sky hover:text-sky/80 transition-colors">
-                Forgot password?
-              </button>
+        {step === 'phone' ? (
+          <form onSubmit={onSendOtp} className="flex flex-col gap-6">
+            <div>
+              <label className="block text-sm font-bold text-ink mb-2 ml-2">Phone Number</label>
+              <div className="flex bg-white border-2 border-ink/10 rounded-2xl overflow-hidden focus-within:border-peach transition-colors">
+                <div className="flex items-center justify-center px-4 bg-cloud border-r border-ink/10 font-bold text-ink/70">
+                  +91
+                </div>
+                <input 
+                  type="tel" 
+                  required
+                  value={phone}
+                  onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  placeholder="9876543210"
+                  className="w-full px-4 py-4 text-ink font-medium placeholder:text-ink/30 focus:ring-0 outline-none"
+                />
+              </div>
             </div>
-            <div className="relative">
-              <input 
-                type={showPassword ? "text" : "password"} 
-                required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-white border-2 border-ink/10 rounded-2xl pl-6 pr-14 py-4 text-ink font-medium placeholder:text-ink/30 focus:border-peach focus:ring-0 outline-none transition-colors"
-              />
+
+            <button 
+              type="submit"
+              disabled={loading || phone.length !== 10}
+              className="w-full bg-cta text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {loading ? 'Sending OTP...' : 'Send OTP'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={onVerifyOtp} className="flex flex-col gap-6">
+            <div className="text-center text-sm font-medium text-ink/70">
+              OTP sent via WhatsApp to <br/>
+              <span className="font-bold text-ink">+91 {phone}</span>
               <button 
                 type="button" 
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-5 top-1/2 -translate-y-1/2 text-ink/30 hover:text-peach transition-colors"
+                onClick={() => { setStep('phone'); setOtp(''); setCountdown(0); setError(null); }}
+                className="ml-2 text-sky hover:underline"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                (Change)
               </button>
             </div>
-          </div>
 
-          <button 
-            type="submit"
-            disabled={loading}
-            className="w-full bg-cta text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-          >
-            {loading ? 'Logging in...' : 'Log In'}
-          </button>
-        </form>
+            <div>
+              <label className="block text-sm font-bold text-ink mb-2 ml-2 text-center">Enter OTP</label>
+              <input 
+                type="text" 
+                required
+                value={otp}
+                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="123456"
+                className="w-full bg-white border-2 border-ink/10 rounded-2xl px-6 py-4 text-center text-2xl tracking-widest text-ink font-bold placeholder:text-ink/30 placeholder:tracking-normal focus:border-peach focus:ring-0 outline-none transition-colors"
+              />
+            </div>
+
+            <button 
+              type="submit"
+              disabled={loading || otp.length !== 6}
+              className="w-full bg-cta text-white py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {loading ? 'Verifying...' : 'Verify OTP'}
+            </button>
+
+            <div className="text-center">
+              <button
+                type="button"
+                disabled={countdown > 0 || loading}
+                onClick={() => onSendOtp()}
+                className="text-sm font-bold text-sky hover:text-sky/80 disabled:text-ink/30 transition-colors"
+              >
+                {countdown > 0 ? `Resend OTP in ${countdown}s` : 'Resend OTP'}
+              </button>
+            </div>
+          </form>
+        )}
 
         <div className="flex items-center gap-4 my-8">
           <div className="flex-1 h-0.5 bg-ink/5"></div>
@@ -144,9 +203,6 @@ function LoginPage() {
 
       </div>
       
-      <p className="mt-8 text-ink/60 font-medium relative z-10">
-        Don't have an account? <Link to="/register" className="text-sky font-bold hover:text-sky/80 transition-colors underline underline-offset-4 ml-1">Sign up</Link>
-      </p>
     </div>
   )
 }

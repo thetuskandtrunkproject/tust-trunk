@@ -5,7 +5,7 @@ import { cmsApi } from '@/lib/admin/cms-api'
 import { Hero } from '@/components/site/hero'
 
 export function HeroBannerEditor() {
-  const [data, setData] = useState<{ promoRibbonText?: string; slides: any[] } | null>(null)
+  const [data, setData] = useState<any | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [showToast, setShowToast] = useState('')
@@ -161,7 +161,7 @@ export function HeroBannerEditor() {
   return (
     <AdminCard padding={false} className="flex flex-col xl:flex-row relative">
       {/* Editor Form */}
-      <div className="flex-1 p-6 border-b xl:border-b-0 xl:border-r border-ink/10 flex flex-col">
+      <div className="flex-1 min-w-0 p-6 border-b xl:border-b-0 xl:border-r border-ink/10 flex flex-col">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-4 border-b border-ink/5 gap-4">
           <div>
             <h3 className="font-medium text-ink text-lg">Hero Banner Carousel</h3>

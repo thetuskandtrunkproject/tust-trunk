@@ -10,8 +10,8 @@ gsap.registerPlugin(ScrollTrigger)
 
 const AUTOPLAY_MS = 5000
 
-export function Hero({ initialData }: { initialData?: { promoRibbonText: string, slides: any[] } | null }) {
-  const [cmsData, setCmsData] = useState<{ promoRibbonText: string, slides: any[] } | null>(initialData || null)
+export function Hero({ initialData }: { initialData?: any | null }) {
+  const [cmsData, setCmsData] = useState<any | null>(initialData || null)
   const [current, setCurrent] = useState(0)
   const isAnimating = useRef(false)
   const containerRef = useRef<HTMLDivElement>(null)

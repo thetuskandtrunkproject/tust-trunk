@@ -54,3 +54,21 @@ def revoke_sessions(request: Request, current_user: dict = Depends(get_current_u
     """
     auth_service.revoke_all_sessions(current_user['firebase_uid'])
     return None
+
+from app.schemas.auth import SendOTPRequest, VerifyOTPRequest
+
+@router.post("/send-otp")
+@limiter.limit("3/10minutes")
+def send_otp(request: Request, payload: SendOTPRequest, db: Client = Depends(get_db_client)):
+    """
+    Generates and sends an OTP via WhatsApp using PayPerWA.
+    """
+    return auth_service.send_otp(db, payload.phone)
+
+@router.post("/verify-otp")
+@limiter.limit("5/minute")
+def verify_otp(request: Request, payload: VerifyOTPRequest, db: Client = Depends(get_db_client)):
+    """
+    Verifies an OTP and returns a custom Firebase token for authentication.
+    """
+    return auth_service.verify_otp(db, payload.phone, payload.otp)

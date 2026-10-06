@@ -33,3 +33,17 @@ class UserUpdate(BaseModel):
             raise ValueError('Phone number must contain between 7 and 15 digits')
         return v
 
+class SendOTPRequest(BaseModel):
+    phone: str
+
+    @field_validator('phone')
+    def validate_phone(cls, v):
+        digits = ''.join(filter(str.isdigit, v))
+        if len(digits) < 7 or len(digits) > 15:
+            raise ValueError('Invalid phone number')
+        return digits
+
+class VerifyOTPRequest(BaseModel):
+    phone: str
+    otp: str
+
