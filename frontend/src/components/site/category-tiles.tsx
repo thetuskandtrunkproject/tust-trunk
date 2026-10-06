@@ -275,28 +275,30 @@ export function CategoryTiles({ initialData }: { initialData?: any }) {
               key={idx}
               ref={el => { cardsRef.current[idx] = el }}
               to={tile.link} 
-              className="group block relative aspect-[4/5] rounded-2xl sm:rounded-[2.5rem] overflow-hidden bg-cloud shadow-sm hover:shadow-xl transition-shadow duration-500 will-change-transform opacity-0"
+              className="group flex flex-col items-center gap-3 md:block md:relative md:aspect-[4/5] md:rounded-[2.5rem] md:overflow-hidden md:bg-cloud md:shadow-sm hover:shadow-xl transition-shadow duration-500 will-change-transform opacity-0"
             >
-              {/* Image */}
-              <img 
-                src={tile.image} 
-                alt={tile.label} 
-                loading="lazy"
-                className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105"
-              />
+              {/* Image Container: Circle on Mobile, Full Card on Desktop */}
+              <div className="relative w-[85%] sm:w-full aspect-square md:w-full md:h-full md:aspect-auto rounded-full md:rounded-none overflow-hidden bg-cloud shadow-md md:shadow-none mx-auto border-4 border-white md:border-0">
+                <img 
+                  src={tile.image} 
+                  alt={tile.label} 
+                  loading="lazy"
+                  className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105"
+                />
+                
+                {/* Permanent Bottom Gradient for Text Legibility (Desktop Only) */}
+                <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500"></div>
+              </div>
               
-              {/* Permanent Bottom Gradient for Text Legibility */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500"></div>
-              
-              {/* Content Overlay */}
-              <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 lg:p-8">
-                <div className="flex flex-col items-start transform group-hover:-translate-y-2 transition-transform duration-500 ease-out">
-                  <h3 className="font-heading font-bold text-xl sm:text-3xl lg:text-4xl text-white capitalize drop-shadow-sm">
+              {/* Content Label */}
+              <div className="md:absolute md:inset-0 flex flex-col justify-end md:p-6 lg:p-8 text-center md:text-left w-full">
+                <div className="flex flex-col items-center md:items-start transform md:group-hover:-translate-y-2 transition-transform duration-500 ease-out">
+                  <h3 className="font-heading font-black text-[15px] sm:text-lg md:text-3xl lg:text-4xl text-ink md:text-white capitalize drop-shadow-none md:drop-shadow-sm">
                     {tile.label}
                   </h3>
                   
-                  {/* Hover Button */}
-                  <div className="overflow-hidden h-0 group-hover:h-10 transition-all duration-500 ease-out mt-1">
+                  {/* Hover Button (Desktop Only) */}
+                  <div className="hidden md:block overflow-hidden h-0 group-hover:h-10 transition-all duration-500 ease-out mt-1">
                     <span className="inline-flex items-center gap-2 bg-cta/90 backdrop-blur-sm text-white text-sm font-medium px-4 py-1.5 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
                       Explore {tile.label} <span className="text-lg leading-none">&rarr;</span>
                     </span>
@@ -308,7 +310,7 @@ export function CategoryTiles({ initialData }: { initialData?: any }) {
         </div>
         
         <div className="mt-12 sm:mt-24 text-center">
-           <Link to={cmsData?.buttonLink || "/shop"} style={{ color: cmsData?.buttonTextColor || '#2D283E' }} className="inline-flex items-center gap-3 bg-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold text-base sm:text-lg shadow-2xl hover:scale-105 transition-all duration-300">
+           <Link to={cmsData?.buttonLink || "/shop"} className="btn-secondary">
              {cmsData?.buttonText || "View Complete Collection"} <span className="text-xl">&rarr;</span>
            </Link>
         </div>

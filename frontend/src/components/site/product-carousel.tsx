@@ -218,7 +218,7 @@ export function ProductCarousel({ initialData }: { initialData?: any[] }) {
       </div>
       
       <div className="container mx-auto px-4 mt-2 md:hidden">
-        <Link to="/shop" search={{ sort: 'newest' }} className="flex items-center justify-center w-full py-4 bg-cloud border border-ink/20 hover:border-ink rounded-xl font-bold text-ink transition-colors">
+        <Link to="/shop" search={{ sort: 'newest' }} className="btn-secondary w-full">
           View all products
         </Link>
       </div>
