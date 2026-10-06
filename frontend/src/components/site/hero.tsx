@@ -213,43 +213,50 @@ export function Hero({ initialData }: { initialData?: { promoRibbonText: string,
                 </span>
               </div>
 
-              {/* Slides Content Container */}
-              <div className="relative min-h-[250px] md:min-h-[290px]">
-                {slides.map((slide, idx) => (
-                  <div 
-                    key={idx} 
-                    className={`hero-content-slide absolute inset-0 flex flex-col justify-center ${idx === 0 ? 'visible' : 'invisible'}`}
+              {/* Static Content Container (Decoupled from sliding images) */}
+              <div className={`relative min-h-[250px] md:min-h-[290px] flex flex-col justify-center ${
+                (cmsData?.align || slides[0]?.align) === 'center' ? 'items-center text-center' :
+                (cmsData?.align || slides[0]?.align) === 'right' ? 'items-end text-right' :
+                'items-start text-left'
+              }`}>
+                <h1 
+                  className="font-heading text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-2"
+                  style={{ color: cmsData?.textColor || slides[0]?.textColor || '#2D283E' }}
+                >
+                  {cmsData?.title || slides[0]?.title}
+                </h1>
+                <h1 
+                  className="font-heading text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-4 sm:mb-6" 
+                  style={{ color: cmsData?.accentColor || slides[0]?.accentColor || '#FF6B8B' }}
+                >
+                  {cmsData?.titleAccent || slides[0]?.titleAccent}
+                </h1>
+                
+                <p 
+                  className="text-base sm:text-lg font-medium leading-relaxed max-w-xl mb-6 sm:mb-8 line-clamp-3"
+                  style={{ color: cmsData?.textColor || slides[0]?.textColor ? `${cmsData?.textColor || slides[0]?.textColor}cc` : '#2D283Ecc' }}
+                >
+                  {cmsData?.subtitle || slides[0]?.subtitle}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-4">
+                  <Link
+                    to={cmsData?.ctaLink || slides[0]?.ctaLink || '/shop'}
+                    className="group inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-sm shadow-md hover:-translate-y-1 hover:shadow-lg transition-all"
+                    style={{ backgroundColor: cmsData?.accentColor || slides[0]?.accentColor || '#FF6B8B', color: '#fff' }}
                   >
-                    <h1 className="font-heading text-3xl sm:text-5xl lg:text-6xl font-black text-ink tracking-tight leading-[1.1] mb-2">
-                      {slide.title}
-                    </h1>
-                    <h1 className="font-heading text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-4 sm:mb-6" style={{ color: slide.accentColor || '#FF6B8B' }}>
-                      {slide.titleAccent}
-                    </h1>
-                    
-                    <p className="text-base sm:text-lg text-ink/70 font-medium leading-relaxed max-w-xl mb-6 sm:mb-8 line-clamp-3">
-                      {slide.subtitle}
-                    </p>
+                    {cmsData?.cta || slides[0]?.cta || 'Shop Collection'}
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+                  </Link>
 
-                    <div className="flex flex-wrap items-center gap-4">
-                      <Link
-                        to={slide.ctaLink || '/shop'}
-                        className="btn-primary group"
-                      >
-                        {slide.cta || 'Shop Collection'}
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
-                      </Link>
-
-                      <Link
-                        to="/shop"
-                        search={{ tag: 'Sale' }}
-                        className="btn-secondary"
-                      >
-                        Explore Offers
-                      </Link>
-                    </div>
-                  </div>
-                ))}
+                  <Link
+                    to="/shop"
+                    search={{ tag: 'Sale' }}
+                    className="btn-secondary"
+                  >
+                    Explore Offers
+                  </Link>
+                </div>
               </div>
 
               {/* Bottom Controls & Playful Trust Bar */}
@@ -326,10 +333,13 @@ export function Hero({ initialData }: { initialData?: { promoRibbonText: string,
                       <img
                         src={slide.img}
                         alt={slide.alt || slide.title}
-                        className="hero-parallax-img w-full h-full object-cover object-center"
+                        className="hero-parallax-img w-full h-full object-cover object-[center_15%]"
                         loading={idx === 0 ? 'eager' : 'lazy'}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-60 pointer-events-none"></div>
+                      {(cmsData?.hasOverlay || slide.hasOverlay) && (
+                        <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
+                      )}
                     </div>
                   ))}
                 </div>

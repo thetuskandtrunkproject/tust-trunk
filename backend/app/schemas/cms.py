@@ -15,6 +15,16 @@ class HeroSlide(BaseModel):
     textColor: str = "#FFFFFF"
 
 class HeroBannerData(BaseModel):
+    title: Optional[str] = None
+    titleAccent: Optional[str] = None
+    subtitle: Optional[str] = None
+    cta: Optional[str] = None
+    ctaLink: Optional[str] = None
+    align: Optional[str] = None
+    accentColor: Optional[str] = None
+    textColor: Optional[str] = None
+    hasOverlay: Optional[bool] = None
+    promoRibbonText: Optional[str] = None
     slides: List[HeroSlide] = []
 
 class HomeProductsData(BaseModel):

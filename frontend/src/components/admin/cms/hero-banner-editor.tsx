@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Save, Plus, Trash2, ChevronUp, ChevronDown, Image as ImageIcon, RefreshCw, Bookmark } from 'lucide-react'
 import { AdminCard, AdminButton, ConfirmModal } from '@/components/admin/ui/primitives'
 import { cmsApi } from '@/lib/admin/cms-api'
+import { Hero } from '@/components/site/hero'
 
 export function HeroBannerEditor() {
   const [data, setData] = useState<{ promoRibbonText?: string; slides: any[] } | null>(null)
@@ -111,6 +112,11 @@ export function HeroBannerEditor() {
     setData({ ...data, slides: newSlides })
   }
 
+  const updateGlobal = (updates: any) => {
+    if (!data) return
+    setData({ ...data, ...updates })
+  }
+
   const addSlide = () => {
     if (!data) return
     setData({
@@ -207,10 +213,71 @@ export function HeroBannerEditor() {
 
 
 
+        <div className="bg-white border border-ink/10 rounded-xl p-5 shadow-sm mb-6">
+          <h4 className="font-medium text-ink flex items-center gap-2 mb-4 border-b border-ink/5 pb-4">
+            Hero Content & Styling
+          </h4>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-ink/80 mb-1">Title</label>
+                <input type="text" value={data.title ?? data.slides[0]?.title ?? ''} onChange={(e) => updateGlobal({ title: e.target.value })} className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-ink/80 mb-1">Title Accent (Bold)</label>
+                <input type="text" value={data.titleAccent ?? data.slides[0]?.titleAccent ?? ''} onChange={(e) => updateGlobal({ titleAccent: e.target.value })} className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink/80 mb-1">Subtitle</label>
+              <textarea rows={2} value={data.subtitle ?? data.slides[0]?.subtitle ?? ''} onChange={(e) => updateGlobal({ subtitle: e.target.value })} className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink resize-none" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-ink/80 mb-1">Button Text</label>
+                <input type="text" value={data.cta ?? data.slides[0]?.cta ?? ''} onChange={(e) => updateGlobal({ cta: e.target.value })} className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-ink/80 mb-1">Button Navigation Link</label>
+                <input type="text" value={data.ctaLink ?? data.slides[0]?.ctaLink ?? ''} onChange={(e) => updateGlobal({ ctaLink: e.target.value })} className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-ink/80 mb-1">Theme Color</label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={data.accentColor ?? data.slides[0]?.accentColor ?? '#FF6B8B'} onChange={(e) => updateGlobal({ accentColor: e.target.value })} className="w-8 h-8 rounded cursor-pointer" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-ink/80 mb-1">Text Color</label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={data.textColor ?? data.slides[0]?.textColor ?? '#2D283E'} onChange={(e) => updateGlobal({ textColor: e.target.value })} className="w-8 h-8 rounded cursor-pointer" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-ink/80 mb-1">Alignment</label>
+                <select value={data.align ?? data.slides[0]?.align ?? 'left'} onChange={(e) => updateGlobal({ align: e.target.value })} className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink">
+                  <option value="left">Left</option>
+                  <option value="center">Center</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-ink/80 mb-1">Image Overlay</label>
+                <select value={data.hasOverlay ? 'yes' : 'no'} onChange={(e) => updateGlobal({ hasOverlay: e.target.value === 'yes' })} className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink">
+                  <option value="yes">Darken Image</option>
+                  <option value="no">None</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="mb-4 flex items-center justify-between bg-cloud p-4 rounded-xl border border-ink/5">
           <h4 className="font-medium text-ink flex items-center gap-2">
             <ImageIcon className="w-4 h-4 text-ink/50" />
-            Carousel Slides
+            Image Carousel Slides
           </h4>
           <button 
             onClick={addSlide}
@@ -240,7 +307,7 @@ export function HeroBannerEditor() {
           <div className="bg-white border border-ink/10 rounded-xl p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4 border-b border-ink/5 pb-4">
               <h5 className="font-medium text-ink flex items-center gap-2">
-                Editing Slide {activeSlideIndex + 1}
+                Image for Slide {activeSlideIndex + 1}
               </h5>
               <div className="flex items-center gap-2">
                 <button onClick={() => moveSlide(activeSlideIndex, 'up')} disabled={activeSlideIndex === 0} className="p-1.5 text-ink/60 hover:text-ink disabled:opacity-30 rounded hover:bg-cloud transition-colors">
@@ -277,108 +344,6 @@ export function HeroBannerEditor() {
                   className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-coral file:text-white hover:file:bg-opacity-90"
                 />
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-ink/80 mb-1">Title</label>
-                  <input
-                    type="text"
-                    value={activeSlide.title}
-                    onChange={(e) => updateSlide(activeSlideIndex, { title: e.target.value })}
-                    className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-ink/80 mb-1">Title Accent (Bold)</label>
-                  <input
-                    type="text"
-                    value={activeSlide.titleAccent}
-                    onChange={(e) => updateSlide(activeSlideIndex, { titleAccent: e.target.value })}
-                    className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-ink/80 mb-1">Subtitle</label>
-                <textarea
-                  value={activeSlide.subtitle}
-                  onChange={(e) => updateSlide(activeSlideIndex, { subtitle: e.target.value })}
-                  rows={2}
-                  className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink resize-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-ink/80 mb-1">Button Text</label>
-                  <input
-                    type="text"
-                    value={activeSlide.cta}
-                    onChange={(e) => updateSlide(activeSlideIndex, { cta: e.target.value })}
-                    className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-ink/80 mb-1">Button Navigation Link</label>
-                  <input
-                    type="text"
-                    value={activeSlide.ctaLink}
-                    onChange={(e) => updateSlide(activeSlideIndex, { ctaLink: e.target.value })}
-                    className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-ink/80 mb-1">Button Color</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={activeSlide.accentColor}
-                      onChange={(e) => updateSlide(activeSlideIndex, { accentColor: e.target.value })}
-                      className="w-8 h-8 rounded cursor-pointer"
-                    />
-                    <span className="text-xs text-ink/60">{activeSlide.accentColor}</span>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-ink/80 mb-1">Text Color</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={activeSlide.textColor}
-                      onChange={(e) => updateSlide(activeSlideIndex, { textColor: e.target.value })}
-                      className="w-8 h-8 rounded cursor-pointer"
-                    />
-                    <span className="text-xs text-ink/60">{activeSlide.textColor}</span>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-ink/80 mb-1">Alignment</label>
-                  <select
-                    value={activeSlide.align}
-                    onChange={(e) => updateSlide(activeSlideIndex, { align: e.target.value })}
-                    className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink"
-                  >
-                    <option value="left">Left</option>
-                    <option value="center">Center</option>
-                    <option value="right">Right</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-ink/80 mb-1">Has Overlay</label>
-                  <select
-                    value={activeSlide.hasOverlay ? 'yes' : 'no'}
-                    onChange={(e) => updateSlide(activeSlideIndex, { hasOverlay: e.target.value === 'yes' })}
-                    className="w-full bg-cloud border border-ink/20 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink"
-                  >
-                    <option value="yes">Yes (Darkens image)</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-              </div>
             </div>
           </div>
         )}
@@ -400,42 +365,10 @@ export function HeroBannerEditor() {
 
         {/* Carousel Preview Area */}
         {activeSlide ? (
-          <div className="w-full relative rounded-2xl overflow-hidden shadow-xl bg-ink" style={{ aspectRatio: '16/9' }}>
-            <img src={activeSlide.img} alt="" className="absolute inset-0 w-full h-full object-cover" />
-            
-            {activeSlide.hasOverlay && (
-              <div className="absolute inset-0 bg-black/20" />
-            )}
-
-            <div className={`absolute inset-0 flex items-center p-8 ${
-              activeSlide.align === 'center' ? 'justify-center text-center' : 
-              activeSlide.align === 'right' ? 'justify-end text-right' : 'justify-start text-left'
-            }`}>
-              <div className="max-w-sm relative z-10">
-                <h1 
-                  className="font-heading font-bold text-3xl mb-2 leading-tight"
-                  style={{ color: activeSlide.textColor }}
-                >
-                  {activeSlide.title} <span style={{ color: activeSlide.accentColor }}>{activeSlide.titleAccent}</span>
-                </h1>
-                <p 
-                  className="text-sm mb-6 max-w-xs"
-                  style={{ color: activeSlide.textColor, opacity: 0.9 }}
-                >
-                  {activeSlide.subtitle}
-                </p>
-                <div className={`flex ${
-                  activeSlide.align === 'center' ? 'justify-center' : 
-                  activeSlide.align === 'right' ? 'justify-end' : 'justify-start'
-                }`}>
-                  <button 
-                    className="text-sm px-6 py-3 rounded-full font-bold shadow-md hover:scale-105 transition-transform"
-                    style={{ backgroundColor: activeSlide.accentColor, color: '#fff' }}
-                  >
-                    {activeSlide.cta}
-                  </button>
-                </div>
-              </div>
+          <div className="w-full relative rounded-2xl overflow-hidden shadow-xl bg-cloud mt-4" style={{ height: '400px' }}>
+            {/* We render the actual Hero component locked to the currently edited slide, scaled down to fit the preview pane */}
+            <div className="absolute top-0 left-0 w-[1400px] h-[800px] origin-top-left" style={{ transform: 'scale(0.39)', pointerEvents: 'none' }}>
+              <Hero initialData={{ ...data, promoRibbonText: '', slides: [activeSlide] }} />
             </div>
           </div>
         ) : (
