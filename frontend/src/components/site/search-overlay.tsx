@@ -13,11 +13,11 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const [query, setQuery] = useState('')
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   
-  const debouncedQuery = useDebounce(query, 250)
+  const debouncedQuery = useDebounce(query, 750)
   const navigate = useNavigate()
   const inputRef = useRef<HTMLInputElement>(null)
+  const cacheRef = useRef<Record<string, any[]>>({})
 
-  const popularSearches = ["Dresses", "Co-ord Sets", "New Arrivals", "Sweatshirts", "Denim"]
 
   useEffect(() => {
     if (isOpen) {
@@ -41,18 +41,23 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
 
-  if (!isOpen) return null
-
   const [results, setResults] = useState<any[]>([])
 
   useEffect(() => {
     const fetchSearch = async () => {
-      if (debouncedQuery.trim().length > 0) {
+      const term = debouncedQuery.trim()
+      if (term.length > 0) {
+        if (cacheRef.current[term]) {
+          setResults(cacheRef.current[term])
+          return
+        }
         try {
           const res = await api.get('/public/products', {
-            params: { search: debouncedQuery, page_size: 6 }
+            params: { search: term, page_size: 6 }
           })
-          setResults(res.data.items || [])
+          const items = res.data.items || []
+          cacheRef.current[term] = items
+          setResults(items)
         } catch (err) {
           console.error("Search failed", err)
         }
@@ -62,6 +67,8 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     }
     fetchSearch()
   }, [debouncedQuery])
+
+  if (!isOpen) return null
 
   const handleSearchSubmit = (searchQuery: string) => {
     if (!searchQuery.trim()) return
@@ -153,20 +160,6 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 </div>
               )}
 
-              <div>
-                <h3 className="font-heading font-bold text-xl text-ink mb-4">Popular Searches</h3>
-                <div className="flex flex-wrap gap-3">
-                  {popularSearches.map(term => (
-                    <button
-                      key={term}
-                      onClick={() => handleSearchSubmit(term)}
-                      className="px-5 py-2.5 bg-white border border-ink/10 rounded-full font-medium text-ink/70 hover:text-sky hover:border-sky hover:bg-sky/5 transition-all hover:-translate-y-0.5"
-                    >
-                      {term}
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
           )}
 
@@ -216,21 +209,6 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
               </div>
               <h3 className="font-heading font-bold text-2xl text-ink mb-2">No results found</h3>
               <p className="text-ink/60 font-medium mb-10">We couldn't find anything matching "{debouncedQuery}".</p>
-              
-              <div className="text-left">
-                <h4 className="font-heading font-bold text-xl text-ink mb-4">Try these instead</h4>
-                <div className="flex flex-wrap justify-center gap-3">
-                  {popularSearches.slice(0, 3).map(term => (
-                    <button
-                      key={term}
-                      onClick={() => handleSearchSubmit(term)}
-                      className="px-5 py-2.5 bg-white border border-ink/10 rounded-full font-medium text-ink/70 hover:text-sky hover:border-sky hover:bg-sky/5 transition-all hover:-translate-y-0.5"
-                    >
-                      {term}
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
           )}
 
