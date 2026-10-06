@@ -52,17 +52,33 @@ app = FastAPI(title="The Tusk and Trunk API", lifespan=lifespan)
 app.state.limiter = auth_limiter  # slowapi expects a single state.limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-origins = [
+default_origins = [
     "http://localhost:5173",
     "http://localhost:5174",
-    "http://localhost:5175"
+    "http://localhost:5175",
+    "https://thetuskandtrunk.com",
+    "https://www.thetuskandtrunk.com",
+    "https://tust-trunk.vercel.app",
 ]
+
+origins_set = set(default_origins)
+
 if settings.FRONTEND_URL:
-    origins.append(settings.FRONTEND_URL)
+    raw_urls = [url.strip() for url in settings.FRONTEND_URL.replace(';', ',').split(',') if url.strip()]
+    for url in raw_urls:
+        url = url.rstrip('/')
+        if not url.startswith('http://') and not url.startswith('https://'):
+            origins_set.add(f"https://{url}")
+            origins_set.add(f"http://{url}")
+        else:
+            origins_set.add(url)
+
+origins_list = list(origins_set)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=origins_list,
+    allow_origin_regex=r"https://.*\.vercel\.app|https://.*thetuskandtrunk\.com",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
