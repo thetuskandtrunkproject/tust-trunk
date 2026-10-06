@@ -284,7 +284,7 @@ export function Hero({ initialData }: { initialData?: any | null }) {
 
                   {/* Progress Dots */}
                   <div className="flex items-center gap-2">
-                    {slides.map((_, idx) => (
+                    {slides.map((_: any, idx: number) => (
                       <button
                         key={idx}
                         onClick={() => goTo(idx)}
@@ -323,7 +323,7 @@ export function Hero({ initialData }: { initialData?: any | null }) {
               <div 
                 className="relative w-full h-full overflow-hidden bg-cloud lg:rounded-none lg:rounded-bl-[4rem]"
               >
-                  {slides.map((slide, idx) => (
+                  {slides.map((slide: any, idx: number) => (
                     <div
                       key={idx}
                       className={`hero-slide-img absolute inset-[-15%] transition-all duration-500 ${

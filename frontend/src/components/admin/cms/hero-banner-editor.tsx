@@ -131,12 +131,12 @@ export function HeroBannerEditor() {
       hasOverlay: false
     }))
     
-    setData(prev => prev ? { ...prev, slides: [...prev.slides, ...addedSlides] } : null)
+    setData((prev: any) => prev ? { ...prev, slides: [...prev.slides, ...addedSlides] } : null)
   }
 
   const removeSlide = (index: number) => {
     if (!data) return
-    const newSlides = data.slides.filter((_, i) => i !== index)
+    const newSlides = data.slides.filter((_: any, i: number) => i !== index)
     setData({ ...data, slides: newSlides })
   }
 
@@ -273,7 +273,7 @@ export function HeroBannerEditor() {
           </div>
           
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-ink/10 scrollbar-track-transparent">
-            {data.slides.map((slide, idx) => (
+            {data.slides.map((slide: any, idx: number) => (
               <div 
                 key={slide.id}
                 draggable
