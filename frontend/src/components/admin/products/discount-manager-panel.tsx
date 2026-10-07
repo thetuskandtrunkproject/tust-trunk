@@ -19,8 +19,12 @@ export function DiscountManagerPanel({ onClose }: DiscountManagerPanelProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editPrice, setEditPrice] = useState<string>('')
+  const [editStartDate, setEditStartDate] = useState<string>('')
+  const [editEndDate, setEditEndDate] = useState<string>('')
   
   const [bulkPrice, setBulkPrice] = useState<string>('')
+  const [bulkStartDate, setBulkStartDate] = useState<string>('')
+  const [bulkEndDate, setBulkEndDate] = useState<string>('')
 
   const loadProducts = async () => {
     try {
@@ -73,7 +77,12 @@ export function DiscountManagerPanel({ onClose }: DiscountManagerPanelProps) {
       return
     }
     try {
-      await bulkUpdateSalePrice([productId], priceVal * 100) // to paise
+      await bulkUpdateSalePrice(
+        [productId], 
+        priceVal * 100,
+        editStartDate ? new Date(editStartDate).toISOString() : null,
+        editEndDate ? new Date(editEndDate).toISOString() : null
+      ) // to paise
       showToast('Discount applied successfully!')
       setEditingId(null)
       loadProducts()
@@ -89,7 +98,12 @@ export function DiscountManagerPanel({ onClose }: DiscountManagerPanelProps) {
       return
     }
     try {
-      await bulkUpdateSalePrice(selectedIds, priceVal * 100) // to paise
+      await bulkUpdateSalePrice(
+        selectedIds, 
+        priceVal * 100,
+        bulkStartDate ? new Date(bulkStartDate).toISOString() : null,
+        bulkEndDate ? new Date(bulkEndDate).toISOString() : null
+      ) // to paise
       showToast(`Discount applied to ${selectedIds.length} products!`)
       setBulkPrice('')
       setSelectedIds([])
@@ -181,22 +195,26 @@ export function DiscountManagerPanel({ onClose }: DiscountManagerPanelProps) {
             
             {selectedIds.length > 0 && (
               <div className="flex items-center gap-3 animate-in fade-in zoom-in-95 duration-200">
-                <div className="flex items-center bg-[#F4F6F8] rounded-lg p-1 border border-[#E3E3E3]">
-                  <span className="pl-3 pr-1 text-[13px] font-semibold text-[#6D7175]">₹</span>
-                  <input 
-                    type="number"
-                    placeholder="Set bulk price"
-                    value={bulkPrice}
-                    onChange={e => setBulkPrice(e.target.value)}
-                    onKeyDown={(e) => { if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault() }}
-                    className="w-28 bg-transparent text-[14px] py-1 px-2 focus:outline-none font-medium"
-                  />
-                  <button 
-                    onClick={handleBulkApply}
-                    className="bg-[#005bd3] hover:bg-[#004c99] text-white px-4 py-1.5 rounded-md text-[13px] font-semibold transition-colors"
-                  >
-                    Apply
-                  </button>
+                <div className="flex flex-col gap-2 bg-[#F4F6F8] rounded-lg p-2 border border-[#E3E3E3]">
+                  <div className="flex items-center gap-2">
+                    <span className="pl-2 text-[13px] font-semibold text-[#6D7175]">₹</span>
+                    <input 
+                      type="number"
+                      placeholder="Bulk price"
+                      value={bulkPrice}
+                      onChange={e => setBulkPrice(e.target.value)}
+                      onKeyDown={(e) => { if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault() }}
+                      className="w-24 bg-transparent text-[14px] py-1 px-1 focus:outline-none font-medium"
+                    />
+                    <input type="date" value={bulkStartDate} onChange={e => setBulkStartDate(e.target.value)} className="w-32 bg-transparent text-[13px] py-1 focus:outline-none font-medium" title="Start Date" />
+                    <input type="date" value={bulkEndDate} onChange={e => setBulkEndDate(e.target.value)} className="w-32 bg-transparent text-[13px] py-1 focus:outline-none font-medium" title="End Date" />
+                    <button 
+                      onClick={handleBulkApply}
+                      className="bg-[#005bd3] hover:bg-[#004c99] text-white px-3 py-1.5 rounded-md text-[13px] font-semibold transition-colors"
+                    >
+                      Apply
+                    </button>
+                  </div>
                 </div>
                 <div className="w-px h-6 bg-[#E3E3E3] mx-1" />
                 <button 
@@ -267,34 +285,40 @@ export function DiscountManagerPanel({ onClose }: DiscountManagerPanelProps) {
 
                     <div className="shrink-0 flex items-center justify-end text-right min-w-[220px]">
                       {isCurrentlyEditing ? (
-                        <div className="flex items-center gap-2">
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-[#8C9196] font-semibold">₹</span>
-                            <input 
-                              type="number"
-                              autoFocus
-                              placeholder="New price"
-                              value={editPrice}
-                              onChange={e => setEditPrice(e.target.value)}
-                              onKeyDown={e => { 
-                                if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault()
-                                if (e.key === 'Enter') handleSaveDiscount(p.id) 
-                              }}
-                              className="w-28 pl-7 pr-3 py-2 text-[14px] font-semibold border-2 border-[#005bd3] rounded-lg focus:outline-none ring-4 ring-[#005bd3]/10"
-                            />
+                        <div className="flex flex-col gap-2 items-end">
+                          <div className="flex items-center gap-2">
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-[#8C9196] font-semibold">₹</span>
+                              <input 
+                                type="number"
+                                autoFocus
+                                placeholder="New price"
+                                value={editPrice}
+                                onChange={e => setEditPrice(e.target.value)}
+                                onKeyDown={e => { 
+                                  if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault()
+                                  if (e.key === 'Enter') handleSaveDiscount(p.id) 
+                                }}
+                                className="w-28 pl-7 pr-3 py-1.5 text-[14px] font-semibold border-2 border-[#005bd3] rounded-lg focus:outline-none ring-4 ring-[#005bd3]/10"
+                              />
+                            </div>
+                            <input type="date" value={editStartDate} onChange={e => setEditStartDate(e.target.value)} className="border-2 border-[#E3E3E3] rounded-lg px-2 py-1.5 text-[13px] focus:outline-none focus:border-[#005bd3]" title="Start Date" />
+                            <input type="date" value={editEndDate} onChange={e => setEditEndDate(e.target.value)} className="border-2 border-[#E3E3E3] rounded-lg px-2 py-1.5 text-[13px] focus:outline-none focus:border-[#005bd3]" title="End Date" />
                           </div>
-                          <button 
-                            onClick={() => handleSaveDiscount(p.id)}
-                            className="p-2 bg-[#005bd3] text-white rounded-lg hover:bg-[#004c99] transition-colors"
-                          >
-                            <Check className="w-5 h-5" />
-                          </button>
-                          <button 
-                            onClick={() => setEditingId(null)}
-                            className="p-2 text-[#5C5F62] hover:bg-black/5 rounded-lg transition-colors"
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => handleSaveDiscount(p.id)}
+                              className="px-3 py-1.5 bg-[#005bd3] text-white font-semibold rounded-lg hover:bg-[#004c99] transition-colors flex items-center gap-1"
+                            >
+                              <Check className="w-4 h-4" /> Save
+                            </button>
+                            <button 
+                              onClick={() => setEditingId(null)}
+                              className="px-3 py-1.5 text-[#5C5F62] font-semibold hover:bg-black/5 rounded-lg transition-colors flex items-center gap-1"
+                            >
+                              <X className="w-4 h-4" /> Cancel
+                            </button>
+                          </div>
                         </div>
                       ) : hasSale ? (
                         <div className="flex flex-col items-end gap-1.5">
@@ -310,6 +334,8 @@ export function DiscountManagerPanel({ onClose }: DiscountManagerPanelProps) {
                                 onClick={() => {
                                   setEditingId(p.id)
                                   setEditPrice(salePrice!.toString())
+                                  setEditStartDate(variant?.sale_start_date ? new Date(variant.sale_start_date).toISOString().split('T')[0] : '')
+                                  setEditEndDate(variant?.sale_end_date ? new Date(variant.sale_end_date).toISOString().split('T')[0] : '')
                                 }}
                                 className="px-3 py-1.5 text-[#005bd3] text-[13px] font-bold hover:bg-[#E1F3FA] rounded-lg transition-colors"
                               >
@@ -331,6 +357,8 @@ export function DiscountManagerPanel({ onClose }: DiscountManagerPanelProps) {
                             onClick={() => {
                               setEditingId(p.id)
                               setEditPrice('')
+                              setEditStartDate('')
+                              setEditEndDate('')
                             }}
                             className="flex items-center gap-2 px-4 py-2 bg-white border border-[#C9CCCF] text-[#202223] text-[13px] font-bold rounded-xl hover:border-[#202223] hover:shadow-sm transition-all"
                           >

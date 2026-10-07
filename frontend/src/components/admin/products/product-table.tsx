@@ -1,4 +1,4 @@
-import { Archive, PenLine, CheckSquare, Eye, Copy, Trash2 } from 'lucide-react'
+import { Archive, PenLine, CheckSquare, Eye, Copy, Trash2, ArchiveRestore } from 'lucide-react'
 import type { AdminProductListItem } from '@/lib/admin/products-api'
 import { Link, useRouter } from '@tanstack/react-router'
 import { AdminTableShell, AdminTh, AdminTd, StatusBadge, AdminThumbnail, AdminButton, AdminActionsDropdown, AdminCheckbox } from '@/components/admin/ui/primitives'
@@ -8,7 +8,7 @@ interface ProductTableProps {
   selectedIds: string[]
   onToggleSelect: (id: string) => void
   onToggleAll: () => void
-  onQuickAction: (id: string, action: 'edit' | 'archive' | 'delete' | 'duplicate') => void
+  onQuickAction: (id: string, action: 'edit' | 'archive' | 'unarchive' | 'delete' | 'duplicate') => void
 }
 
 export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAll, onQuickAction }: ProductTableProps) {
@@ -86,10 +86,10 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
                             onClick: () => onQuickAction(product.id, 'duplicate')
                           },
                           {
-                            label: 'Archive',
-                            icon: <Archive className="w-4 h-4" />,
-                            onClick: () => onQuickAction(product.id, 'archive'),
-                            danger: true
+                            label: product.status === 'Archived' ? 'Unarchive' : 'Archive',
+                            icon: product.status === 'Archived' ? <ArchiveRestore className="w-4 h-4" /> : <Archive className="w-4 h-4" />,
+                            onClick: () => onQuickAction(product.id, product.status === 'Archived' ? 'unarchive' : 'archive'),
+                            danger: product.status !== 'Archived'
                           },
                           {
                             label: 'Delete',
@@ -166,10 +166,10 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
                           onClick: () => onQuickAction(product.id, 'duplicate')
                         },
                         {
-                          label: 'Archive',
-                          icon: <Archive className="w-4 h-4" />,
-                          onClick: () => onQuickAction(product.id, 'archive'),
-                          danger: true
+                          label: product.status === 'Archived' ? 'Unarchive' : 'Archive',
+                          icon: product.status === 'Archived' ? <ArchiveRestore className="w-4 h-4" /> : <Archive className="w-4 h-4" />,
+                          onClick: () => onQuickAction(product.id, product.status === 'Archived' ? 'unarchive' : 'archive'),
+                          danger: product.status !== 'Archived'
                         },
                         {
                           label: 'Delete',

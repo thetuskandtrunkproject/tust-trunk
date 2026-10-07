@@ -132,7 +132,12 @@ export const bulkDeleteProducts = async (productIds: string[]) => {
   return data
 }
 
-export const bulkUpdateSalePrice = async (productIds: string[], salePrice: number | null) => {
-  const { data } = await api.post('/api/v1/admin/products/bulk/sale-price', { product_ids: productIds, sale_price: salePrice })
+export const bulkUpdateSalePrice = async (productIds: string[], salePrice: number | null, saleStartDate?: string | null, saleEndDate?: string | null) => {
+  const { data } = await api.post('/api/v1/admin/products/bulk/sale-price', { 
+    product_ids: productIds, 
+    sale_price: salePrice,
+    sale_start_date: saleStartDate,
+    sale_end_date: saleEndDate
+  })
   return data
 }

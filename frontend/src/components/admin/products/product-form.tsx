@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Save, Plus, Loader2 } from 'lucide-react'
+import { ArrowLeft, Save, Plus, Loader2, Calendar } from 'lucide-react'
 import type { AdminProduct } from '@/lib/admin/products-api'
 import {
   createAdminProduct,
@@ -387,21 +387,29 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
                     <div className="space-y-3">
                       <div>
                         <label className={labelClassName}>Start Date (Optional)</label>
-                        <input
-                          type="date"
-                          value={saleStartDate}
-                          onChange={e => setSaleStartDate(e.target.value)}
-                          className={inputClassName}
-                        />
+                        <div className="relative">
+                          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C9196]" />
+                          <input
+                            type="date"
+                            value={saleStartDate}
+                            onChange={e => setSaleStartDate(e.target.value)}
+                            onClick={e => (e.target as any).showPicker?.()}
+                            className={`${inputClassName} pl-9`}
+                          />
+                        </div>
                       </div>
                       <div>
                         <label className={labelClassName}>End Date (Optional)</label>
-                        <input
-                          type="date"
-                          value={saleEndDate}
-                          onChange={e => setSaleEndDate(e.target.value)}
-                          className={inputClassName}
-                        />
+                        <div className="relative">
+                          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C9196]" />
+                          <input
+                            type="date"
+                            value={saleEndDate}
+                            onChange={e => setSaleEndDate(e.target.value)}
+                            onClick={e => (e.target as any).showPicker?.()}
+                            className={`${inputClassName} pl-9`}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>

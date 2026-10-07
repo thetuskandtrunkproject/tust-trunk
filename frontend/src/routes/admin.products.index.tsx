@@ -105,7 +105,7 @@ function AdminProductsPage() {
   }
 
   // Action Handlers
-  const handleQuickAction = async (id: string, action: 'edit' | 'archive' | 'delete' | 'duplicate') => {
+  const handleQuickAction = async (id: string, action: 'edit' | 'archive' | 'unarchive' | 'delete' | 'duplicate') => {
     if (action === 'archive') {
       try {
         await archiveAdminProduct(id)
@@ -113,6 +113,14 @@ function AdminProductsPage() {
         loadProducts()
       } catch (err: any) {
         showToast(err.response?.data?.detail || 'Failed to archive product')
+      }
+    } else if (action === 'unarchive') {
+      try {
+        await bulkUpdateStatus([id], 'Active')
+        showToast('Product unarchived successfully')
+        loadProducts()
+      } catch (err: any) {
+        showToast('Failed to unarchive product', 'error')
       }
     } else if (action === 'delete') {
       showToast('Delete not supported. Use Archive instead.')

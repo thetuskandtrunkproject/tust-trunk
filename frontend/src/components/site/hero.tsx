@@ -324,11 +324,11 @@ export function Hero({ initialData }: { initialData?: any | null }) {
             </div>
 
             {/* Image Slider Controls */}
-            <div className="absolute bottom-6 left-6 lg:bottom-12 lg:left-12 z-30 bg-white/95 backdrop-blur-sm rounded-full px-4 py-3 shadow-xl border border-white/40 flex items-center gap-5">
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 bg-white/30 backdrop-blur-md rounded-full px-5 py-2.5 border border-white/40 flex items-center gap-4">
               {slides.length > 1 && (
                 <div className="flex items-center gap-1">
-                  <button onClick={prev} className="w-8 h-8 rounded-full flex items-center justify-center text-ink hover:bg-cloud transition-colors cursor-pointer"><ChevronLeft className="w-5 h-5" /></button>
-                  <button onClick={next} className="w-8 h-8 rounded-full flex items-center justify-center text-ink hover:bg-cloud transition-colors cursor-pointer"><ChevronRight className="w-5 h-5" /></button>
+                  <button onClick={prev} className="w-8 h-8 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer"><ChevronLeft className="w-5 h-5" /></button>
+                  <button onClick={next} className="w-8 h-8 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer"><ChevronRight className="w-5 h-5" /></button>
                 </div>
               )}
               <div className="flex items-center gap-1.5 pr-2">
@@ -336,7 +336,7 @@ export function Hero({ initialData }: { initialData?: any | null }) {
                   <button
                     key={idx}
                     onClick={() => goTo(idx)}
-                    className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${idx === current ? 'w-6 bg-coral' : 'w-2 bg-ink/20 hover:bg-ink/40'}`}
+                    className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${idx === current ? 'w-6 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'}`}
                     aria-label={`Go to slide ${idx + 1}`}
                   />
                 ))}

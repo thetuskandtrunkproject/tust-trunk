@@ -402,4 +402,4 @@ def duplicate_product(
     The new product will have ' (Copy)' appended to its name and slug.
     Status will be set to 'Draft'.
     """
-    return products_service.duplicate_product(db, product_id)
+    return products_service.duplicate_product(db, product_id, admin)

@@ -268,4 +268,6 @@ class BulkDeleteRequest(BaseModel):
 class BulkSalePriceRequest(BaseModel):
     product_ids: List[uuid.UUID]
     sale_price: Optional[int] = None  # None removes the sale price
+    sale_start_date: Optional[datetime] = None
+    sale_end_date: Optional[datetime] = None
 

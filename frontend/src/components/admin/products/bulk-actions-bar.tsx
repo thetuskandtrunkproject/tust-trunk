@@ -68,8 +68,13 @@ export function BulkActionsBar({
       </button>
       
       <button onClick={() => onBulkUpdateStatus('Draft')} className="flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium text-[#202223] hover:bg-[#F4F6F8] rounded-lg transition-colors">
-        <Archive className="w-4 h-4 text-[#5C5F62]" />
+        <FolderInput className="w-4 h-4 text-[#5C5F62]" />
         Draft
+      </button>
+      
+      <button onClick={() => onBulkUpdateStatus('Archived')} className="flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium text-[#202223] hover:bg-[#F4F6F8] rounded-lg transition-colors">
+        <Archive className="w-4 h-4 text-[#5C5F62]" />
+        Archive
       </button>
 
       <div className="h-4 w-px bg-[#E3E3E3] mx-1" />

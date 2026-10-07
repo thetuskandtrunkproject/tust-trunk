@@ -3,6 +3,7 @@ import logging
 import uuid
 import math
 from typing import Optional
+from datetime import datetime
 from fastapi import HTTPException
 from PIL import Image, ImageOps
 from supabase import Client
@@ -637,15 +638,20 @@ def bulk_delete_products(db: Client, product_ids: list[str]) -> dict:
         raise HTTPException(status_code=500, detail='Failed to delete products')
 
 
-def bulk_update_sale_price(db: Client, product_ids: list[str], sale_price: int | None) -> dict:
+def bulk_update_sale_price(db: Client, product_ids: list[str], sale_price: int | None, sale_start_date: datetime | None = None, sale_end_date: datetime | None = None) -> dict:
     try:
-        db.table(VARIANTS_TABLE).update({'sale_price': sale_price}).in_('product_id', product_ids).execute()
+        update_data = {
+            'sale_price': sale_price,
+            'sale_start_date': sale_start_date.isoformat() if sale_start_date else None,
+            'sale_end_date': sale_end_date.isoformat() if sale_end_date else None
+        }
+        db.table(VARIANTS_TABLE).update(update_data).in_('product_id', product_ids).execute()
         return {"status": "success"}
     except Exception as e:
         logger.error(f'Failed to bulk update sale price: {e}')
         raise HTTPException(status_code=500, detail='Failed to update sale price')
 
-def duplicate_product(db: Client, product_id: str) -> dict:
+def duplicate_product(db: Client, product_id: str, admin_user: dict) -> dict:
     import random, string
     product = _get_product_or_404(db, product_id)
     res = db.table(VARIANTS_TABLE).select('*').eq('product_id', product_id).execute()
@@ -664,7 +670,8 @@ def duplicate_product(db: Client, product_id: str) -> dict:
         'status': 'Draft',
         'images': product.get('images', []),
         'tags': product.get('tags', []),
-        'details': product.get('details', [])
+        'details': product.get('details', []),
+        'created_by': admin_user['id']
     }
 
     try:
@@ -682,6 +689,8 @@ def duplicate_product(db: Client, product_id: str) -> dict:
             'size': v['size'],
             'price': v['price'],
             'sale_price': v.get('sale_price'),
+            'sale_start_date': v.get('sale_start_date'),
+            'sale_end_date': v.get('sale_end_date'),
             'stock': 0, # Don't duplicate stock to avoid inventory issues
             'is_active': False
         })
