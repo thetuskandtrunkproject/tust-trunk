@@ -1,13 +1,35 @@
-import { useState } from 'react'
-import { Outlet, useLocation, Navigate } from '@tanstack/react-router'
+import { useState, useRef, useEffect } from 'react'
+import { Outlet, useLocation, Navigate, useNavigate } from '@tanstack/react-router'
 import { AdminSidebar } from './admin-sidebar'
-import { Menu } from 'lucide-react'
+import { Menu, LogOut } from 'lucide-react'
 import { useAuth } from '@/context/auth-context'
+import { handleLogout } from '@/lib/auth-actions'
 
 export function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+  const profileDropdownRef = useRef<HTMLDivElement>(null)
+
   const location = useLocation()
+  const navigate = useNavigate()
   const { user, loading } = useAuth()
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+        setIsProfileDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  const onLogout = async () => {
+    await handleLogout()
+    navigate({ to: '/admin-login', replace: true })
+  }
   
   const displayName = user?.full_name || user?.email?.split('@')[0] || 'Admin User'
   const displayRole = user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Admin'
@@ -72,8 +94,11 @@ export function AdminLayout() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2.5 hover:bg-black/5 p-1.5 pr-3 rounded-lg transition-colors text-left">
+          <div className="relative flex items-center gap-2" ref={profileDropdownRef}>
+            <button 
+              onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+              className="flex items-center gap-2.5 hover:bg-black/5 p-1.5 pr-3 rounded-lg transition-colors text-left"
+            >
               <div className="w-8 h-8 rounded-full bg-[#E1F3FA] border border-[#B4E1FA] flex items-center justify-center text-[#005bd3] font-bold text-[13px]">
                 {initial}
               </div>
@@ -82,6 +107,22 @@ export function AdminLayout() {
                 <p className="text-[11px] font-medium text-[#6D7175] leading-none">{displayRole}</p>
               </div>
             </button>
+
+            {isProfileDropdownOpen && (
+              <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-[#E3E3E3] rounded-xl shadow-lg py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="px-4 py-2 border-b border-[#E3E3E3] mb-1">
+                  <p className="text-[13px] font-bold text-[#202223] truncate">{displayName}</p>
+                  <p className="text-[12px] text-[#6D7175] truncate">{user?.email}</p>
+                </div>
+                <button
+                  onClick={onLogout}
+                  className="w-full flex items-center px-4 py-2 text-[13px] font-medium text-[#D82C0D] hover:bg-[#FBF1ED] transition-colors"
+                >
+                  <LogOut className="w-4 h-4 mr-3 opacity-70" />
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </header>
 

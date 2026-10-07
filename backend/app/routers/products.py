@@ -385,3 +385,21 @@ def delete_image(
     The image_url must be an exact match of a URL currently in the product's images array.
     """
     return products_service.delete_product_image(db, product_id, body.image_url)
+
+# ---------------------------------------------------------------------------
+# POST /api/v1/admin/products/{product_id}/duplicate
+# ---------------------------------------------------------------------------
+@router.post('/{product_id}/duplicate', response_model=ProductResponse)
+@limiter.limit('10/minute')
+def duplicate_product(
+    request: Request,
+    product_id: str,
+    admin: dict = Depends(_set_admin_state),
+    db: Client = Depends(get_db_client),
+):
+    """
+    Duplicates an existing product along with its variants.
+    The new product will have ' (Copy)' appended to its name and slug.
+    Status will be set to 'Draft'.
+    """
+    return products_service.duplicate_product(db, product_id)

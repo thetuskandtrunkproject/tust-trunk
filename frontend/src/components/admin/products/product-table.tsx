@@ -8,7 +8,7 @@ interface ProductTableProps {
   selectedIds: string[]
   onToggleSelect: (id: string) => void
   onToggleAll: () => void
-  onQuickAction: (id: string, action: 'edit' | 'archive' | 'delete') => void
+  onQuickAction: (id: string, action: 'edit' | 'archive' | 'delete' | 'duplicate') => void
 }
 
 export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAll, onQuickAction }: ProductTableProps) {
@@ -83,7 +83,7 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
                           {
                             label: 'Duplicate',
                             icon: <Copy className="w-4 h-4" />,
-                            onClick: () => window.alert('Duplicate functionality coming soon')
+                            onClick: () => onQuickAction(product.id, 'duplicate')
                           },
                           {
                             label: 'Archive',
@@ -163,7 +163,7 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
                         {
                           label: 'Duplicate',
                           icon: <Copy className="w-4 h-4" />,
-                          onClick: () => window.alert('Duplicate functionality coming soon')
+                          onClick: () => onQuickAction(product.id, 'duplicate')
                         },
                         {
                           label: 'Archive',

@@ -1,5 +1,5 @@
-import { type ReactNode, forwardRef } from 'react'
-
+import { type ReactNode, forwardRef, useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 /* ─── AdminCard ─── */
 interface AdminCardProps {
   children: ReactNode
@@ -360,20 +360,51 @@ interface AdminActionsDropdownProps {
 export function AdminActionsDropdown({ actions }: AdminActionsDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
+          buttonRef.current && !buttonRef.current.contains(e.target as Node)) {
         setIsOpen(false)
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    const handleScroll = () => {
+      if (isOpen) setIsOpen(false)
+    }
+    
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('scroll', handleScroll, true)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('scroll', handleScroll, true)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      let top = rect.bottom + 4
+      if (top + 250 > window.innerHeight) {
+        top = rect.top - 4 - Math.min(250, (actions.length * 40 + 40))
+      }
+      setDropdownStyle({
+        position: 'fixed',
+        top: top + 'px',
+        left: Math.max(10, rect.right - 192) + 'px',
+        width: '192px',
+        zIndex: 9999,
+      })
+    }
+  }, [isOpen, actions.length])
 
   return (
-    <div className="relative inline-block text-left" ref={dropdownRef}>
+    <>
       <button
+        ref={buttonRef}
         type="button"
         onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
         className="p-1.5 rounded-md text-[#5C5F62] hover:bg-[#F4F6F8] hover:text-[#202223] transition-colors focus:outline-none"
@@ -381,8 +412,12 @@ export function AdminActionsDropdown({ actions }: AdminActionsDropdownProps) {
         <MoreHorizontal className="w-5 h-5" />
       </button>
 
-      {isOpen && (
-        <div className="absolute right-0 mt-1 w-48 bg-white border border-[#E3E3E3] rounded-xl shadow-lg z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+      {isOpen && createPortal(
+        <div 
+          ref={dropdownRef} 
+          style={dropdownStyle} 
+          className="bg-white border border-[#E3E3E3] rounded-xl shadow-lg py-2 animate-in fade-in duration-200"
+        >
           <div className="px-3 pb-2 mb-1 border-b border-[#E3E3E3] text-[12px] font-semibold text-[#8C9196] uppercase tracking-wider">
             Actions
           </div>
@@ -402,9 +437,10 @@ export function AdminActionsDropdown({ actions }: AdminActionsDropdownProps) {
               {action.label}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   )
 }
 

@@ -78,6 +78,11 @@ export const archiveAdminProduct = async (id: string) => {
   return data
 }
 
+export const duplicateAdminProduct = async (id: string) => {
+  const { data } = await api.post(`/api/v1/admin/products/${id}/duplicate`)
+  return data as AdminProduct
+}
+
 export const addVariant = async (productId: string, variantData: any) => {
   const { data } = await api.post(`/api/v1/admin/products/${productId}/variants/`, variantData)
   return data as AdminProductVariant

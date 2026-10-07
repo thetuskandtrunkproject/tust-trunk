@@ -645,3 +645,52 @@ def bulk_update_sale_price(db: Client, product_ids: list[str], sale_price: int |
         logger.error(f'Failed to bulk update sale price: {e}')
         raise HTTPException(status_code=500, detail='Failed to update sale price')
 
+def duplicate_product(db: Client, product_id: str) -> dict:
+    import random, string
+    product = _get_product_or_404(db, product_id)
+    res = db.table(VARIANTS_TABLE).select('*').eq('product_id', product_id).execute()
+    variants = res.data or []
+
+    suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
+    new_name = product['name'] + ' (Copy)'
+    new_slug = product['slug'] + '-' + suffix
+
+    new_product_data = {
+        'name': new_name,
+        'slug': new_slug,
+        'description': product.get('description', ''),
+        'gender': product.get('gender'),
+        'category_id': product.get('category_id'),
+        'status': 'Draft',
+        'images': product.get('images', []),
+        'tags': product.get('tags', []),
+        'details': product.get('details', [])
+    }
+
+    try:
+        prod_res = db.table(PRODUCTS_TABLE).insert(new_product_data).execute()
+        new_product = prod_res.data[0]
+    except Exception as e:
+        logger.error(f'Failed to insert duplicate product: {e}')
+        raise HTTPException(status_code=500, detail='Failed to duplicate product')
+
+    new_variants_data = []
+    for i, v in enumerate(variants):
+        new_variants_data.append({
+            'product_id': new_product['id'],
+            'sku': f"{v['sku']}_COPY_{suffix}_{i}",
+            'size': v['size'],
+            'price': v['price'],
+            'sale_price': v.get('sale_price'),
+            'stock': 0, # Don't duplicate stock to avoid inventory issues
+            'is_active': False
+        })
+
+    if new_variants_data:
+        try:
+            db.table(VARIANTS_TABLE).insert(new_variants_data).execute()
+        except Exception as e:
+            logger.error(f'Failed to insert duplicate variants: {e}')
+            
+    return get_product(db, new_product['id'])
+

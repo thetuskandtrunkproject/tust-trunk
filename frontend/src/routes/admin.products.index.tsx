@@ -5,7 +5,7 @@ import { ProductTable } from '@/components/admin/products/product-table'
 import { BulkActionsBar } from '@/components/admin/products/bulk-actions-bar'
 import { useToast } from '@/context/toast-context'
 import type { AdminProductListItem } from '@/lib/admin/products-api'
-import { fetchAdminProducts, archiveAdminProduct, bulkMoveCategory, bulkUpdateStatus, bulkDeleteProducts } from '@/lib/admin/products-api'
+import { fetchAdminProducts, archiveAdminProduct, duplicateAdminProduct, bulkMoveCategory, bulkUpdateStatus, bulkDeleteProducts } from '@/lib/admin/products-api'
 import { useEffect } from 'react'
 import type { Category } from '@/lib/admin/categories-api'
 import { fetchCategories } from '@/lib/admin/categories-api'
@@ -105,7 +105,7 @@ function AdminProductsPage() {
   }
 
   // Action Handlers
-  const handleQuickAction = async (id: string, action: 'edit' | 'archive' | 'delete') => {
+  const handleQuickAction = async (id: string, action: 'edit' | 'archive' | 'delete' | 'duplicate') => {
     if (action === 'archive') {
       try {
         await archiveAdminProduct(id)
@@ -116,6 +116,15 @@ function AdminProductsPage() {
       }
     } else if (action === 'delete') {
       showToast('Delete not supported. Use Archive instead.')
+    } else if (action === 'duplicate') {
+      try {
+        showToast('Duplicating product...', 'info')
+        await duplicateAdminProduct(id)
+        showToast('Product duplicated successfully', 'success')
+        loadProducts()
+      } catch (err: any) {
+        showToast(err.response?.data?.detail || 'Failed to duplicate product', 'error')
+      }
     }
   }
 
