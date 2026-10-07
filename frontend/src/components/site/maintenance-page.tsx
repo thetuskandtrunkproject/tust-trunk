@@ -91,7 +91,7 @@ export function MaintenancePage({ message, timerEnd }: MaintenancePageProps) {
         {/* Admin Login Link */}
         <div className="border-t border-ink/10 pt-8">
           <Link
-            to="/login"
+            to="/admin-login"
             className="text-sm text-ink/30 hover:text-ink/60 transition-colors font-medium"
           >
             Admin Login →
