@@ -50,6 +50,8 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
   const [basePrice, setBasePrice] = useState<string>('')
   const [onSale, setOnSale] = useState(false)
   const [salePrice, setSalePrice] = useState<string>('')
+  const [saleStartDate, setSaleStartDate] = useState<string>('')
+  const [saleEndDate, setSaleEndDate] = useState<string>('')
   const [collectionBadge, setCollectionBadge] = useState<string>(initialData?.tags?.[0] || 'None')
 
   useEffect(() => {
@@ -74,6 +76,10 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
           setOnSale(true)
           setSalePrice((sp / 100).toString())
         }
+        const sd = initialData.variants[0].sale_start_date
+        if (sd) setSaleStartDate(sd.split('T')[0])
+        const ed = initialData.variants[0].sale_end_date
+        if (ed) setSaleEndDate(ed.split('T')[0])
       }
     }
   }, [initialData])
@@ -111,10 +117,19 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
         for (const v of formData.variants) {
           const finalPrice = v.price > 0 ? v.price : Math.round(parseFloat(basePrice || '0') * 100)
           const finalSalePrice = onSale && salePrice ? Math.round(parseFloat(salePrice) * 100) : null
+          const payload = { 
+            sku: v.sku, 
+            size: v.size, 
+            price: finalPrice, 
+            stock: v.stock, 
+            sale_price: finalSalePrice || undefined,
+            sale_start_date: saleStartDate ? new Date(saleStartDate).toISOString() : undefined,
+            sale_end_date: saleEndDate ? new Date(saleEndDate).toISOString() : undefined
+          }
           if (v.id.startsWith('v')) {
-            await addVariant(formData.id, { sku: v.sku, size: v.size, price: finalPrice, stock: v.stock, sale_price: finalSalePrice || undefined })
+            await addVariant(formData.id, payload)
           } else {
-            await updateVariant(formData.id, v.id, { sku: v.sku, size: v.size, price: finalPrice, stock: v.stock, sale_price: finalSalePrice || undefined })
+            await updateVariant(formData.id, v.id, payload)
           }
         }
         for (const orig of initialData.variants) {
@@ -131,7 +146,13 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
         const bp = parseFloat(basePrice || '0') * 100
         const sp = onSale && salePrice ? parseFloat(salePrice) * 100 : undefined
         const variantsPayload = formData.variants.map(v => ({
-          sku: v.sku, size: v.size, price: v.price > 0 ? v.price : bp, stock: v.stock, sale_price: sp
+          sku: v.sku, 
+          size: v.size, 
+          price: v.price > 0 ? v.price : bp, 
+          stock: v.stock, 
+          sale_price: sp,
+          sale_start_date: saleStartDate ? new Date(saleStartDate).toISOString() : undefined,
+          sale_end_date: saleEndDate ? new Date(saleEndDate).toISOString() : undefined
         }))
         const newProduct = await createAdminProduct({
           name: formData.name, slug: formData.slug, description: formData.description, gender: formData.gender,
@@ -271,6 +292,32 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
               onAddFiles={(files) => setNewFiles(prev => [...prev, ...files])}
               onRemoveExisting={handleDeleteImage}
               onRemoveNewFile={(index) => setNewFiles(prev => prev.filter((_, i) => i !== index))}
+              onReorderExisting={(dragIndex, dropIndex) => {
+                const newImages = [...formData.images]
+                const draggedItem = newImages[dragIndex]
+                newImages.splice(dragIndex, 1)
+                newImages.splice(dropIndex, 0, draggedItem)
+                handleChange('images', newImages)
+              }}
+              onReplaceExisting={async (index, newFile) => {
+                try {
+                  const oldUrl = formData.images[index]
+                  const newUrl = await uploadProductImage(formData.id, newFile)
+                  const newImages = [...formData.images]
+                  newImages[index] = newUrl
+                  handleChange('images', newImages)
+                  await deleteProductImage(formData.id, oldUrl)
+                } catch (e) {
+                  showToast('Failed to replace image', 'error')
+                }
+              }}
+              onReplaceNewFile={(index, newFile) => {
+                setNewFiles(prev => {
+                  const arr = [...prev]
+                  arr[index] = newFile
+                  return arr
+                })
+              }}
             />
           </div>
 
@@ -318,18 +365,41 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
                 </label>
 
                 {onSale && (
-                  <div>
-                    <label className={labelClassName}>Sale Price</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]">₹</span>
-                      <input
-                        type="number"
-                        value={salePrice}
-                        onChange={e => setSalePrice(e.target.value)}
-                        onKeyDown={(e) => { if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault() }}
-                        placeholder="0"
-                        className={`${inputClassName} pl-7`}
-                      />
+                  <div className="space-y-4">
+                    <div>
+                      <label className={labelClassName}>Sale Price</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]">₹</span>
+                        <input
+                          type="number"
+                          value={salePrice}
+                          onChange={e => setSalePrice(e.target.value)}
+                          onKeyDown={(e) => { if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault() }}
+                          placeholder="0"
+                          className={`${inputClassName} pl-7`}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={labelClassName}>Start Date (Optional)</label>
+                        <input
+                          type="date"
+                          value={saleStartDate}
+                          onChange={e => setSaleStartDate(e.target.value)}
+                          className={inputClassName}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClassName}>End Date (Optional)</label>
+                        <input
+                          type="date"
+                          value={saleEndDate}
+                          onChange={e => setSaleEndDate(e.target.value)}
+                          className={inputClassName}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}

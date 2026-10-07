@@ -26,6 +26,7 @@ class PublicProductListItem(BaseModel):
     tags: List[str]
     min_price: int  # in rupees
     max_price: int  # in rupees
+    original_price: Optional[int] = None
     available_sizes: List[str]
     total_stock: int
 

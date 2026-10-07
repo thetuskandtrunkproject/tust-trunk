@@ -6,6 +6,8 @@ export interface AdminProductVariant {
   size: string
   price: number
   sale_price?: number
+  sale_start_date?: string
+  sale_end_date?: string
   stock: number
   is_active: boolean
   product_id?: string

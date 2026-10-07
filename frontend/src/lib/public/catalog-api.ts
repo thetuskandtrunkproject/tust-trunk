@@ -5,6 +5,9 @@ export type PublicVariant = {
   sku: string
   size: string
   price: number // in rupees
+  sale_price?: number // in rupees
+  sale_start_date?: string
+  sale_end_date?: string
   stock: number
 }
 
@@ -32,6 +35,7 @@ export type PublicProductListItem = {
   tags: string[]
   min_price: number
   max_price: number
+  original_price?: number
   available_sizes: string[]
   total_stock: number
 }

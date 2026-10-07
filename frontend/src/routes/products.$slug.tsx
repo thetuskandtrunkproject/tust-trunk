@@ -133,11 +133,34 @@ function ProductDetailPage() {
 
   // Find the selected variant to get accurate pricing and IDs
   const selectedVariant = product.variants.find(v => v.size === selectedSize)
+  
   // For display price before size is selected, show minimum price among variants
+  // Handle sale prices by checking active sale period
+  const getActivePrice = (v: any) => {
+    if (v.sale_price) {
+      const now = new Date()
+      const start = v.sale_start_date ? new Date(v.sale_start_date) : null
+      const end = v.sale_end_date ? new Date(v.sale_end_date) : null
+      const started = !start || now >= start
+      const notEnded = !end || now <= end
+      if (started && notEnded) return v.sale_price
+    }
+    return v.price
+  }
+
+  const getOriginalPrice = (v: any) => v.price
+
   const displayPrice = selectedVariant 
-    ? selectedVariant.price 
-    : Math.min(...product.variants.map(v => v.price))
+    ? getActivePrice(selectedVariant)
+    : Math.min(...product.variants.map(v => getActivePrice(v)))
     
+  const displayOriginalPrice = selectedVariant
+    ? (getActivePrice(selectedVariant) < getOriginalPrice(selectedVariant) ? getOriginalPrice(selectedVariant) : null)
+    : (() => {
+        const minVariant = product.variants.reduce((prev, curr) => getActivePrice(prev) < getActivePrice(curr) ? prev : curr)
+        return getActivePrice(minVariant) < getOriginalPrice(minVariant) ? getOriginalPrice(minVariant) : null
+      })()
+      
   // distinct sizes from variants
   const productSizes = Array.from(new Set(product.variants.map(v => v.size)))
 
@@ -247,7 +270,12 @@ function ProductDetailPage() {
             </div>
 
             {/* Price */}
-            <p className="font-sans font-extrabold text-2xl text-ink mb-4">{formatPrice(displayPrice)}</p>
+            <div className="flex items-center gap-3 mb-4">
+              <p className="font-sans font-extrabold text-2xl text-ink">{formatPrice(displayPrice)}</p>
+              {displayOriginalPrice && (
+                <p className="font-sans font-medium text-lg text-ink/40 line-through">{formatPrice(displayOriginalPrice)}</p>
+              )}
+            </div>
 
             {/* Stock Status */}
             <div className="mb-6">

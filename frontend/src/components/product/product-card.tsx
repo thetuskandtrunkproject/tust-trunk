@@ -91,7 +91,7 @@ export function ProductCard({
             src={img} 
             alt={name} 
             loading={eagerLoad ? undefined : "lazy"}
-            className={`w-full h-full object-cover object-center transition-all duration-700 ease-out ${
+            className={`w-full h-full object-cover object-top transition-all duration-700 ease-out ${
               hoverImg ? 'group-hover:opacity-0 group-hover:scale-105' : 'group-hover:scale-105'
             }`}
           />
@@ -100,7 +100,7 @@ export function ProductCard({
               src={hoverImg} 
               alt={name} 
               loading={eagerLoad ? undefined : "lazy"}
-              className="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out"
+              className="absolute inset-0 w-full h-full object-cover object-top opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out"
             />
           )}
 

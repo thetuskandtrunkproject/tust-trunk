@@ -163,7 +163,7 @@ function ShopPage() {
                       slug={p.slug}
                       name={p.name}
                       price={formatPrice(p.min_price)}
-                      originalPrice={p.max_price > p.min_price ? formatPrice(p.max_price) : (p as any).original_price || (p as any).compare_at_price}
+                      originalPrice={(p.original_price && p.original_price > p.min_price) ? formatPrice(p.original_price) : undefined}
                       img={p.images[0]}
                       hoverImg={p.images[1]}
                       category={p.category}

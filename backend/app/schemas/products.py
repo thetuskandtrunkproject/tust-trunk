@@ -13,6 +13,8 @@ class VariantCreate(BaseModel):
     size: str
     price: int  # in paise
     sale_price: Optional[int] = None
+    sale_start_date: Optional[datetime] = None
+    sale_end_date: Optional[datetime] = None
     stock: int = 0
 
     @field_validator('sku')
@@ -52,6 +54,8 @@ class VariantUpdate(BaseModel):
     size: Optional[str] = None
     price: Optional[int] = None
     sale_price: Optional[int] = None
+    sale_start_date: Optional[datetime] = None
+    sale_end_date: Optional[datetime] = None
     stock: Optional[int] = None
     is_active: Optional[bool] = None
 
@@ -95,6 +99,8 @@ class VariantResponse(BaseModel):
     size: str
     price: int
     sale_price: Optional[int] = None
+    sale_start_date: Optional[datetime] = None
+    sale_end_date: Optional[datetime] = None
     stock: int
     is_active: bool
     created_at: datetime
