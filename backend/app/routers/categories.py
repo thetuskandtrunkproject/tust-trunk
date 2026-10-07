@@ -1,5 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import List
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+import os
 
 from app.schemas.categories import CategoryCreate, CategoryUpdate, CategoryResponse
 from app.services import categories_service
@@ -7,6 +10,7 @@ from app.dependencies.auth import get_current_admin
 from app.core.database import get_db_client
 
 router = APIRouter(prefix="/api/v1/admin/categories", tags=["Admin Categories"])
+limiter = Limiter(key_func=get_remote_address, storage_uri=os.getenv("REDIS_URL", "memory://"))
 
 @router.get("", response_model=List[CategoryResponse])
 def list_categories(
@@ -30,6 +34,7 @@ def get_category(
 
 
 @router.post("", response_model=CategoryResponse, status_code=201)
+@limiter.limit("30/minute")
 def create_category(
     data: CategoryCreate,
     request: Request,
@@ -41,6 +46,7 @@ def create_category(
 
 
 @router.patch("/{category_id}", response_model=CategoryResponse)
+@limiter.limit("30/minute")
 def update_category(
     category_id: str,
     data: CategoryUpdate,
@@ -53,6 +59,7 @@ def update_category(
 
 
 @router.delete("/{category_id}", response_model=CategoryResponse)
+@limiter.limit("30/minute")
 def delete_category(
     category_id: str,
     request: Request,

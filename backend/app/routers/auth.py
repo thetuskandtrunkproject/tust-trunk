@@ -2,6 +2,10 @@ from fastapi import APIRouter, Depends, Request, status, HTTPException
 from supabase import Client
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 from app.schemas.auth import UserResponse, UserUpdate
 from app.dependencies.auth import get_token_from_header, get_current_user
@@ -13,7 +17,10 @@ router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 # Note: In-memory rate limiting (slowapi) does NOT sync across multiple instances/workers.
 # Before horizontal scaling (e.g. running multiple Render instances), this must be 
 # replaced with a Redis-backed limiter.
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(
+    key_func=get_remote_address,
+    storage_uri=os.getenv("REDIS_URL", "memory://")
+)
 
 @router.post("/sync", response_model=UserResponse)
 @limiter.limit("10/minute")
@@ -63,7 +70,14 @@ def send_otp(request: Request, payload: SendOTPRequest, db: Client = Depends(get
     """
     Generates and sends an OTP via WhatsApp using PayPerWA.
     """
-    return auth_service.send_otp(db, payload.phone)
+    try:
+        return auth_service.send_otp(db, payload.phone)
+    except Exception as e:
+        logger.error(f"Failed to send OTP to {payload.phone}: {e}")
+        raise HTTPException(
+            status_code=502, 
+            detail="Failed to send OTP via upstream provider. Please try again later."
+        )
 
 @router.post("/verify-otp")
 @limiter.limit("5/minute")

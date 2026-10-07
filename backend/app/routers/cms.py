@@ -6,7 +6,12 @@ from ..schemas.cms import HeroBannerData, HeroBannerUpdate, CategoryTilesData, C
 from ..services import cms_service
 import uuid
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+import os
+
 router = APIRouter(prefix="/cms", tags=["CMS"])
+limiter = Limiter(key_func=get_remote_address, storage_uri=os.getenv("REDIS_URL", "memory://"))
 
 # Cache-Control header value for public CMS read endpoints.
 # CMS content changes rarely — 5 min cache + 10 min stale-while-revalidate
@@ -21,6 +26,7 @@ def get_hero_banner(response: Response, db: Client = Depends(get_db_client)):
 
 
 @router.put("/hero", response_model=HeroBannerData)
+@limiter.limit("30/minute")
 def update_hero_banner(
     data: HeroBannerUpdate,
     db: Client = Depends(get_db_client),
@@ -32,6 +38,7 @@ def update_hero_banner(
     return cms_service.update_setting(db, "hero", val)
 
 @router.post("/hero/reset", response_model=HeroBannerData)
+@limiter.limit("30/minute")
 def reset_hero_banner(
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -44,6 +51,7 @@ def reset_hero_banner(
     return cms_service.update_setting(db, "hero", default_val)
 
 @router.post("/hero/set_default", response_model=HeroBannerData)
+@limiter.limit("30/minute")
 def set_default_hero_banner(
     data: HeroBannerUpdate,
     db: Client = Depends(get_db_client),
@@ -60,6 +68,7 @@ def get_category_tiles(response: Response, db: Client = Depends(get_db_client)):
     return cms_service.get_setting(db, "category_tiles")
 
 @router.put("/category-tiles")
+@limiter.limit("30/minute")
 def update_category_tiles(
     data: CategoryTilesUpdate,
     db: Client = Depends(get_db_client),
@@ -74,6 +83,7 @@ def update_category_tiles(
         raise HTTPException(status_code=500, detail=str(e) + "\n" + traceback.format_exc())
 
 @router.post("/category-tiles/reset", response_model=CategoryTilesData)
+@limiter.limit("30/minute")
 def reset_category_tiles(
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -84,6 +94,7 @@ def reset_category_tiles(
     return cms_service.update_setting(db, "category_tiles", default_val)
 
 @router.post("/category-tiles/set_default", response_model=CategoryTilesData)
+@limiter.limit("30/minute")
 def set_default_category_tiles(
     data: CategoryTilesUpdate,
     db: Client = Depends(get_db_client),
@@ -99,6 +110,7 @@ def get_home_products(response: Response, db: Client = Depends(get_db_client)):
     return cms_service.get_setting(db, "home_products")
 
 @router.put("/home-products", response_model=HomeProductsData)
+@limiter.limit("30/minute")
 def update_home_products(
     data: HomeProductsUpdate,
     db: Client = Depends(get_db_client),
@@ -113,6 +125,7 @@ def update_home_products(
         raise HTTPException(status_code=500, detail=str(e) + "\n" + traceback.format_exc())
 
 @router.post("/home-products/reset", response_model=HomeProductsData)
+@limiter.limit("30/minute")
 def reset_home_products(
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -121,6 +134,7 @@ def reset_home_products(
     return cms_service.update_setting(db, "home_products", default_val)
 
 @router.post("/home-products/set_default", response_model=HomeProductsData)
+@limiter.limit("30/minute")
 def set_default_home_products(
     data: HomeProductsUpdate,
     db: Client = Depends(get_db_client),
@@ -136,6 +150,7 @@ def get_about_page(response: Response, db: Client = Depends(get_db_client)):
     return cms_service.get_setting(db, "about_page")
 
 @router.put("/about-page", response_model=AboutPageData)
+@limiter.limit("30/minute")
 def update_about_page(
     data: AboutPageUpdate,
     db: Client = Depends(get_db_client),
@@ -150,6 +165,7 @@ def update_about_page(
         raise HTTPException(status_code=500, detail=str(e) + "\n" + traceback.format_exc())
 
 @router.post("/about-page/reset", response_model=AboutPageData)
+@limiter.limit("30/minute")
 def reset_about_page(
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -158,6 +174,7 @@ def reset_about_page(
     return cms_service.update_setting(db, "about_page", default_val)
 
 @router.post("/about-page/set_default", response_model=AboutPageData)
+@limiter.limit("30/minute")
 def set_default_about_page(
     data: AboutPageUpdate,
     db: Client = Depends(get_db_client),
@@ -173,6 +190,7 @@ def get_footer(response: Response, db: Client = Depends(get_db_client)):
     return cms_service.get_setting(db, "footer")
 
 @router.put("/footer", response_model=FooterData)
+@limiter.limit("30/minute")
 def update_footer(
     data: FooterUpdate,
     db: Client = Depends(get_db_client),
@@ -192,6 +210,7 @@ def get_shop_settings(response: Response, db: Client = Depends(get_db_client)):
     return cms_service.get_setting(db, "shop_settings")
 
 @router.put("/shop-settings", response_model=ShopSettingsData)
+@limiter.limit("30/minute")
 def update_shop_settings(
     data: ShopSettingsUpdate,
     db: Client = Depends(get_db_client),
@@ -206,6 +225,7 @@ def update_shop_settings(
         raise HTTPException(status_code=500, detail=str(e) + "\n" + traceback.format_exc())
 
 @router.post("/upload-image")
+@limiter.limit("30/minute")
 async def upload_cms_image(
     file: UploadFile = File(...),
     admin: dict = Depends(get_current_admin),

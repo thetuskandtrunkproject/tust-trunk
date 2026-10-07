@@ -4,6 +4,7 @@ from typing import Optional
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from supabase import Client
+import os
 
 from app.core.database import get_db_client
 from app.dependencies.auth import get_optional_user
@@ -49,17 +50,17 @@ def _checkout_key_func(request: Request) -> str:
     return f"ip:{get_remote_address(request)}"
 
 
-create_order_limiter = Limiter(key_func=_checkout_key_func)
-verify_limiter = Limiter(key_func=_checkout_key_func)
+create_order_limiter = Limiter(key_func=_checkout_key_func, storage_uri=os.getenv("REDIS_URL", "memory://"))
+verify_limiter = Limiter(key_func=_checkout_key_func, storage_uri=os.getenv("REDIS_URL", "memory://"))
 
 # Webhook: IP-based only (Razorpay's servers — not user-keyed)
-webhook_limiter = Limiter(key_func=get_remote_address)
+webhook_limiter = Limiter(key_func=get_remote_address, storage_uri=os.getenv("REDIS_URL", "memory://"))
 
 # Guest order lookup: IP-based, tight — brute-force resistance on order_number+email
-guest_lookup_limiter = Limiter(key_func=get_remote_address)
+guest_lookup_limiter = Limiter(key_func=get_remote_address, storage_uri=os.getenv("REDIS_URL", "memory://"))
 
 # check-payment: Step 5 fallback — tight because it makes an outbound Razorpay API call
-check_payment_limiter = Limiter(key_func=_checkout_key_func)
+check_payment_limiter = Limiter(key_func=_checkout_key_func, storage_uri=os.getenv("REDIS_URL", "memory://"))
 
 
 # ---------------------------------------------------------------------------
@@ -145,11 +146,19 @@ def create_order_endpoint(
 
     user_id = current_user['id'] if current_user else None
 
-    return checkout_service.create_order(
-        db=db,
-        user_id=user_id,
-        payload=payload.model_dump(),
-    )
+    try:
+        return checkout_service.create_order(
+            db=db,
+            user_id=user_id,
+            payload=payload.model_dump(),
+        )
+    except Exception as e:
+        logger.error(f"Failed to create order (Razorpay/DB error): {e}")
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=502,
+            detail="Failed to initialize payment gateway. Please try again."
+        )
 
 
 # ---------------------------------------------------------------------------

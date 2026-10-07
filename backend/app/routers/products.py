@@ -47,7 +47,8 @@ def _admin_uid_key(request: Request) -> str:
     return get_remote_address(request)
 
 
-limiter = Limiter(key_func=_admin_uid_key)
+import os
+limiter = Limiter(key_func=_admin_uid_key, storage_uri=os.getenv("REDIS_URL", "memory://"))
 
 # ---------------------------------------------------------------------------
 # Middleware: inject admin uid into request.state so the rate limiter key
@@ -256,6 +257,7 @@ MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 # ---------------------------------------------------------------------------
 
 @router.post('/bulk/category')
+@limiter.limit("30/minute")
 def bulk_move_category(
     data: BulkMoveCategoryRequest,
     admin: dict = Depends(_set_admin_state),
@@ -266,6 +268,7 @@ def bulk_move_category(
 
 
 @router.post('/bulk/status')
+@limiter.limit("30/minute")
 def bulk_update_status(
     data: BulkStatusUpdateRequest,
     admin: dict = Depends(_set_admin_state),
@@ -276,6 +279,7 @@ def bulk_update_status(
 
 
 @router.post('/bulk/delete')
+@limiter.limit("30/minute")
 def bulk_delete_products(
     data: BulkDeleteRequest,
     admin: dict = Depends(_set_admin_state),
@@ -286,6 +290,7 @@ def bulk_delete_products(
 
 
 @router.post('/bulk/sale-price')
+@limiter.limit("30/minute")
 def bulk_update_sale_price(
     data: BulkSalePriceRequest,
     admin: dict = Depends(_set_admin_state),
