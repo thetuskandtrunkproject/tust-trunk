@@ -28,6 +28,7 @@ export function AdminLayout() {
 
   const onLogout = async () => {
     await handleLogout()
+    sessionStorage.removeItem('adminGatewayPassed')
     window.location.href = '/admin-login'
   }
   
@@ -49,8 +50,8 @@ export function AdminLayout() {
     )
   }
 
-  // Redirect to home if not logged in or not an admin
-  if (!user || user.role !== 'admin') {
+  // Redirect to home if not logged in or not an admin/owner
+  if (!user || (user.role !== 'admin' && user.role !== 'owner')) {
     return <Navigate to="/" />
   }
 

@@ -42,7 +42,8 @@ function Index() {
       <Hero initialData={heroData} />
       <div className="relative z-10 bg-cloud">
         <CategoryTiles initialData={featuredProducts} />
-        <ProductCarousel initialData={newProducts} />
+        <ProductCarousel initialData={newProducts} cmsKey="home-products" defaultTitle="New In" />
+        <ProductCarousel initialData={[]} cmsKey="home-products-2" defaultTitle="Crafted with Love for Little Ones" />
         <TrustStrip />
         <Newsletter />
       </div>

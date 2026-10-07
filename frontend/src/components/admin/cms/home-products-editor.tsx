@@ -4,7 +4,7 @@ import { AdminCard, AdminButton } from '@/components/admin/ui/primitives'
 import { cmsApi } from '@/lib/admin/cms-api'
 import { api } from '@/lib/api'
 
-export function HomeProductsEditor() {
+export function HomeProductsEditor({ cmsKey = 'home-products', title = 'Home Product Showcase' }: { cmsKey?: string, title?: string }) {
   const [data, setData] = useState<any>(null)
   const [originalData, setOriginalData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -20,7 +20,7 @@ export function HomeProductsEditor() {
 
   const loadData = async () => {
     try {
-      const cmsRes = await cmsApi.getHomeProducts()
+      const cmsRes = await api.get(`/cms/${cmsKey}`).then(res => res.data).catch(() => null)
       const initial = cmsRes || {
         title: 'New In', subtitle: 'The latest additions to our collection.',
         textColor: '#2D283E', buttonText: 'View all', buttonLink: '/shop', productIds: []
@@ -74,7 +74,7 @@ export function HomeProductsEditor() {
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      const res = await cmsApi.updateHomeProducts(data)
+      const res = await api.put(`/cms/${cmsKey}`, { value: data }).then(res => res.data)
       setData(res)
       setOriginalData(res)
       setShowToast('Changes saved successfully!')
@@ -91,7 +91,7 @@ export function HomeProductsEditor() {
   const handleResetDefault = async () => {
     setIsSaving(true)
     try {
-      const res = await cmsApi.resetHomeProducts()
+      const res = await api.post(`/cms/${cmsKey}/reset`).then(res => res.data)
       setData(res)
       setOriginalData(res)
       setShowToast('Restored to default!')
@@ -108,7 +108,7 @@ export function HomeProductsEditor() {
   const handleSetDefault = async () => {
     setIsSaving(true)
     try {
-      const res = await cmsApi.setDefaultHomeProducts(data)
+      const res = await api.post(`/cms/${cmsKey}/set_default`, { value: data }).then(res => res.data)
       setData(res)
       setOriginalData(res)
       setShowToast('Saved as new default!')
@@ -131,7 +131,7 @@ export function HomeProductsEditor() {
       <div className="p-6 border-b border-ink/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h3 className="font-medium text-ink text-lg flex items-center gap-2">
-            Home Product Showcase
+            {title}
             {hasUnsavedChanges && <span className="text-[10px] font-bold bg-coral text-white px-2 py-0.5 rounded-full uppercase tracking-wider">Unsaved</span>}
           </h3>
           <p className="text-sm text-ink/60">Manage the product carousel on the home page</p>

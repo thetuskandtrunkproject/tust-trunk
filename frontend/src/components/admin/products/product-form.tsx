@@ -384,7 +384,7 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-3">
                       <div>
                         <label className={labelClassName}>Start Date (Optional)</label>
                         <input

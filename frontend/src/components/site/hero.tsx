@@ -242,11 +242,20 @@ export function Hero({ initialData }: { initialData?: any | null }) {
                 <div className="flex flex-wrap items-center gap-4">
                   <Link
                     to={cmsData?.ctaLink || slides[0]?.ctaLink || '/shop'}
-                    className="group inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-sm shadow-md hover:-translate-y-1 hover:shadow-lg transition-all"
-                    style={{ backgroundColor: cmsData?.accentColor || slides[0]?.accentColor || '#FF6B8B', color: '#fff' }}
+                    className="group relative overflow-hidden inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold text-sm shadow-md transition-all border-2 z-10 bg-white"
+                    style={{ 
+                      borderColor: cmsData?.accentColor || slides[0]?.accentColor || '#FF6B8B', 
+                      color: cmsData?.accentColor || slides[0]?.accentColor || '#FF6B8B' 
+                    }}
                   >
-                    {cmsData?.cta || slides[0]?.cta || 'Shop Collection'}
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+                    <div 
+                      className="absolute left-0 top-0 bottom-0 w-0 transition-all duration-300 ease-out group-hover:w-full -z-10"
+                      style={{ backgroundColor: cmsData?.accentColor || slides[0]?.accentColor || '#FF6B8B' }}
+                    ></div>
+                    <span className="group-hover:text-white transition-colors duration-300 flex items-center gap-2">
+                      {cmsData?.cta || slides[0]?.cta || 'Shop Collection'}
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+                    </span>
                   </Link>
 
                   <Link
@@ -262,40 +271,6 @@ export function Hero({ initialData }: { initialData?: any | null }) {
               {/* Bottom Controls & Playful Trust Bar */}
               <div className="mt-8 pt-6 border-t border-ink/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                 
-                <div className="flex items-center gap-4">
-                  {slides.length > 1 && (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={prev}
-                        className="w-10 h-10 rounded-xl bg-white border border-ink/10 flex items-center justify-center text-ink hover:bg-sky/10 hover:text-sky transition-colors cursor-pointer"
-                        aria-label="Previous Slide"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={next}
-                        className="w-10 h-10 rounded-xl bg-white border border-ink/10 flex items-center justify-center text-ink hover:bg-sky/10 hover:text-sky transition-colors cursor-pointer"
-                        aria-label="Next Slide"
-                      >
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Progress Dots */}
-                  <div className="flex items-center gap-2">
-                    {slides.map((_: any, idx: number) => (
-                      <button
-                        key={idx}
-                        onClick={() => goTo(idx)}
-                        className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                          idx === current ? 'w-8 bg-coral' : 'w-2.5 bg-ink/20 hover:bg-ink/40'
-                        }`}
-                        aria-label={`Go to slide ${idx + 1}`}
-                      />
-                    ))}
-                  </div>
-                </div>
 
                 {/* Trust Badges */}
                 <div className="flex items-center gap-4 text-xs font-bold text-ink/60">
@@ -348,6 +323,25 @@ export function Hero({ initialData }: { initialData?: any | null }) {
               </div>
             </div>
 
+            {/* Image Slider Controls */}
+            <div className="absolute bottom-6 left-6 lg:bottom-12 lg:left-12 z-30 bg-white/95 backdrop-blur-sm rounded-full px-4 py-3 shadow-xl border border-white/40 flex items-center gap-5">
+              {slides.length > 1 && (
+                <div className="flex items-center gap-1">
+                  <button onClick={prev} className="w-8 h-8 rounded-full flex items-center justify-center text-ink hover:bg-cloud transition-colors cursor-pointer"><ChevronLeft className="w-5 h-5" /></button>
+                  <button onClick={next} className="w-8 h-8 rounded-full flex items-center justify-center text-ink hover:bg-cloud transition-colors cursor-pointer"><ChevronRight className="w-5 h-5" /></button>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5 pr-2">
+                {slides.map((_: any, idx: number) => (
+                  <button
+                    key={idx}
+                    onClick={() => goTo(idx)}
+                    className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${idx === current ? 'w-6 bg-coral' : 'w-2 bg-ink/20 hover:bg-ink/40'}`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Minimalist Clothing Tag Badge */}

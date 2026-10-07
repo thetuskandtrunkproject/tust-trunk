@@ -22,6 +22,7 @@ function AdminCmsPage() {
         <HeroBannerEditor />
         <CategoryTilesEditor />
         <HomeProductsEditor />
+        <HomeProductsEditor cmsKey="home-products-2" title="Home Product Showcase - 2" />
         <AboutPageEditor />
         <FooterEditor />
       </div>

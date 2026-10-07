@@ -8,6 +8,13 @@ def list_public_categories(db: Client) -> list:
     return res.data
 
 
+def list_public_sizes(db: Client) -> list:
+    """Fetch all available sizes from active products in stock."""
+    res = db.table('product_variants').select('size').eq('is_active', True).gt('stock', 0).execute()
+    sizes = set(item['size'] for item in res.data if item['size'])
+    return sorted(list(sizes))
+
+
 def list_public_products(
     db: Client,
     page: int,

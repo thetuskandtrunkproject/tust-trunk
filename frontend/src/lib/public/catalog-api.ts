@@ -56,12 +56,20 @@ export type PublicCategory = {
 }
 
 let categoriesCache: Promise<PublicCategory[]> | null = null
+let sizesCache: Promise<string[]> | null = null
 
 export const fetchPublicCategories = async (): Promise<PublicCategory[]> => {
   if (!categoriesCache) {
     categoriesCache = api.get('/public/categories').then(res => res.data)
   }
   return categoriesCache
+}
+
+export const fetchPublicSizes = async (): Promise<string[]> => {
+  if (!sizesCache) {
+    sizesCache = api.get('/public/sizes').then(res => res.data)
+  }
+  return sizesCache
 }
 
 export const searchPublicProducts = async (params: Record<string, any>): Promise<PublicProductListResponse> => {

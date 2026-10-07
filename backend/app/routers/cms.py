@@ -153,6 +153,58 @@ def set_default_home_products(
     cms_service.update_setting(db, "home_products_default", val)
     return cms_service.update_setting(db, "home_products", val)
 
+@router.get("/home-products-2", response_model=HomeProductsData)
+def get_home_products_2(response: Response, db: Client = Depends(get_db_client)):
+    response.headers["Cache-Control"] = _CMS_CACHE
+    return cms_service.get_setting(db, "home_products_2")
+
+@router.put("/home-products-2", response_model=HomeProductsData)
+@limiter.limit("30/minute")
+def update_home_products_2(
+    request: Request,
+    data: HomeProductsUpdate,
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    try:
+        val = data.value.model_dump()
+        return cms_service.update_setting(db, "home_products_2", val)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e) + "\n" + traceback.format_exc())
+
+@router.post("/home-products-2/reset", response_model=HomeProductsData)
+@limiter.limit("30/minute")
+def reset_home_products_2(
+    request: Request,
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    default_val = cms_service.get_setting(db, "home_products_2_default")
+    if not default_val:
+        default_val = {
+            "title": "Crafted with Love for Little Ones",
+            "subtitle": "Discover our newest handpicked products",
+            "textColor": "#2D283E",
+            "buttonText": "View Collection",
+            "buttonLink": "/shop",
+            "productIds": []
+        }
+    return cms_service.update_setting(db, "home_products_2", default_val)
+
+@router.post("/home-products-2/set_default", response_model=HomeProductsData)
+@limiter.limit("30/minute")
+def set_default_home_products_2(
+    request: Request,
+    data: HomeProductsUpdate,
+    db: Client = Depends(get_db_client),
+    admin: dict = Depends(get_current_admin)
+):
+    val = data.value.model_dump()
+    cms_service.update_setting(db, "home_products_2_default", val)
+    return cms_service.update_setting(db, "home_products_2", val)
+
 @router.get("/about-page", response_model=AboutPageData)
 def get_about_page(response: Response, db: Client = Depends(get_db_client)):
     response.headers["Cache-Control"] = _CMS_CACHE

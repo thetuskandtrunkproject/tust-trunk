@@ -27,6 +27,13 @@ def list_categories(request: Request, response: Response, db: Client = Depends(g
     response.headers["Cache-Control"] = "public, max-age=300, stale-while-revalidate=600"
     return public_catalog_service.list_public_categories(db)
 
+@router.get('/sizes', response_model=List[str])
+@limiter.limit('120/minute')
+def list_sizes(request: Request, response: Response, db: Client = Depends(get_db_client)):
+    """Fetch all active available sizes."""
+    response.headers["Cache-Control"] = "public, max-age=300, stale-while-revalidate=600"
+    return public_catalog_service.list_public_sizes(db)
+
 
 @router.get('/products', response_model=PublicProductListResponse)
 @limiter.limit('120/minute')

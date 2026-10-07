@@ -225,8 +225,9 @@ export function SiteHeader() {
                           </Link>
                         )}
                         <button 
-                          onClick={() => {
-                            auth.signOut()
+                          onClick={async () => {
+                            await auth.signOut()
+                            sessionStorage.removeItem('adminGatewayPassed')
                             window.location.href = '/'
                           }}
                           className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-cta rounded-lg hover:bg-coral/10 transition-colors mt-1 border-t border-ink/5 pt-2"
@@ -371,8 +372,9 @@ export function SiteHeader() {
             <div className="p-5 border-t border-ink/10 space-y-3">
               {firebaseUser ? (
                 <button 
-                  onClick={() => {
-                    auth.signOut()
+                  onClick={async () => {
+                    await auth.signOut()
+                    sessionStorage.removeItem('adminGatewayPassed')
                     setIsMobileMenuOpen(false)
                     window.location.href = '/'
                   }}

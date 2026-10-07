@@ -10,7 +10,7 @@ function RootComponent() {
   const location = useLocation()
   const { user } = useAuth()
   const isAdmin = location.pathname.startsWith('/admin')
-  const isExempt = isAdmin || location.pathname === '/login' || user?.role === 'admin'
+  const isExempt = isAdmin || location.pathname === '/login' || user?.role === 'admin' || user?.role === 'owner'
   const [maintenance, setMaintenance] = useState<{ enabled: boolean; message: string; timerEnd: string } | null>(null)
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { X, ChevronDown, ChevronUp, Check, Loader2 } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
-import { fetchPublicCategories } from '@/lib/public/catalog-api'
+import { fetchPublicCategories, fetchPublicSizes } from '@/lib/public/catalog-api'
 import type { PublicCategory } from '@/lib/public/catalog-api'
 
 interface FilterSidebarProps {
@@ -29,6 +29,8 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
 
   const [categories, setCategories] = useState<PublicCategory[]>([])
   const [loadingCats, setLoadingCats] = useState(true)
+  const [dbSizes, setDbSizes] = useState<string[]>([])
+  const [loadingSizes, setLoadingSizes] = useState(true)
 
   useEffect(() => {
     fetchPublicCategories()
@@ -39,6 +41,16 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
       .catch(err => {
         console.error('Failed to load categories', err)
         setLoadingCats(false)
+      })
+
+    fetchPublicSizes()
+      .then(res => {
+        setDbSizes(res)
+        setLoadingSizes(false)
+      })
+      .catch(err => {
+        console.error('Failed to load sizes', err)
+        setLoadingSizes(false)
       })
   }, [])
 
@@ -226,7 +238,11 @@ export function FilterSidebar({ isOpen, onClose, currentFilters }: FilterSidebar
         </button>
         {expandedSections.size && (
           <div className="mt-4 flex flex-col gap-3">
-            {['XS', 'S', 'M', 'L', 'XL', 'XXL', '2Y', '4Y', '6Y', '8Y'].map(size => {
+            {loadingSizes ? (
+              <div className="flex justify-center p-4"><Loader2 className="w-5 h-5 animate-spin text-ink/40" /></div>
+            ) : dbSizes.length === 0 ? (
+              <div className="text-sm text-ink/50 pl-2">No sizes available</div>
+            ) : dbSizes.map(size => {
               const isActive = activeSizes.includes(size)
               return (
                 <button 

@@ -9,10 +9,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-export function ProductCarousel({ initialData }: { initialData?: any[] }) {
+export function ProductCarousel({ initialData, cmsKey = 'home-products', defaultTitle = 'New In' }: { initialData?: any[], cmsKey?: string, defaultTitle?: string }) {
   const [products, setProducts] = useState<any[]>(initialData || [])
   const [cmsData, setCmsData] = useState<any>({
-    title: 'New In',
+    title: defaultTitle,
     subtitle: 'The latest additions to our collection.',
     textColor: '#2D283E',
     buttonText: 'View all',
@@ -22,11 +22,11 @@ export function ProductCarousel({ initialData }: { initialData?: any[] }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const cmsRes = await api.get('/cms/home-products').catch(() => null)
+        const cmsRes = await api.get(`/cms/${cmsKey}`).catch(() => null)
         const config = cmsRes?.data
         if (config) {
           setCmsData({
-            title: config.title || 'New In',
+            title: config.title || defaultTitle,
             subtitle: config.subtitle || 'The latest additions to our collection.',
             textColor: config.textColor || '#2D283E',
             buttonText: config.buttonText || 'View all',
