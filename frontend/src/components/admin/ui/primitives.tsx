@@ -69,7 +69,7 @@ export function AdminSearchInput({ value, onChange, placeholder = 'Search...', c
 }
 
 /* ─── AdminSelect ─── */
-import React, { useState, useRef, useEffect } from 'react'
+import React from 'react'
 import { ChevronDown, Check } from 'lucide-react'
 
 interface AdminSelectProps {
