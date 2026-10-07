@@ -1,6 +1,7 @@
 import { Package, AlertTriangle, UserPlus, Truck, CreditCard } from 'lucide-react'
 import { AdminCard } from '@/components/admin/ui/primitives'
 import { useToast } from '@/context/toast-context'
+import { Link } from '@tanstack/react-router'
 
 interface ActivityItem {
   id: number
@@ -59,12 +60,12 @@ export function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
         ))}
       </div>
       
-      <button 
-        onClick={() => showToast('Full activity log coming soon!')}
-        className="w-full mt-2 py-2.5 rounded-lg border border-[#C9CCCF] text-[13px] font-medium text-[#202223] bg-white hover:bg-[#F4F6F8] shadow-sm transition-colors"
+      <Link 
+        to="/admin/orders"
+        className="flex items-center justify-center w-full mt-2 py-2.5 rounded-lg border border-[#C9CCCF] text-[13px] font-medium text-[#202223] bg-white hover:bg-[#F4F6F8] shadow-sm transition-colors"
       >
-        View All Activity
-      </button>
+        View All Orders
+      </Link>
     </AdminCard>
   )
 }

@@ -28,7 +28,7 @@ export function AdminLayout() {
 
   const onLogout = async () => {
     await handleLogout()
-    navigate({ to: '/admin-login', replace: true })
+    window.location.href = '/admin-login'
   }
   
   const displayName = user?.full_name || user?.email?.split('@')[0] || 'Admin User'

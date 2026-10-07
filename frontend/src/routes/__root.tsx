@@ -4,11 +4,13 @@ import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
 import { MaintenancePage } from '@/components/site/maintenance-page'
 import { cmsApi } from '@/lib/admin/cms-api'
+import { useAuth } from '@/context/auth-context'
 
 function RootComponent() {
   const location = useLocation()
+  const { user } = useAuth()
   const isAdmin = location.pathname.startsWith('/admin')
-  const isExempt = isAdmin || location.pathname === '/login'
+  const isExempt = isAdmin || location.pathname === '/login' || user?.role === 'admin'
   const [maintenance, setMaintenance] = useState<{ enabled: boolean; message: string; timerEnd: string } | null>(null)
 
   useEffect(() => {
