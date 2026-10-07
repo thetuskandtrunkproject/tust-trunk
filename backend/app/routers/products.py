@@ -259,6 +259,7 @@ MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 @router.post('/bulk/category')
 @limiter.limit("30/minute")
 def bulk_move_category(
+    request: Request,
     data: BulkMoveCategoryRequest,
     admin: dict = Depends(_set_admin_state),
     db: Client = Depends(get_db_client),
@@ -270,6 +271,7 @@ def bulk_move_category(
 @router.post('/bulk/status')
 @limiter.limit("30/minute")
 def bulk_update_status(
+    request: Request,
     data: BulkStatusUpdateRequest,
     admin: dict = Depends(_set_admin_state),
     db: Client = Depends(get_db_client),
@@ -281,6 +283,7 @@ def bulk_update_status(
 @router.post('/bulk/delete')
 @limiter.limit("30/minute")
 def bulk_delete_products(
+    request: Request,
     data: BulkDeleteRequest,
     admin: dict = Depends(_set_admin_state),
     db: Client = Depends(get_db_client),
@@ -292,6 +295,7 @@ def bulk_delete_products(
 @router.post('/bulk/sale-price')
 @limiter.limit("30/minute")
 def bulk_update_sale_price(
+    request: Request,
     data: BulkSalePriceRequest,
     admin: dict = Depends(_set_admin_state),
     db: Client = Depends(get_db_client),

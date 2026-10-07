@@ -28,6 +28,7 @@ def get_hero_banner(response: Response, db: Client = Depends(get_db_client)):
 @router.put("/hero", response_model=HeroBannerData)
 @limiter.limit("30/minute")
 def update_hero_banner(
+    request: Request,
     data: HeroBannerUpdate,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -40,6 +41,7 @@ def update_hero_banner(
 @router.post("/hero/reset", response_model=HeroBannerData)
 @limiter.limit("30/minute")
 def reset_hero_banner(
+    request: Request,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
 ):
@@ -53,6 +55,7 @@ def reset_hero_banner(
 @router.post("/hero/set_default", response_model=HeroBannerData)
 @limiter.limit("30/minute")
 def set_default_hero_banner(
+    request: Request,
     data: HeroBannerUpdate,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -70,6 +73,7 @@ def get_category_tiles(response: Response, db: Client = Depends(get_db_client)):
 @router.put("/category-tiles")
 @limiter.limit("30/minute")
 def update_category_tiles(
+    request: Request,
     data: CategoryTilesUpdate,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -85,6 +89,7 @@ def update_category_tiles(
 @router.post("/category-tiles/reset", response_model=CategoryTilesData)
 @limiter.limit("30/minute")
 def reset_category_tiles(
+    request: Request,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
 ):
@@ -96,6 +101,7 @@ def reset_category_tiles(
 @router.post("/category-tiles/set_default", response_model=CategoryTilesData)
 @limiter.limit("30/minute")
 def set_default_category_tiles(
+    request: Request,
     data: CategoryTilesUpdate,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -112,6 +118,7 @@ def get_home_products(response: Response, db: Client = Depends(get_db_client)):
 @router.put("/home-products", response_model=HomeProductsData)
 @limiter.limit("30/minute")
 def update_home_products(
+    request: Request,
     data: HomeProductsUpdate,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -127,6 +134,7 @@ def update_home_products(
 @router.post("/home-products/reset", response_model=HomeProductsData)
 @limiter.limit("30/minute")
 def reset_home_products(
+    request: Request,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
 ):
@@ -136,6 +144,7 @@ def reset_home_products(
 @router.post("/home-products/set_default", response_model=HomeProductsData)
 @limiter.limit("30/minute")
 def set_default_home_products(
+    request: Request,
     data: HomeProductsUpdate,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -152,6 +161,7 @@ def get_about_page(response: Response, db: Client = Depends(get_db_client)):
 @router.put("/about-page", response_model=AboutPageData)
 @limiter.limit("30/minute")
 def update_about_page(
+    request: Request,
     data: AboutPageUpdate,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -167,6 +177,7 @@ def update_about_page(
 @router.post("/about-page/reset", response_model=AboutPageData)
 @limiter.limit("30/minute")
 def reset_about_page(
+    request: Request,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
 ):
@@ -176,6 +187,7 @@ def reset_about_page(
 @router.post("/about-page/set_default", response_model=AboutPageData)
 @limiter.limit("30/minute")
 def set_default_about_page(
+    request: Request,
     data: AboutPageUpdate,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -192,6 +204,7 @@ def get_footer(response: Response, db: Client = Depends(get_db_client)):
 @router.put("/footer", response_model=FooterData)
 @limiter.limit("30/minute")
 def update_footer(
+    request: Request,
     data: FooterUpdate,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -212,6 +225,7 @@ def get_shop_settings(response: Response, db: Client = Depends(get_db_client)):
 @router.put("/shop-settings", response_model=ShopSettingsData)
 @limiter.limit("30/minute")
 def update_shop_settings(
+    request: Request,
     data: ShopSettingsUpdate,
     db: Client = Depends(get_db_client),
     admin: dict = Depends(get_current_admin)
@@ -227,6 +241,7 @@ def update_shop_settings(
 @router.post("/upload-image")
 @limiter.limit("30/minute")
 async def upload_cms_image(
+    request: Request,
     file: UploadFile = File(...),
     admin: dict = Depends(get_current_admin),
     db: Client = Depends(get_db_client)
