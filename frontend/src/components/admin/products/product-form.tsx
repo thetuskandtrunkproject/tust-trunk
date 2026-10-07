@@ -302,11 +302,14 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
               onReplaceExisting={async (index, newFile) => {
                 try {
                   const oldUrl = formData.images[index]
-                  const newUrl = await uploadProductImage(formData.id, newFile)
+                  const updatedProduct = await uploadProductImage(formData.id, newFile)
+                  const newUrl = updatedProduct.images[updatedProduct.images.length - 1]
                   const newImages = [...formData.images]
                   newImages[index] = newUrl
                   handleChange('images', newImages)
                   await deleteProductImage(formData.id, oldUrl)
+                  // Update the backend with the correct order immediately
+                  await updateAdminProduct(formData.id, { ...formData, images: newImages })
                 } catch (e) {
                   showToast('Failed to replace image', 'error')
                 }
