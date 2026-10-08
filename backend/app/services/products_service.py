@@ -88,12 +88,25 @@ def _check_sku_unique(db: Client, sku: str, exclude_variant_id: Optional[str] = 
         )
 
 
+def _get_next_available_sku(db: Client, prefix: str) -> str:
+    """Finds the next available SKU for a given prefix (e.g., di-1, di-2)."""
+    res = db.table(VARIANTS_TABLE).select('sku').ilike('sku', f"{prefix}-%").execute()
+    max_idx = 0
+    if res.data:
+        for row in res.data:
+            parts = row['sku'].split('-')
+            if len(parts) >= 2 and parts[-1].isdigit():
+                max_idx = max(max_idx, int(parts[-1]))
+    return f"{prefix}-{max_idx + 1}"
+
+
 def _attach_variants(db: Client, product: dict) -> dict:
     """Fetch all variants for a product and attach them."""
     res = (
         db.table(VARIANTS_TABLE)
         .select('*')
         .eq('product_id', product['id'])
+        .eq('is_active', True)
         .order('created_at', desc=False)
         .execute()
     )
@@ -657,9 +670,11 @@ def duplicate_product(db: Client, product_id: str, admin_user: dict) -> dict:
     res = db.table(VARIANTS_TABLE).select('*').eq('product_id', product_id).execute()
     variants = res.data or []
 
-    suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
     new_name = product['name'] + ' (Copy)'
-    new_slug = product['slug'] + '-' + suffix
+    
+    # Generate slug from the new name, without random suffix
+    import re
+    new_slug = re.sub(r'[^a-z0-9]+', '-', new_name.lower()).strip('-')
 
     new_product_data = {
         'name': new_name,
@@ -682,17 +697,29 @@ def duplicate_product(db: Client, product_id: str, admin_user: dict) -> dict:
         raise HTTPException(status_code=500, detail='Failed to duplicate product')
 
     new_variants_data = []
+    prefix = new_name[:2].lower() if len(new_name) >= 2 else 'pr'
+    
+    # We need to find the max index currently in the DB for this prefix
+    res_max = db.table(VARIANTS_TABLE).select('sku').ilike('sku', f"{prefix}-%").execute()
+    max_idx = 0
+    if res_max.data:
+        for row in res_max.data:
+            parts = row['sku'].split('-')
+            if len(parts) >= 2 and parts[-1].isdigit():
+                max_idx = max(max_idx, int(parts[-1]))
+
     for i, v in enumerate(variants):
+        max_idx += 1
         new_variants_data.append({
             'product_id': new_product['id'],
-            'sku': f"{v['sku']}_COPY_{suffix}_{i}",
+            'sku': f"{prefix}-{max_idx}",
             'size': v['size'],
             'price': v['price'],
             'sale_price': v.get('sale_price'),
             'sale_start_date': v.get('sale_start_date'),
             'sale_end_date': v.get('sale_end_date'),
-            'stock': 0, # Don't duplicate stock to avoid inventory issues
-            'is_active': False
+            'stock': v.get('stock', 0), # Copy stock as requested
+            'is_active': True # Make variants active by default
         })
 
     if new_variants_data:

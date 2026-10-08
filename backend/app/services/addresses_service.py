@@ -1,13 +1,24 @@
 from fastapi import HTTPException, status
 from supabase import Client
 
+import re
+
 MAX_ADDRESSES_PER_USER = 5
+
+def _validate_address_data(data: dict):
+    if 'phone' in data and data['phone']:
+        if not re.match(r'^\d{10}$', data['phone']):
+            raise HTTPException(status_code=400, detail="Phone number must be exactly 10 digits")
+    if 'pincode' in data and data['pincode']:
+        if not re.match(r'^\d{6}$', data['pincode']):
+            raise HTTPException(status_code=400, detail="Pincode must be exactly 6 digits")
 
 def list_addresses(db: Client, user_id: str) -> list[dict]:
     res = db.table('addresses').select('*').eq('user_id', user_id).order('created_at', desc=True).execute()
     return res.data
 
 def create_address(db: Client, user_id: str, address_data: dict) -> dict:
+    _validate_address_data(address_data)
     # Pre-insert count check
     count_res = db.table('addresses').select('id', count='exact').eq('user_id', user_id).execute()
     current_count = count_res.count if count_res.count is not None else 0
@@ -45,6 +56,7 @@ def get_address(db: Client, user_id: str, address_id: str) -> dict:
 def update_address(db: Client, user_id: str, address_id: str, address_data: dict) -> dict:
     # Ensure it exists and belongs to user
     get_address(db, user_id, address_id)
+    _validate_address_data(address_data)
     
     requested_default = address_data.pop('is_default', None)
     

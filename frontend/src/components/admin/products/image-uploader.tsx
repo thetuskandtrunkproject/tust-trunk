@@ -81,7 +81,10 @@ export function ImageUploader({ existingImages, newFiles, onAddFiles, onRemoveEx
 
   return (
     <div className="space-y-4">
-      <h3 className="font-medium text-ink">Media</h3>
+      <div>
+        <h3 className="font-medium text-ink">Media</h3>
+        <p className="text-[13px] text-[#6D7175]">Format: WEBP, JPG, PNG. Max size: 5MB.</p>
+      </div>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         
@@ -95,7 +98,7 @@ export function ImageUploader({ existingImages, newFiles, onAddFiles, onRemoveEx
             onDrop={(e) => handleDrop(e, idx)}
           >
             <img src={img} alt={`Product view ${idx + 1}`} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-ink/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <div className="absolute inset-0 bg-ink/30 lg:bg-ink/50 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <button 
                 type="button"
                 onClick={() => handleRotate(img, idx)}
@@ -119,7 +122,7 @@ export function ImageUploader({ existingImages, newFiles, onAddFiles, onRemoveEx
           <div key={`new-${idx}`} className="relative aspect-[3/4] bg-cloud border-2 border-sky/50 rounded-xl overflow-hidden group">
             <img src={URL.createObjectURL(file)} alt={`New upload ${idx + 1}`} className="w-full h-full object-cover opacity-70" />
             <div className="absolute top-2 right-2 bg-sky text-white text-[10px] px-2 py-0.5 rounded-full font-medium">NEW</div>
-            <div className="absolute inset-0 bg-ink/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <div className="absolute inset-0 bg-ink/30 lg:bg-ink/50 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <button 
                 type="button"
                 onClick={async () => {

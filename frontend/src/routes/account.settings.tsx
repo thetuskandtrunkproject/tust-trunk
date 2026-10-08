@@ -48,6 +48,16 @@ function AccountSettingsPage() {
 
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!profile.name.trim()) {
+      showToast("Full name is required")
+      return
+    }
+    if (profile.phone && !/^\d{10}$/.test(profile.phone)) {
+      showToast("Phone number must be exactly 10 digits")
+      return
+    }
+
     try {
       await api.patch('/api/v1/auth/me', {
         full_name: profile.name,
@@ -82,6 +92,20 @@ function AccountSettingsPage() {
 
   const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!addressForm.name.trim() || !addressForm.address1.trim() || !addressForm.city.trim() || !addressForm.state.trim()) {
+      showToast("Please fill in all required fields")
+      return
+    }
+    if (!/^\d{6}$/.test(addressForm.pincode)) {
+      showToast("Pincode must be exactly 6 digits")
+      return
+    }
+    if (addressForm.phone && !/^\d{10}$/.test(addressForm.phone)) {
+      showToast("Phone number must be exactly 10 digits")
+      return
+    }
+
     setSavingAddress(true)
     try {
       if (editingAddressId) {
@@ -176,13 +200,18 @@ function AccountSettingsPage() {
         <section className="bg-white border border-ink/10 rounded-[2rem] p-6 lg:p-8 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-bold text-xl text-ink">Address Book</h3>
-            {!newAddressForm && (
+            {!newAddressForm && addresses.length < 5 && (
               <button 
                 onClick={() => setNewAddressForm(true)}
                 className="text-sm font-bold text-ink hover:text-sky transition-colors flex items-center gap-1 bg-ink/5 px-4 py-2 rounded-full"
               >
                 <Plus className="w-4 h-4" /> Add new address
               </button>
+            )}
+            {!newAddressForm && addresses.length >= 5 && (
+              <div className="text-[13px] font-medium text-rust bg-rust/10 px-3 py-1.5 rounded-full">
+                Limit reached (5/5)
+              </div>
             )}
           </div>
 

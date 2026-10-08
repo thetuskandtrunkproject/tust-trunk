@@ -2,16 +2,26 @@ import { Plus, Trash2 } from 'lucide-react'
 import type { AdminProductVariant } from '@/lib/admin/products-api'
 
 interface VariantEditorProps {
+  productName?: string
   variants: AdminProductVariant[]
   onChange: (variants: AdminProductVariant[]) => void
 }
 
-export function VariantEditor({ variants, onChange }: VariantEditorProps) {
+export function VariantEditor({ productName, variants, onChange }: VariantEditorProps) {
   
   const handleAddVariant = () => {
+    let skuPrefix = (productName || 'pr').substring(0, 2).toLowerCase()
+    let maxIdx = 0
+    variants.forEach(v => {
+      const match = v.sku.match(new RegExp(`^${skuPrefix}-(\\d+)$`))
+      if (match) {
+        maxIdx = Math.max(maxIdx, parseInt(match[1]))
+      }
+    })
+    
     const newVariant = {
       id: `v${Date.now()}`,
-      sku: '',
+      sku: `${skuPrefix}-${maxIdx + 1}`,
       size: '',
       price: 0,
       stock: 0,

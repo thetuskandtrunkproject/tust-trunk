@@ -94,10 +94,16 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (formData.variants.length === 0) {
-      showToast('You must add at least one variant')
-      return
-    }
+    
+    if (!formData.name?.trim()) return showToast('Product name is required', 'error')
+    if (!formData.slug?.trim()) return showToast('Slug (URL handle) is required', 'error')
+    if (!formData.category_id) return showToast('Category is required', 'error')
+    if (!formData.variants || formData.variants.length === 0) return showToast('You must add at least one variant', 'error')
+    if (!basePrice || parseFloat(basePrice) <= 0) return showToast('Valid base price is required', 'error')
+
+    const invalidVariant = formData.variants.find(v => !v.sku?.trim() || !v.size?.trim())
+    if (invalidVariant) return showToast('All variants must have a SKU and Size', 'error')
+
     setIsSubmitting(true)
 
     try {
@@ -327,6 +333,7 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
           {/* Variants */}
           <div className={cardClassName}>
             <VariantEditor
+              productName={formData.name}
               variants={formData.variants || []}
               onChange={(variants) => handleChange('variants', variants)}
             />

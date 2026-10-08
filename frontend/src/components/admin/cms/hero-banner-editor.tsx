@@ -263,7 +263,7 @@ export function HeroBannerEditor() {
               <h4 className="font-medium text-ink flex items-center gap-2">
                 Default Slide Images
               </h4>
-              <p className="text-xs text-ink/60 mt-1">Manage the default rotating images. (Recommended: 1080x1350, .webp only)</p>
+              <p className="text-xs text-[#6D7175] mt-1">Manage the default rotating images. Format: WEBP, JPG, PNG. Max size: 5MB.</p>
             </div>
             <label className="text-sm font-medium text-ink/70 bg-cloud hover:bg-ink/5 border border-ink/10 rounded-full px-4 py-2 transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap self-start sm:self-auto">
               <CloudUpload className="w-4 h-4" />

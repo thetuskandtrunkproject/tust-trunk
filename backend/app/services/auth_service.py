@@ -57,6 +57,12 @@ def sync_user(db: Client, token: str) -> dict:
 
 def update_user_profile(db: Client, user_id: str, updates: UserUpdate) -> dict:
     update_data = updates.model_dump(exclude_unset=True)
+    
+    if 'phone' in update_data and update_data['phone']:
+        import re
+        if not re.match(r'^\d{10}$', update_data['phone']):
+            raise HTTPException(status_code=400, detail="Phone number must be exactly 10 digits")
+
     if not update_data:
         response = db.table('users').select('*').eq('id', user_id).execute()
         return response.data[0]
