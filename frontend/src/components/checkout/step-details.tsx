@@ -196,11 +196,11 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 onChange={e => {
                   const val = e.target.value.replace(/\D/g, '')
                   if (val.length <= 6) {
-                    setShipping(prev => {
-                    const next = {...prev, pincode: val}
-                    if (onPincodeChange) onPincodeChange(val)
-                    return next
-                  })
+                    setShipping((prev: any) => {
+                      const next = {...prev, pincode: val}
+                      if (onPincodeChange) onPincodeChange(val)
+                      return next
+                    })
                   }
                 }}
                 maxLength={6}

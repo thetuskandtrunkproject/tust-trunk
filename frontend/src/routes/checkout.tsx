@@ -126,6 +126,7 @@ function CheckoutPage() {
   const isFreeShipping = couponType === 'free_shipping'
   
   // Calculate delivery fee dynamically based on shopSettings and pincode
+  let deliveryFee = 6000
   let isHomeState = false
   if (shopSettings) {
     const prefixesStr = shopSettings.homeStatePincodePrefixes || ""
