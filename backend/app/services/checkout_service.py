@@ -117,15 +117,28 @@ def _verify_webhook_signature(raw_body: bytes, signature_header: str) -> bool:
     return hmac.compare_digest(expected, signature_header)
 
 
-def _compute_delivery_fee(subtotal_paise: int, free_shipping_override: bool = False) -> int:
+def _compute_delivery_fee(db: Client, pincode: str, subtotal_paise: int, free_shipping_override: bool = False) -> int:
     """
-    Compute delivery fee in paise.
-    Business rule: free above ₹3000 subtotal, else ₹60 flat.
-    Flagged: revisit this value before launch if the actual business rule differs.
+    Compute delivery fee in paise dynamically from shop_settings.
     """
-    if free_shipping_override or subtotal_paise >= FREE_DELIVERY_THRESHOLD_PAISE:
+    from app.services.cms_service import get_setting
+    shop_settings = get_setting(db, "shop_settings")
+    
+    if free_shipping_override:
         return 0
-    return DELIVERY_FEE_PAISE
+        
+    if shop_settings.get("freeShippingEnabled") and subtotal_paise >= int(shop_settings.get("freeShippingThreshold", 3000)) * 100:
+        return 0
+        
+    prefixes_str = shop_settings.get("homeStatePincodePrefixes", "")
+    prefixes = [p.strip() for p in prefixes_str.split(',') if p.strip()]
+    
+    is_home_state = any(pincode.startswith(p) for p in prefixes) if prefixes else False
+    
+    if is_home_state:
+        return int(shop_settings.get("shippingChargeHomeState", 60)) * 100
+    else:
+        return int(shop_settings.get("shippingChargeOtherStates", 80)) * 100
 
 
 # ---------------------------------------------------------------------------
@@ -251,7 +264,7 @@ def create_order(db: Client, user_id: str | None, payload: dict) -> dict:
         if coupon.get('discount_type') == 'free_shipping':
             free_shipping_override = True
 
-    delivery_fee_paise = _compute_delivery_fee(subtotal_paise, free_shipping_override=free_shipping_override)
+    delivery_fee_paise = _compute_delivery_fee(db, shipping['pincode'], subtotal_paise, free_shipping_override=free_shipping_override)
     
         
     total_paise = subtotal_paise + delivery_fee_paise - discount_paise

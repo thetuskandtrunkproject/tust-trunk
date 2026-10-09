@@ -9,9 +9,11 @@ interface StepDetailsProps {
   initialSaveDefault: boolean
   deliveryFee: number
   savedAddresses?: any[]
+  onPincodeChange?: (pincode: string) => void
+  isHomeState?: boolean
 }
 
-export function StepDetails({ onNext, onBack, initialContact, initialShipping, initialSaveDefault, deliveryFee, savedAddresses = [] }: StepDetailsProps) {
+export function StepDetails({ onNext, onBack, initialContact, initialShipping, initialSaveDefault, deliveryFee, savedAddresses = [], onPincodeChange, isHomeState }: StepDetailsProps) {
   const [contact, setContact] = useState(initialContact)
   const [shipping, setShipping] = useState(initialShipping)
   const [saveDefault, setSaveDefault] = useState(initialSaveDefault)
@@ -107,6 +109,9 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                       phone: addr.phone || ''
                     })
                     setSaveDefault(false)
+                    if (onPincodeChange && addr.pincode) {
+                      onPincodeChange(addr.pincode)
+                    }
                   }}
                   className={`p-5 rounded-[2rem] border-2 cursor-pointer transition-all ${selectedAddressId === addr.id ? 'border-coral bg-coral/5 shadow-sm' : 'border-ink/10 hover:border-ink/30'}`}
                 >
@@ -191,7 +196,11 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
                 onChange={e => {
                   const val = e.target.value.replace(/\D/g, '')
                   if (val.length <= 6) {
-                    setShipping({...shipping, pincode: val})
+                    setShipping(prev => {
+                    const next = {...prev, pincode: val}
+                    if (onPincodeChange) onPincodeChange(val)
+                    return next
+                  })
                   }
                 }}
                 maxLength={6}
@@ -238,10 +247,12 @@ export function StepDetails({ onNext, onBack, initialContact, initialShipping, i
         <section className="bg-sky/10 rounded-[2rem] p-6 lg:p-8 flex items-center justify-between border border-sky/20">
           <div>
             <h3 className="font-bold text-ink mb-1 text-lg">Standard Delivery</h3>
-            <p className="text-sm text-ink/60 font-medium">Arriving in 5-7 business days</p>
+            <p className="text-sm text-ink/60 font-medium">
+              Arriving in {isHomeState ? '2-3' : '4-5'} business days
+            </p>
           </div>
           <span className="font-heading font-bold text-ink text-2xl">
-            {deliveryFee === 0 ? <span className="text-mint">Free</span> : `₹${deliveryFee}`}
+            {deliveryFee === 0 ? <span className="text-mint">Free</span> : `₹${deliveryFee / 100}`}
           </span>
         </section>
 

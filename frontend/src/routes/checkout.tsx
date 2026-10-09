@@ -22,6 +22,14 @@ function CheckoutPage() {
   const { items: cartItems, serverSubtotal: cartSubtotal } = useCart()
   const { user } = useAuth()
   const navigate = useNavigate()
+  
+  const [shopSettings, setShopSettings] = useState<any>(null)
+
+  useEffect(() => {
+    api.get('/cms/shop-settings').then(res => {
+      setShopSettings(res.data)
+    }).catch(console.error)
+  }, [])
 
   useEffect(() => {
     // If cart is empty AND we are not in a buy-now flow, redirect to shop
@@ -116,21 +124,36 @@ function CheckoutPage() {
   }
   
   const isFreeShipping = couponType === 'free_shipping'
-  const deliveryFee = (subtotal >= 300000 || isFreeShipping) ? 0 : 6000 // Free shipping over ₹3000, else ₹60
+  
+  // Calculate delivery fee dynamically based on shopSettings and pincode
+  let isHomeState = false
+  if (shopSettings) {
+    const prefixesStr = shopSettings.homeStatePincodePrefixes || ""
+    const prefixes = prefixesStr.split(',').map((p: string) => p.trim()).filter(Boolean)
+    isHomeState = prefixes.length > 0 && prefixes.some((p: string) => shipping.pincode.startsWith(p))
+    
+    const threshold = Number(shopSettings.freeShippingThreshold || 3000) * 100
+    if (isFreeShipping || (shopSettings.freeShippingEnabled && subtotal >= threshold)) {
+      deliveryFee = 0
+    } else {
+      deliveryFee = isHomeState 
+        ? Number(shopSettings.shippingChargeHomeState || 60) * 100 
+        : Number(shopSettings.shippingChargeOtherStates || 80) * 100
+    }
+  } else {
+    deliveryFee = (subtotal >= 300000 || isFreeShipping) ? 0 : 6000
+  }
   const discountAmount = discountPaise
   const totalAmount = subtotal + deliveryFee - discountAmount
 
 
-  const handleNextToDetails = () => setCurrentStep(2)
-  const handleBackToReview = () => setCurrentStep(1)
-  
   const handleNextToPayment = (newContact: any, newShipping: any, newSaveDefault: boolean) => {
     setContact(newContact)
     setShipping(newShipping)
     setSaveDefault(newSaveDefault)
-    setCurrentStep(3)
+    setCurrentStep(2)
   }
-  const handleBackToDetails = () => setCurrentStep(2)
+  const handleBackToDetails = () => setCurrentStep(1)
 
   if (isLoadingBuyNow) {
     return <div className="min-h-screen bg-cloud pt-24 text-center">Loading checkout...</div>
@@ -140,79 +163,81 @@ function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-cloud pt-8 pb-24">
-      <div className="container mx-auto px-4 lg:px-8 max-w-4xl">
+      <div className="container mx-auto px-4 lg:px-8 max-w-[1200px]">
         
         {/* Step Indicator */}
-        <div className="flex items-center justify-between mb-12 relative">
+        <div className="flex items-center justify-between mb-12 relative max-w-xl mx-auto">
           <div className="absolute top-1/2 left-0 w-full h-1 bg-ink/10 -z-10 -translate-y-1/2 rounded-full"></div>
-          <div className="absolute top-1/2 left-0 h-1 bg-coral transition-all duration-500 -z-10 -translate-y-1/2 rounded-full" style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%' }}></div>
+          <div className="absolute top-1/2 left-0 h-1 bg-coral transition-all duration-500 -z-10 -translate-y-1/2 rounded-full" style={{ width: currentStep === 1 ? '50%' : '100%' }}></div>
           
           <div className="flex flex-col items-center gap-2 bg-cloud px-2">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 1 ? 'bg-cta text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>1</div>
-            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 1 ? 'text-cta' : 'text-ink/40'}`}>Review</span>
+            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 1 ? 'text-cta' : 'text-ink/40'}`}>Details</span>
           </div>
           <div className="flex flex-col items-center gap-2 bg-cloud px-2">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 2 ? 'bg-cta text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>2</div>
-            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 2 ? 'text-cta' : 'text-ink/40'}`}>Details</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 bg-cloud px-2">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 3 ? 'bg-cta text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>3</div>
-            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 3 ? 'text-cta' : 'text-ink/40'}`}>Payment</span>
+            <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 2 ? 'text-cta' : 'text-ink/40'}`}>Payment</span>
           </div>
         </div>
 
         {/* Wizard Content */}
-        <div className="overflow-hidden">
-          {currentStep === 1 && (
-            <div className="animate-in slide-in-from-right fade-in duration-500 ease-out fill-mode-both">
-              <StepReview 
-                onNext={handleNextToDetails} 
-                deliveryFee={deliveryFee} 
-                items={items} 
-                subtotal={subtotal} 
-                couponCode={couponCode}
-                discountAmount={discountAmount}
-                onApplyCoupon={(code, discount, type) => {
-                  setCouponCode(code)
-                  setDiscountPaise(discount)
-                  setCouponType(type)
-                }}
-                onRemoveCoupon={() => {
-                  setCouponCode(null)
-                  setDiscountPaise(0)
-                  setCouponType(null)
-                }}
-              />
-            </div>
-          )}
+        <div className="flex flex-col lg:flex-row gap-8">
           
-          {currentStep === 2 && (
-            <div className="animate-in slide-in-from-right fade-in duration-500 ease-out fill-mode-both">
-              <StepDetails 
-                onNext={handleNextToPayment} 
-                onBack={handleBackToReview}
-                initialContact={contact}
-                initialShipping={shipping}
-                initialSaveDefault={saveDefault}
-                deliveryFee={deliveryFee}
-                savedAddresses={savedAddresses}
-              />
-            </div>
-          )}
+          <div className="flex-1 overflow-hidden order-2 lg:order-1">
+            {currentStep === 1 && (
+              <div className="animate-in slide-in-from-right fade-in duration-500 ease-out fill-mode-both">
+                <StepDetails 
+                  onNext={handleNextToPayment} 
+                  onBack={() => {}} // No back button on details step
+                  initialContact={contact}
+                  initialShipping={shipping}
+                  initialSaveDefault={saveDefault}
+                  deliveryFee={deliveryFee}
+                  isHomeState={isHomeState}
+                  savedAddresses={savedAddresses}
+                  onPincodeChange={(val) => setShipping(prev => ({...prev, pincode: val}))}
+                />
+              </div>
+            )}
 
-          {currentStep === 3 && (
-            <div className="animate-in slide-in-from-right fade-in duration-500 ease-out fill-mode-both">
-              <StepPayment 
-                onBack={handleBackToDetails}
-                contact={contact}
-                shipping={shipping}
-                totalAmount={totalAmount}
-                items={items}
-                isBuyNowFlow={isBuyNowFlow}
-                couponCode={couponCode}
-              />
-            </div>
-          )}
+            {currentStep === 2 && (
+              <div className="animate-in slide-in-from-right fade-in duration-500 ease-out fill-mode-both">
+                <StepPayment 
+                  onBack={handleBackToDetails}
+                  contact={contact}
+                  shipping={shipping}
+                  totalAmount={totalAmount}
+                  items={items}
+                  isBuyNowFlow={isBuyNowFlow}
+                  couponCode={couponCode}
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="w-full lg:w-[450px] shrink-0 order-1 lg:order-2">
+            <StepReview 
+              onNext={() => {}} 
+              deliveryFee={deliveryFee} 
+              items={items} 
+              subtotal={subtotal} 
+              couponCode={couponCode}
+              discountAmount={discountAmount}
+              onApplyCoupon={(code, discount, type) => {
+                setCouponCode(code)
+                setDiscountPaise(discount)
+                setCouponType(type)
+              }}
+              onRemoveCoupon={() => {
+                setCouponCode(null)
+                setDiscountPaise(0)
+                setCouponType(null)
+              }}
+              isBuyNowFlow={isBuyNowFlow}
+            />
+          </div>
+        </div>
+
         </div>
 
       </div>

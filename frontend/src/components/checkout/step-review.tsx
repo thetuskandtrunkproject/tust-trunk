@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Trash2, Plus, Minus } from 'lucide-react'
+import { useCart } from '@/context/cart-context'
 import { useToast } from '@/context/toast-context'
 import { api } from '@/lib/api'
 
@@ -12,9 +13,11 @@ interface StepReviewProps {
   discountAmount?: number
   onApplyCoupon?: (code: string, discount: number, type: string) => void
   onRemoveCoupon?: () => void
+  isBuyNowFlow?: boolean
 }
 
-export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, discountAmount = 0, onApplyCoupon, onRemoveCoupon }: StepReviewProps) {
+export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, discountAmount = 0, onApplyCoupon, onRemoveCoupon, isBuyNowFlow }: StepReviewProps) {
+  const { updateQuantity, removeItem } = useCart()
   const [promoInput, setPromoInput] = useState(couponCode || '')
   const [isApplying, setIsApplying] = useState(false)
   const { showToast } = useToast()
@@ -75,9 +78,43 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
                     <span className="font-medium text-ink text-lg line-clamp-1">{item.product!.name}</span>
                     <span className="font-bold text-ink text-lg whitespace-nowrap">{formatPrice(item.variant!.price * item.quantity)}</span>
                   </div>
-                  <div className="text-sm font-medium text-ink/60 mt-auto flex gap-4">
+                  <div className="text-sm font-medium text-ink/60 flex items-center justify-between gap-4 mt-auto">
                     <span>Size: {item.variant!.size}</span>
-                    <span>Qty: {item.quantity}</span>
+                    
+                    {!isBuyNowFlow ? (
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 bg-cloud px-3 py-1 rounded-full border border-ink/10">
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.variant_id, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
+                            className="p-1 text-ink/60 hover:text-ink disabled:opacity-50 transition-colors"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <span className="font-bold text-ink min-w-[1ch] text-center">{item.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.variant_id, item.quantity + 1)}
+                            disabled={item.quantity >= item.variant!.stock}
+                            className="p-1 text-ink/60 hover:text-ink disabled:opacity-50 transition-colors"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item.variant_id)}
+                          className="p-2 text-rust/60 hover:text-rust hover:bg-rust/10 rounded-full transition-colors"
+                          title="Remove item"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <span>Qty: {item.quantity}</span>
+                    )}
+
                     {item.is_available === false && (
                       <span className="text-rust font-bold">No longer available</span>
                     )}
@@ -93,7 +130,7 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
           <form onSubmit={handleApplyPromo} className="flex gap-2 max-w-sm">
             <input
               type="text"
-              placeholder="Promo code"
+              placeholder="e.g. SUMMER10"
               value={promoInput}
               onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
               disabled={!!couponCode || isApplying}
@@ -147,15 +184,6 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <button 
-          onClick={onNext}
-          disabled={cartDetails.length === 0 || cartDetails.some(item => item.is_available === false)}
-          className="bg-cta text-white px-10 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-cta/90 transition-all flex items-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
-        >
-          Proceed to Details <ArrowRight className="w-5 h-5" />
-        </button>
-      </div>
     </div>
   )
 }
