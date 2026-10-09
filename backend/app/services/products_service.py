@@ -268,6 +268,7 @@ def list_products(
         db.table(VARIANTS_TABLE)
         .select(variant_cols)
         .in_('product_id', product_ids)
+        .eq('is_active', True)
         .execute()
     )
     variants_raw = variants_res.data or []
@@ -667,7 +668,7 @@ def bulk_update_sale_price(db: Client, product_ids: list[str], sale_price: int |
 def duplicate_product(db: Client, product_id: str, admin_user: dict) -> dict:
     import random, string
     product = _get_product_or_404(db, product_id)
-    res = db.table(VARIANTS_TABLE).select('*').eq('product_id', product_id).execute()
+    res = db.table(VARIANTS_TABLE).select('*').eq('product_id', product_id).eq('is_active', True).execute()
     variants = res.data or []
 
     new_name = product['name'] + ' (Copy)'
