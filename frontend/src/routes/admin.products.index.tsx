@@ -122,8 +122,6 @@ function AdminProductsPage() {
       } catch (err: any) {
         showToast('Failed to unarchive product', 'error')
       }
-    } else if (action === 'delete') {
-      showToast('Delete not supported. Use Archive instead.')
     } else if (action === 'duplicate') {
       try {
         showToast('Duplicating product...', 'info')

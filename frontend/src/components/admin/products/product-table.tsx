@@ -8,7 +8,7 @@ interface ProductTableProps {
   selectedIds: string[]
   onToggleSelect: (id: string) => void
   onToggleAll: () => void
-  onQuickAction: (id: string, action: 'edit' | 'archive' | 'unarchive' | 'delete' | 'duplicate') => void
+  onQuickAction: (id: string, action: 'edit' | 'archive' | 'unarchive' | 'duplicate') => void
 }
 
 export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAll, onQuickAction }: ProductTableProps) {
@@ -30,6 +30,7 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
               </AdminTh>
               <AdminTh>Product</AdminTh>
               <AdminTh>Category</AdminTh>
+              <AdminTh>Price</AdminTh>
               <AdminTh>Status</AdminTh>
               <AdminTh>Stock</AdminTh>
               <AdminTh>Variants</AdminTh>
@@ -58,6 +59,7 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
                     </div>
                   </AdminTd>
                   <AdminTd className="text-ink/70 capitalize">{product.gender} • {product.category}</AdminTd>
+                  <AdminTd className="font-medium text-ink">₹{(product.price / 100).toLocaleString('en-IN')}</AdminTd>
                   <AdminTd><StatusBadge status={product.status} /></AdminTd>
                   <AdminTd className="font-medium text-ink">{product.total_stock}</AdminTd>
                   <AdminTd className="text-ink/70">{product.variant_count}</AdminTd>
@@ -90,12 +92,6 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
                             icon: product.status === 'Archived' ? <ArchiveRestore className="w-4 h-4" /> : <Archive className="w-4 h-4" />,
                             onClick: () => onQuickAction(product.id, product.status === 'Archived' ? 'unarchive' : 'archive'),
                             danger: product.status !== 'Archived'
-                          },
-                          {
-                            label: 'Delete',
-                            icon: <Trash2 className="w-4 h-4" />,
-                            onClick: () => onQuickAction(product.id, 'delete'),
-                            danger: true
                           }
                         ]}
                       />
@@ -134,7 +130,10 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
                     <AdminThumbnail src={product.images[0]} alt={product.name} size="lg" />
                     <div>
                       <p className="font-medium text-ink truncate mb-1">{product.name}</p>
-                      <p className="font-semibold text-ink text-sm">Stock: {product.total_stock}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-ink text-sm">₹{(product.price / 100).toLocaleString('en-IN')}</p>
+                        <p className="font-medium text-ink/70 text-xs text-nowrap">• Stock: {product.total_stock}</p>
+                      </div>
                     </div>
                   </div>
                   <StatusBadge status={product.status} />
@@ -170,12 +169,6 @@ export function ProductTable({ products, selectedIds, onToggleSelect, onToggleAl
                           icon: product.status === 'Archived' ? <ArchiveRestore className="w-4 h-4" /> : <Archive className="w-4 h-4" />,
                           onClick: () => onQuickAction(product.id, product.status === 'Archived' ? 'unarchive' : 'archive'),
                           danger: product.status !== 'Archived'
-                        },
-                        {
-                          label: 'Delete',
-                          icon: <Trash2 className="w-4 h-4" />,
-                          onClick: () => onQuickAction(product.id, 'delete'),
-                          danger: true
                         }
                       ]}
                     />

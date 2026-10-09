@@ -198,6 +198,7 @@ class ProductListItem(BaseModel):
     tags: List[str]
     variant_count: int
     total_stock: int
+    price: Optional[int] = 0
     created_at: datetime
     updated_at: datetime
     variants: Optional[List[VariantResponse]] = None

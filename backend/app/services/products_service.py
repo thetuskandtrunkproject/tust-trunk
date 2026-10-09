@@ -263,7 +263,7 @@ def list_products(
     # Fetch variant data for all products on this page (one query)
     product_ids = [p['id'] for p in products]
     
-    variant_cols = '*' if include_variants else 'product_id, stock'
+    variant_cols = '*' if include_variants else 'product_id, stock, price'
     variants_res = (
         db.table(VARIANTS_TABLE)
         .select(variant_cols)
@@ -278,17 +278,23 @@ def list_products(
     for v in variants_raw:
         pid = v['product_id']
         if pid not in agg:
-            agg[pid] = {'variant_count': 0, 'total_stock': 0, 'variants': []}
+            agg[pid] = {'variant_count': 0, 'total_stock': 0, 'variants': [], 'price': float('inf')}
         agg[pid]['variant_count'] += 1
         agg[pid]['total_stock'] += v.get('stock', 0)
+        
+        v_price = v.get('price')
+        if v_price is not None and v_price < agg[pid]['price']:
+            agg[pid]['price'] = v_price
+            
         if include_variants:
             agg[pid]['variants'].append(v)
 
     # Attach aggregates to each product
     for p in products:
-        a = agg.get(p['id'], {'variant_count': 0, 'total_stock': 0, 'variants': []})
+        a = agg.get(p['id'], {'variant_count': 0, 'total_stock': 0, 'variants': [], 'price': 0})
         p['variant_count'] = a['variant_count']
         p['total_stock'] = a['total_stock']
+        p['price'] = a['price'] if a['price'] != float('inf') else 0
         if include_variants:
             # Optionally sort variants if needed, e.g., by id or created_at
             p['variants'] = sorted(a['variants'], key=lambda x: x.get('created_at', ''))
