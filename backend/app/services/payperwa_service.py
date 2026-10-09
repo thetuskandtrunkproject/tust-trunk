@@ -6,18 +6,15 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Fallback values to be added to .env
-PAYPERWA_API_KEY = os.environ.get("PAYPERWA_API_KEY", "")
-OWNER_WHATSAPP_NUMBER = os.environ.get("OWNER_WHATSAPP_NUMBER", "")
 PAYPERWA_API_URL = "https://api.payperwa.com/api/v1" # Replace with actual API URL if different
 
 def _send_message(payload: dict) -> bool:
-    if not PAYPERWA_API_KEY:
+    if not settings.PAYPERWA_API_KEY:
         logger.error("PAYPERWA_API_KEY is not set.")
         return False
 
     headers = {
-        "Authorization": f"Bearer {PAYPERWA_API_KEY}",
+        "Authorization": f"Bearer {settings.PAYPERWA_API_KEY}",
         "Content-Type": "application/json"
     }
 
@@ -93,12 +90,12 @@ def send_owner_order_alert(order_id: str, customer_name: str, amount: str) -> bo
     """
     Sends order alert to owner via PayPerWA using the owner_order_alert template.
     """
-    if not OWNER_WHATSAPP_NUMBER:
+    if not settings.OWNER_WHATSAPP_NUMBER:
         logger.warning("OWNER_WHATSAPP_NUMBER is not set, skipping owner alert.")
         return False
 
     payload = {
-        "to": OWNER_WHATSAPP_NUMBER,
+        "to": settings.OWNER_WHATSAPP_NUMBER,
         "template": {
             "name": "owner_order_alert",
             "language": {"code": "en"},

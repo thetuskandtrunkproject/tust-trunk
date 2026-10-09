@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     RAZORPAY_KEY_ID: str = ""
     RAZORPAY_KEY_SECRET: str = ""
     RAZORPAY_WEBHOOK_SECRET: str = ""
+    
+    PAYPERWA_API_KEY: str = ""
+    OWNER_WHATSAPP_NUMBER: str = ""
 
     class Config:
         env_file = ".env"
