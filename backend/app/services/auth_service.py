@@ -91,11 +91,11 @@ def _hash_otp(otp: str) -> str:
 def send_otp(db: Client, phone: str):
     # Ensure E.164 format for India
     if len(phone) == 10:
-        formatted_phone = f"+91{phone}"
-    elif phone.startswith("91") and len(phone) == 12:
-        formatted_phone = f"+{phone}"
+        formatted_phone = f"91{phone}"
+    elif phone.startswith("+"):
+        formatted_phone = phone[1:]
     else:
-        formatted_phone = f"+{phone}"
+        formatted_phone = phone
 
     # Check limits
     existing_otp = db.table('otps').select('*').eq('phone', formatted_phone).execute().data
@@ -141,11 +141,11 @@ def send_otp(db: Client, phone: str):
 
 def verify_otp(db: Client, phone: str, otp: str):
     if len(phone) == 10:
-        formatted_phone = f"+91{phone}"
-    elif phone.startswith("91") and len(phone) == 12:
-        formatted_phone = f"+{phone}"
+        formatted_phone = f"91{phone}"
+    elif phone.startswith("+"):
+        formatted_phone = phone[1:]
     else:
-        formatted_phone = f"+{phone}"
+        formatted_phone = phone
 
     otp_records = db.table('otps').select('*').eq('phone', formatted_phone).execute().data
     if not otp_records:

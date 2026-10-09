@@ -19,7 +19,7 @@ def _send_message(payload: dict) -> bool:
     }
 
     try:
-        response = requests.post(f"{PAYPERWA_API_URL}/messages/send-template", json=payload, headers=headers)
+        response = requests.post(f"{PAYPERWA_API_URL}/messages/send", json=payload, headers=headers)
         if response.status_code in [200, 201]:
             return True
         else:
@@ -34,33 +34,10 @@ def send_otp_message(phone: str, otp: str) -> bool:
     Sends OTP via PayPerWA using the otp_verification template.
     """
     payload = {
-        "to": phone,
-        "template": {
-            "name": "otp_verification",
-            "language": {"code": "en"},
-            "components": [
-                {
-                    "type": "body",
-                    "parameters": [
-                        {
-                            "type": "text",
-                            "text": otp
-                        }
-                    ]
-                },
-                {
-                    "type": "button",
-                    "sub_type": "url",
-                    "index": "0",
-                    "parameters": [
-                        {
-                            "type": "text",
-                            "text": otp
-                        }
-                    ]
-                }
-            ]
-        }
+        "to": phone.lstrip("+"),
+        "template_name": "otp_verification",
+        "language": "en",
+        "variables": [otp]
     }
     return _send_message(payload)
 
@@ -69,20 +46,10 @@ def send_order_confirmation(phone: str, order_id: str, amount: str) -> bool:
     Sends order confirmation via PayPerWA using the order_confirmation template.
     """
     payload = {
-        "to": phone,
-        "template": {
-            "name": "order_confirmation",
-            "language": {"code": "en"},
-            "components": [
-                {
-                    "type": "body",
-                    "parameters": [
-                        {"type": "text", "text": order_id},
-                        {"type": "text", "text": amount}
-                    ]
-                }
-            ]
-        }
+        "to": phone.lstrip("+"),
+        "template_name": "order_confirmation",
+        "language": "en",
+        "variables": [order_id, amount]
     }
     return _send_message(payload)
 
@@ -95,20 +62,9 @@ def send_owner_order_alert(order_id: str, customer_name: str, amount: str) -> bo
         return False
 
     payload = {
-        "to": settings.OWNER_WHATSAPP_NUMBER,
-        "template": {
-            "name": "owner_order_alert",
-            "language": {"code": "en"},
-            "components": [
-                {
-                    "type": "body",
-                    "parameters": [
-                        {"type": "text", "text": order_id},
-                        {"type": "text", "text": customer_name},
-                        {"type": "text", "text": amount}
-                    ]
-                }
-            ]
-        }
+        "to": settings.OWNER_WHATSAPP_NUMBER.lstrip("+"),
+        "template_name": "owner_order_alert",
+        "language": "en",
+        "variables": [order_id, customer_name, amount]
     }
     return _send_message(payload)
