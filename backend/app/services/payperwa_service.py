@@ -6,7 +6,7 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-PAYPERWA_API_URL = "https://api.payperwa.com/api/v1" # Replace with actual API URL if different
+PAYPERWA_API_URL = "https://payperwa.com/api/v1" # Correct API URL
 
 def _send_message(payload: dict) -> bool:
     if not settings.PAYPERWA_API_KEY:
