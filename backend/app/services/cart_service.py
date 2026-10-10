@@ -68,9 +68,27 @@ def get_cart(db: Client, user_id: str) -> dict:
             and product.get('status') == 'Active'
         )
 
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc)
+        
+        def get_active_price(v):
+            if v.get('sale_price'):
+                start = datetime.fromisoformat(v['sale_start_date'].replace('Z', '+00:00')) if v.get('sale_start_date') else None
+                end = datetime.fromisoformat(v['sale_end_date'].replace('Z', '+00:00')) if v.get('sale_end_date') else None
+                started = not start or now >= start
+                not_ended = not end or now <= end
+                if started and not_ended:
+                    return v['sale_price']
+            return v.get('price', 0)
+
+        active_price = get_active_price(variant)
+        if variant.get('price', 0) > active_price:
+            variant['original_price'] = variant['price']
+        variant['price'] = active_price
+
         # Subtotal counts only items the user can actually buy right now
         if is_available:
-            subtotal += variant.get('price', 0) * item.get('quantity', 0)
+            subtotal += variant['price'] * item.get('quantity', 0)
 
         formatted_items.append({
             "id": item["id"],

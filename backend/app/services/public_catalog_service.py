@@ -136,7 +136,7 @@ def resolve_variants(db: Client, ids_str: str) -> dict:
     # Select only needed fields — previously used products(*) which fetched ALL columns
     res = (
         db.table('product_variants')
-        .select('id, sku, size, price, stock, is_active, products(id, name, slug, images, status)')
+        .select('id, sku, size, price, sale_price, sale_start_date, sale_end_date, stock, is_active, products(id, name, slug, images, status)')
         .in_('id', valid_ids)
         .execute()
     )
@@ -153,13 +153,29 @@ def resolve_variants(db: Client, ids_str: str) -> dict:
             and prod.get('status') == 'Active'
         )
 
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc)
+        
+        def get_active_price(v):
+            if v.get('sale_price'):
+                start = datetime.fromisoformat(v['sale_start_date'].replace('Z', '+00:00')) if v.get('sale_start_date') else None
+                end = datetime.fromisoformat(v['sale_end_date'].replace('Z', '+00:00')) if v.get('sale_end_date') else None
+                started = not start or now >= start
+                not_ended = not end or now <= end
+                if started and not_ended:
+                    return v['sale_price']
+            return v.get('price', 0)
+
+        active_price = get_active_price(row)
+
         items.append({
             'is_available': is_available,
             'variant': {
                 'id': row['id'],
                 'sku': row['sku'],
                 'size': row['size'],
-                'price': row['price'],
+                'price': active_price,
+                'original_price': row['price'] if row['price'] > active_price else None,
                 'stock': row['stock'],
                 'is_active': row['is_active']
             },
@@ -193,7 +209,7 @@ def resolve_products(db: Client, ids_str: str) -> dict:
     # Select only required fields — previously used products(*) which fetched all columns
     res = (
         db.table('products')
-        .select('id, name, slug, images, tags, product_variants(price, stock, is_active), categories!inner(name)')
+        .select('id, name, slug, images, tags, product_variants(price, sale_price, sale_start_date, sale_end_date, stock, is_active), categories!inner(name)')
         .in_('id', valid_ids)
         .eq('status', 'Active')
         .eq('categories.is_active', True)
@@ -202,16 +218,34 @@ def resolve_products(db: Client, ids_str: str) -> dict:
 
     items = []
     for product in res.data:
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc)
+        
+        def get_active_price(v):
+            if v.get('sale_price'):
+                start = datetime.fromisoformat(v['sale_start_date'].replace('Z', '+00:00')) if v.get('sale_start_date') else None
+                end = datetime.fromisoformat(v['sale_end_date'].replace('Z', '+00:00')) if v.get('sale_end_date') else None
+                started = not start or now >= start
+                not_ended = not end or now <= end
+                if started and not_ended:
+                    return v['sale_price']
+            return v.get('price', 0)
+
         # Determine current_price based on active variants with stock
         active_variants = [
             v for v in product.get('product_variants', [])
             if v.get('is_active') is True and v.get('stock', 0) > 0
         ]
 
-        # Determine price (lowest among active variants) in paise
+        # Determine price (lowest among variants). Fallback to all variants if active_variants is empty
+        variants_to_check = active_variants if active_variants else product.get('product_variants', [])
+        
         current_price = 0
-        if active_variants:
-            current_price = min(v.get('price', 0) for v in active_variants)
+        original_price = 0
+        if variants_to_check:
+            min_variant = min(variants_to_check, key=lambda v: get_active_price(v))
+            current_price = get_active_price(min_variant)
+            original_price = min_variant.get('price', 0)
 
         items.append({
             'id': product['id'],
@@ -219,6 +253,7 @@ def resolve_products(db: Client, ids_str: str) -> dict:
             'slug': product['slug'],
             'category': product['categories']['name'],
             'price': current_price,
+            'original_price': original_price if original_price > current_price else None,
             'images': product.get('images', [])[:2],  # Only first 2 images needed
             'tags': product.get('tags', []),
             'is_available': len(active_variants) > 0

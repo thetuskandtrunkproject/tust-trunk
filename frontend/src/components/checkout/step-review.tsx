@@ -76,7 +76,14 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
                 <div className="flex flex-col flex-1 py-1">
                   <div className="flex justify-between items-start gap-4 mb-1">
                     <span className="font-medium text-ink text-lg line-clamp-1">{item.product!.name}</span>
-                    <span className="font-bold text-ink text-lg whitespace-nowrap">{formatPrice(item.variant!.price * item.quantity)}</span>
+                    <div className="flex flex-col items-end">
+                      <span className="font-bold text-ink text-lg whitespace-nowrap">{formatPrice(item.variant!.price * item.quantity)}</span>
+                      {item.variant!.original_price && item.variant!.original_price > item.variant!.price && (
+                        <span className="text-sm font-medium text-ink/40 line-through whitespace-nowrap">
+                          {formatPrice(item.variant!.original_price * item.quantity)}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="text-sm font-medium text-ink/60 flex items-center justify-between gap-4 mt-auto">
                     <span>Size: {item.variant!.size}</span>

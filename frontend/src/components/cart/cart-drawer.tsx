@@ -73,7 +73,12 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     >
                       {item.product!.name}
                     </Link>
-                    <span className="font-medium text-ink">{formatPrice(item.variant!.price)}</span>
+                    <div className="flex flex-col items-end">
+                      <span className="font-medium text-ink">{formatPrice(item.variant!.price)}</span>
+                      {item.variant!.original_price && item.variant!.original_price > item.variant!.price && (
+                        <span className="text-xs text-ink/40 line-through">{formatPrice(item.variant!.original_price)}</span>
+                      )}
+                    </div>
                   </div>
                   
                   <div className="mb-3">
