@@ -120,7 +120,7 @@ def send_otp(db: Client, phone: str):
 
     otp = ''.join(secrets.choice(string.digits) for _ in range(6))
     otp_hash = _hash_otp(otp)
-    expires_at = now + timedelta(minutes=5)
+    expires_at = now + timedelta(minutes=15)
 
     upsert_data = {
         'phone': formatted_phone,
