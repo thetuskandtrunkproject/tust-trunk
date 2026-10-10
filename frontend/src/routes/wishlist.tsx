@@ -87,7 +87,8 @@ function WishlistPage() {
                 id={p.id}
                 slug={p.slug}
                 name={p.name}
-                price={formatPrice(p.min_price)}
+                price={formatPrice(p.price)}
+                originalPrice={p.original_price ? formatPrice(p.original_price) : undefined}
                 img={p.images[0]}
                 category={p.category}
                 tags={p.tags}
