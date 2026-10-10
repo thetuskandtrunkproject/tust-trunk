@@ -72,6 +72,8 @@ def send_otp(request: Request, payload: SendOTPRequest, db: Client = Depends(get
     """
     try:
         return auth_service.send_otp(db, payload.phone)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to send OTP to {payload.phone}: {e}")
         raise HTTPException(
