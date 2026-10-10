@@ -20,6 +20,7 @@ export type CartItem = {
     sku: string
     size: string
     price: number
+    original_price?: number
     stock: number
     is_active: boolean
   }
