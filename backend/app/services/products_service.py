@@ -174,6 +174,9 @@ def create_product(db: Client, data: ProductCreate, admin_user: dict) -> dict:
             'sku': v.sku,
             'size': v.size,
             'price': v.price,
+            'sale_price': v.sale_price,
+            'sale_start_date': v.sale_start_date.isoformat() if v.sale_start_date else None,
+            'sale_end_date': v.sale_end_date.isoformat() if v.sale_end_date else None,
             'stock': v.stock,
             'is_active': True,
         }
@@ -400,6 +403,9 @@ def add_variant(db: Client, product_id: str, data: VariantCreate) -> dict:
         'sku': data.sku,
         'size': data.size,
         'price': data.price,
+        'sale_price': data.sale_price,
+        'sale_start_date': data.sale_start_date.isoformat() if data.sale_start_date else None,
+        'sale_end_date': data.sale_end_date.isoformat() if data.sale_end_date else None,
         'stock': data.stock,
         'is_active': True,
     }
