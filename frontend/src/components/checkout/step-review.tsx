@@ -11,12 +11,14 @@ interface StepReviewProps {
   subtotal: number
   couponCode?: string | null
   discountAmount?: number
+  gstAmount?: number
+  gstPercentage?: number
   onApplyCoupon?: (code: string, discount: number, type: string) => void
   onRemoveCoupon?: () => void
   isBuyNowFlow?: boolean
 }
 
-export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, discountAmount = 0, onApplyCoupon, onRemoveCoupon, isBuyNowFlow }: StepReviewProps) {
+export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, discountAmount = 0, gstAmount = 0, gstPercentage = 0, onApplyCoupon, onRemoveCoupon, isBuyNowFlow }: StepReviewProps) {
   const { updateQuantity, removeItem } = useCart()
   const [promoInput, setPromoInput] = useState(couponCode || '')
   const [isApplying, setIsApplying] = useState(false)
@@ -55,7 +57,7 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
   // but guests should be logged in to sync and render correctly.
   const cartDetails = items.filter(item => item.product !== undefined && item.variant !== undefined)
 
-  const total = subtotal + deliveryFee - discountAmount
+  const total = subtotal + deliveryFee + (gstAmount || 0) - discountAmount
 
   const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
 
@@ -176,6 +178,12 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
               <span>Delivery</span>
               <span>{deliveryFee === 0 ? 'Free' : formatPrice(deliveryFee)}</span>
             </div>
+            {gstAmount > 0 && (
+              <div className="flex justify-between font-medium">
+                <span>GST ({gstPercentage}%)</span>
+                <span>{formatPrice(gstAmount)}</span>
+              </div>
+            )}
             {couponCode && (
               <div className="flex justify-between font-bold text-sky">
                 <span>Discount ({couponCode})</span>

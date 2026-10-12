@@ -145,7 +145,10 @@ function CheckoutPage() {
     deliveryFee = (subtotal >= 300000 || isFreeShipping) ? 0 : 6000
   }
   const discountAmount = discountPaise
-  const totalAmount = subtotal + deliveryFee - discountAmount
+  const gstPercentage = shopSettings?.gstEnabled ? Number(shopSettings.gstPercentage || 5) : 0
+  const taxableAmount = Math.max(0, subtotal - discountAmount)
+  const gstAmount = shopSettings?.gstEnabled ? Math.round(taxableAmount * (gstPercentage / 100)) : 0
+  const totalAmount = subtotal + deliveryFee + gstAmount - discountAmount
 
 
   const handleNextToPayment = (newContact: any, newShipping: any, newSaveDefault: boolean) => {
@@ -224,6 +227,8 @@ function CheckoutPage() {
               subtotal={subtotal} 
               couponCode={couponCode}
               discountAmount={discountAmount}
+              gstAmount={gstAmount}
+              gstPercentage={gstPercentage}
               onApplyCoupon={(code, discount, type) => {
                 setCouponCode(code)
                 setDiscountPaise(discount)

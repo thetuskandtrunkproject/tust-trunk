@@ -267,7 +267,19 @@ def create_order(db: Client, user_id: str | None, payload: dict) -> dict:
     delivery_fee_paise = _compute_delivery_fee(db, shipping['pincode'], subtotal_paise, free_shipping_override=free_shipping_override)
     
         
-    total_paise = subtotal_paise + delivery_fee_paise - discount_paise
+    from app.services.cms_service import get_setting
+    shop_settings = get_setting(db, "shop_settings")
+    gst_paise = 0
+    gst_percentage = 0.0
+    if shop_settings and shop_settings.get("gstEnabled"):
+        try:
+            gst_percentage = float(shop_settings.get("gstPercentage", 5.0) or 0)
+        except (ValueError, TypeError):
+            gst_percentage = 5.0
+        taxable_paise = max(0, subtotal_paise - discount_paise)
+        gst_paise = int(round(taxable_paise * (gst_percentage / 100.0)))
+
+    total_paise = subtotal_paise + delivery_fee_paise + gst_paise - discount_paise
 
 
     # -------------------------------------------------------------------------
@@ -341,6 +353,8 @@ def create_order(db: Client, user_id: str | None, payload: dict) -> dict:
         'order_summary': {
             'subtotal_paise': subtotal_paise,
             'delivery_fee_paise': delivery_fee_paise,
+            'gst_paise': gst_paise,
+            'gst_percentage': gst_percentage,
             'discount_paise': discount_paise,
             'total_paise': total_paise,
             'line_items': [

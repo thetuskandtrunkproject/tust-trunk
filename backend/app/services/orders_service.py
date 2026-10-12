@@ -136,7 +136,7 @@ def get_admin_orders(
     # Select only needed columns. order_items only needs thumbnail — images sliced to 1 in _format_items.
     query = db.table('orders').select(
         'id, order_number, created_at, status, razorpay_payment_id, total_paise, '
-        'subtotal_paise, delivery_fee_paise, shipping_address, guest_email, guest_phone, '
+        'subtotal_paise, delivery_fee_paise, shipping_address, guest_email, guest_phone, discount_paise, coupon_code, '
         'order_items(variant_id, product_name_snapshot, size_snapshot, quantity, '
         'price_at_purchase, product_variants(products(id, images))), '
         'users(full_name, email, phone)',
@@ -199,6 +199,8 @@ def get_admin_orders(
             "items": items_data,
             "subtotal_paise": order['subtotal_paise'],
             "delivery_fee_paise": order['delivery_fee_paise'],
+            "discount_paise": order.get('discount_paise') or 0,
+            "gst_paise": max(0, (order.get('total_paise') or 0) - ((order.get('subtotal_paise') or 0) + (order.get('delivery_fee_paise') or 0) - (order.get('discount_paise') or 0))),
             "total_paise": order['total_paise']
         })
         

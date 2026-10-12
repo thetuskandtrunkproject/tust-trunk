@@ -49,6 +49,8 @@ class AdminOrderResponse(BaseModel):
     items: List[AdminOrderItemResponse]
     subtotal_paise: int
     delivery_fee_paise: int
+    discount_paise: int = 0
+    gst_paise: int = 0
     total_paise: int
 
 class AdminOrdersListResponse(BaseModel):

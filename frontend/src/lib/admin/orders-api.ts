@@ -1,5 +1,14 @@
 import { api } from '@/lib/api'
 
+export interface OrderItemDetail {
+  variant_id?: string
+  product_name_snapshot: string
+  size_snapshot: string
+  quantity: number
+  price_at_purchase: number
+  image_url?: string | null
+}
+
 export interface AdminOrderItem {
   id: string
   order_number: string
@@ -10,7 +19,12 @@ export interface AdminOrderItem {
   status: string
   payment_status: string
   payment_method: string
+  subtotal_paise?: number
+  delivery_fee_paise?: number
+  discount_paise?: number
+  gst_paise?: number
   total_paise: number
+  items?: OrderItemDetail[]
 }
 
 export interface AdminOrdersListResponse {

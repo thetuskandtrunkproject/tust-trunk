@@ -9,12 +9,6 @@ import { BrandIntroLoader } from '@/components/site/brand-intro-loader'
 import { api } from '@/lib/api'
 
 export const Route = createFileRoute('/')({
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      intro: search.intro ? Number(search.intro) : undefined,
-      pauseAt: search.pauseAt !== undefined ? Number(search.pauseAt) : undefined,
-    }
-  },
   loader: async () => {
     const [heroRes, featuredRes, newRes] = await Promise.all([
       api.get('/cms/hero').catch(() => ({ data: null })),
@@ -43,12 +37,12 @@ export const Route = createFileRoute('/')({
 })
 
 function Index() {
-  const { intro } = Route.useSearch()
   const { heroData, featuredProducts, newProducts } = Route.useLoaderData()
   const matchCutTriggerRef = useRef<(() => void) | null>(null)
   const [isIntroActive, setIsIntroActive] = useState(() => {
     if (typeof window === 'undefined') return false
-    const isForced = intro === 1 || window.location.search.includes('intro=1') || window.location.href.includes('intro=1')
+    const params = new URLSearchParams(window.location.search)
+    const isForced = params.get('intro') === '1' || window.location.href.includes('intro=1')
     if (isForced) {
       sessionStorage.removeItem('tusk_intro_seen')
       return true
@@ -57,12 +51,12 @@ function Index() {
     return !hasSeen
   })
 
-  const registerMatchCutTrigger = useCallback((trigger: (targetProgress?: number) => void) => {
+  const registerMatchCutTrigger = useCallback((trigger: () => void) => {
     matchCutTriggerRef.current = trigger
   }, [])
 
-  const handleMatchCut = useCallback((targetProgress?: number) => {
-    matchCutTriggerRef.current?.(targetProgress)
+  const handleMatchCut = useCallback((_targetProgress?: number) => {
+    matchCutTriggerRef.current?.()
   }, [])
 
   const handleIntroComplete = useCallback(() => {
