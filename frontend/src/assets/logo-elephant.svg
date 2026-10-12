@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" fill="none">
+  <!--
+    Tusk & Trunk elephant logo — hand-traced from New_logo.png.
+    Separated into groups for staged stroke-dashoffset build animation.
+    All white details sit on top of the blue body fill.
+  -->
+
+  <!-- Layer A: outer blue elephant body shape (inflates in) -->
+  <g id="body">
+    <path id="body-shape" fill="#1A5CFF" d="
+      M395,110
+      C395,60 348,20 280,18
+      C240,18 205,30 178,52
+      C152,32 118,24 88,36
+      C52,54 35,92 40,132
+      C32,145 26,162 26,180
+      C26,202 32,218 42,230
+      L32,270
+      C28,288 38,298 52,295
+      L68,292
+      C74,306 84,314 98,314
+      L112,314
+      C124,314 132,306 136,294
+      L145,276
+      C168,288 198,296 232,298
+      L232,315
+      C232,328 242,335 255,335
+      L268,335
+      C280,335 288,328 288,315
+      L288,295
+      C318,288 342,278 360,265
+      L366,282
+      C370,298 382,306 395,302
+      L410,296
+      C422,292 428,280 424,268
+      L414,235
+      C434,212 446,184 446,155
+      L452,150
+      C468,144 475,132 470,120
+      C464,108 452,104 438,108
+      C430,104 420,102 410,102
+      Z
+    "/>
+  </g>
+
+  <!-- Layer B: white inner border outline (draws on via stroke-dashoffset) -->
+  <g id="inner-outline">
+    <path id="inner-outline-path" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" d="
+      M388,116
+      C388,70 350,32 284,30
+      C248,30 216,40 192,58
+      C168,40 138,32 110,42
+      C78,58 62,92 68,128
+      C58,142 50,160 50,178
+      C50,198 56,214 66,226
+      L56,264
+      C54,276 60,284 70,282
+      L82,280
+      C88,294 98,302 110,302
+      L122,302
+      C132,302 140,294 144,282
+      L152,266
+      C174,278 200,286 234,288
+      L234,312
+      C234,322 240,326 250,326
+      L270,326
+      C280,326 286,322 286,312
+      L286,284
+      C316,278 338,268 354,256
+      L360,272
+      C364,284 374,292 384,288
+      L398,284
+      C408,280 412,270 408,260
+      L400,228
+      C418,208 428,186 428,158
+      L434,154
+      C448,148 454,138 450,126
+      C446,116 436,112 424,115
+      C418,112 410,110 402,110
+    "/>
+  </g>
+
+  <!-- Layer C: trunk + ear (strokes that draw on) -->
+  <g id="trunk">
+    <!-- Head/face curve separating head from body -->
+    <path id="head-curve" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" d="
+      M195,78
+      C175,95 158,118 152,142
+      C146,168 150,188 164,200
+      C172,208 168,222 155,226
+      C140,230 124,222 116,206
+      C106,184 102,156 112,132
+    "/>
+    <!-- Trunk curl -->
+    <path id="trunk-curl" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" d="
+      M112,132
+      C104,114 94,104 82,110
+      C70,118 66,132 74,144
+      C80,152 90,156 100,152
+    "/>
+    <!-- Ear detail -->
+    <path id="ear-detail" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" d="
+      M168,88
+      C152,104 144,126 148,148
+      C150,160 160,168 172,162
+    "/>
+  </g>
+
+  <!-- Layer D: eye, hearts, ampersand (pop in with back.out) -->
+  <g id="accents">
+    <circle id="eye-1" cx="134" cy="172" r="6" fill="white"/>
+    <circle id="eye-2" cx="126" cy="180" r="5" fill="white"/>
+    <!-- Heart above T -->
+    <path id="heart-top" fill="white" d="
+      M218,125 C218,120 222,116 227,116 C232,116 236,120 236,125
+      C236,120 240,116 245,116 C250,116 254,120 254,125
+      C254,137 236,146 236,146 C236,146 218,137 218,125Z
+    "/>
+    <!-- Heart on trunk -->
+    <path id="heart-trunk" fill="white" d="
+      M188,215 C188,211 191,208 195,208 C199,208 202,211 202,215
+      C202,211 205,208 209,208 C213,208 216,211 216,215
+      C216,224 202,231 202,231 C202,231 188,224 188,215Z
+    "/>
+    <!-- Heart bottom right -->
+    <path id="heart-br" fill="white" d="
+      M322,232 C322,228 325,225 329,225 C333,225 336,228 336,232
+      C336,228 339,225 343,225 C347,225 350,228 350,232
+      C350,240 336,246 336,246 C336,246 322,240 322,232Z
+    "/>
+  </g>
+
+  <!-- Layer E: lettering -->
+  <g id="lettering" fill="white" font-family="'Baloo 2', cursive" font-weight="700">
+    <text id="letter-T" x="195" y="146" font-size="52">T</text>
+    <text id="letter-usk" x="220" y="140" font-size="38">usk</text>
+    <text id="letter-amp" x="255" y="170" font-size="22">&amp;</text>
+    <text id="letter-T2" x="195" y="248" font-size="52">T</text>
+    <text id="letter-runk" x="225" y="242" font-size="38">runk</text>
+  </g>
+</svg>

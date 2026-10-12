@@ -3,14 +3,20 @@ import { Link } from '@tanstack/react-router'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ChevronLeft, ChevronRight, ArrowRight, Sparkles, Heart, ShieldCheck, Truck, Star } from 'lucide-react'
-import logoImg from '@/assets/New_logo.png'
+import { BrandLogo } from './brand-logo'
 import { api } from '@/lib/api'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const AUTOPLAY_MS = 5000
 
-export function Hero({ initialData }: { initialData?: any | null }) {
+interface HeroProps {
+  initialData?: any | null
+  isIntroActive?: boolean
+  registerMatchCutTrigger?: (trigger: () => void) => void
+}
+
+export function Hero({ initialData, isIntroActive = false, registerMatchCutTrigger }: HeroProps) {
   const [cmsData, setCmsData] = useState<any | null>(initialData || null)
   const [current, setCurrent] = useState(0)
   const isAnimating = useRef(false)
@@ -108,6 +114,63 @@ export function Hero({ initialData }: { initialData?: any | null }) {
   }
 
   useEffect(() => {
+    if (!registerMatchCutTrigger) return
+
+    const runMatchCut = (targetProgress?: number) => {
+      const container = containerRef.current
+      if (!container) return
+
+      const tl = gsap.timeline()
+
+      // 1. Photo panel wipes in from the right (0.8s, power3.inOut)
+      tl.to('.hero-photo-panel', {
+        clipPath: 'inset(0% 0% 0% 0%)',
+        duration: 0.8,
+        ease: 'power3.inOut',
+      }, 0)
+
+      // 2. Hanging tag drops down from above and reaches rest exactly as logo lands (0.8s, power3.out)
+      tl.to('.hero-intro-tag', {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+      }, 0)
+
+      // 3. Headline lines rise in (0.7s, stagger, power3.out)
+      tl.to('.hero-headline-line', {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        stagger: 0.08,
+        ease: 'power3.out',
+      }, 0.08)
+
+      // 4. Parallax hero image settle
+      tl.to('.hero-parallax-img', {
+        scale: 1,
+        duration: 1.0,
+        ease: 'power2.out',
+      }, 0)
+
+      // 5. Settle phase (2.4s to 2.9s): CTA buttons and trust chips stagger in
+      tl.to('.hero-intro-cta, .hero-intro-chips', {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: 'power2.out',
+      }, 0.75)
+
+      if (typeof targetProgress === 'number') {
+        tl.progress(targetProgress).pause()
+      }
+    }
+
+    registerMatchCutTrigger(runMatchCut)
+  }, [registerMatchCutTrigger])
+
+  useEffect(() => {
     const container = containerRef.current
     if (!container || slides.length === 0) return
     const allSlides = container.querySelectorAll<HTMLDivElement>('.hero-slide-img')
@@ -119,6 +182,26 @@ export function Hero({ initialData }: { initialData?: any | null }) {
     allText.forEach((text, i) => {
       gsap.set(text, { visibility: i === 0 ? 'visible' : 'hidden', opacity: i === 0 ? 1 : 0, y: 0 })
     })
+
+    if (isIntroActive) {
+      // Photo panel wiped out to the right
+      gsap.set('.hero-photo-panel', { clipPath: 'inset(0% 0% 0% 100%)' })
+      // Headlines, CTA, trust chips hidden
+      gsap.set('.hero-headline-line', { opacity: 0, y: 32 })
+      gsap.set('.hero-intro-cta, .hero-intro-chips', { opacity: 0, y: 20 })
+      // Tag drops from above
+      gsap.set('.hero-intro-tag', { opacity: 0, y: -40 })
+      // Tag logo invisible until landing handoff frame
+      gsap.set('[data-brand-tag-logo]', { opacity: 0, visibility: 'hidden' })
+      gsap.set('.hero-parallax-img', { scale: 1.15 })
+    } else {
+      // Normal state when intro is finished or subsequent visits
+      gsap.set('.hero-photo-panel', { clipPath: 'inset(0% 0% 0% 0%)' })
+      gsap.set('.hero-headline-line, .hero-intro-cta, .hero-intro-chips', { opacity: 1, y: 0 })
+      gsap.set('.hero-intro-tag', { opacity: 1, y: 0 })
+      gsap.set('[data-brand-tag-logo]', { opacity: 1, visibility: 'visible' })
+      gsap.set('.hero-parallax-img', { scale: 1 })
+    }
 
     // Parallax effect for hero image
     const mm = gsap.matchMedia()
@@ -136,7 +219,7 @@ export function Hero({ initialData }: { initialData?: any | null }) {
     })
 
     return () => mm.revert()
-  }, [slides])
+  }, [slides, isIntroActive])
 
   if (!cmsData || slides.length === 0) {
     return <section className="w-full bg-[#FAF7F9] py-12 min-h-[450px]" />
@@ -206,7 +289,7 @@ export function Hero({ initialData }: { initialData?: any | null }) {
           <div className="w-full lg:w-1/2 flex justify-end order-2 lg:order-1 relative">
             <div className="w-full max-w-[800px] px-4 md:px-8 xl:pr-16 flex flex-col justify-center h-full py-10 md:py-16 relative z-10">
               
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-coral/20 shadow-xs mb-6 w-fit">
+              <div className="hero-headline-line inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-coral/20 shadow-xs mb-6 w-fit">
                 <span className="w-2 h-2 rounded-full bg-coral animate-ping"></span>
                 <span className="text-xs md:text-sm font-bold text-coral tracking-wide uppercase">
                   Little Clothes, Big Moments ✨
@@ -220,26 +303,26 @@ export function Hero({ initialData }: { initialData?: any | null }) {
                 'items-start text-left'
               }`}>
                 <h1 
-                  className="font-heading text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-2"
+                  className="hero-headline-line font-heading text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-2"
                   style={{ color: cmsData?.textColor || slides[0]?.textColor || '#2D283E' }}
                 >
                   {cmsData?.title || slides[0]?.title}
                 </h1>
                 <h1 
-                  className="font-heading text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-4 sm:mb-6" 
+                  className="hero-headline-line font-heading text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-4 sm:mb-6" 
                   style={{ color: cmsData?.accentColor || slides[0]?.accentColor || '#FF6B8B' }}
                 >
                   {cmsData?.titleAccent || slides[0]?.titleAccent}
                 </h1>
                 
                 <p 
-                  className="text-base sm:text-lg font-medium leading-relaxed max-w-xl mb-6 sm:mb-8 line-clamp-3"
+                  className="hero-headline-line text-base sm:text-lg font-medium leading-relaxed max-w-xl mb-6 sm:mb-8 line-clamp-3"
                   style={{ color: cmsData?.textColor || slides[0]?.textColor ? `${cmsData?.textColor || slides[0]?.textColor}cc` : '#2D283Ecc' }}
                 >
                   {cmsData?.subtitle || slides[0]?.subtitle}
                 </p>
 
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="hero-intro-cta flex flex-wrap items-center gap-4">
                   <Link
                     to={cmsData?.ctaLink || slides[0]?.ctaLink || '/shop'}
                     className="group relative overflow-hidden inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold text-sm shadow-md transition-all border-2 z-10 bg-white"
@@ -273,7 +356,7 @@ export function Hero({ initialData }: { initialData?: any | null }) {
                 
 
                 {/* Trust Badges */}
-                <div className="flex items-center gap-4 text-xs font-bold text-ink/60">
+                <div className="hero-intro-chips flex items-center gap-4 text-xs font-bold text-ink/60">
                   <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-xl border border-ink/5">
                     <ShieldCheck className="w-4 h-4 text-emerald-500" />
                     100% Skin-Friendly
@@ -290,7 +373,7 @@ export function Hero({ initialData }: { initialData?: any | null }) {
           </div>
 
           {/* Right Column: Full Bleed Half-Screen Image Frame */}
-          <div className="order-1 lg:order-2 w-full lg:w-1/2 aspect-[4/5] md:aspect-auto md:h-[500px] lg:h-auto lg:absolute lg:right-0 lg:top-0 lg:bottom-0">
+          <div className="hero-photo-panel order-1 lg:order-2 w-full lg:w-1/2 aspect-[4/5] md:aspect-auto md:h-[500px] lg:h-auto lg:absolute lg:right-0 lg:top-0 lg:bottom-0">
             <div 
               className="relative w-full h-full overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-[1.02] group lg:rounded-none lg:rounded-bl-[4rem] bg-white/90"
             >
@@ -344,15 +427,22 @@ export function Hero({ initialData }: { initialData?: any | null }) {
             </div>
           </div>
 
-          {/* Minimalist Clothing Tag Badge */}
-          <div className="hidden lg:flex absolute top-12 left-1/2 -translate-x-1/2 z-40 flex-col items-center justify-center bg-white shadow-xl px-3 pt-5 pb-8 w-20 pointer-events-none origin-top transition-transform hover:rotate-2 rounded-b-[2rem] border-x border-b border-ink/5">
-            {/* The little stitch mark at the top */}
-            <div className="absolute top-1 w-6 h-px bg-ink/10"></div>
-            <div className="absolute top-2 w-6 h-px bg-ink/10"></div>
+          {/* Hanging Brand Clothing Tag Badge with Match-Cut Landing */}
+          <div 
+            className="hero-intro-tag flex absolute top-4 sm:top-8 lg:top-10 left-1/2 -translate-x-1/2 z-40 flex-col items-center justify-center bg-white shadow-2xl px-3 sm:px-4 pt-4 sm:pt-5 pb-5 sm:pb-7 w-[110px] sm:w-[130px] lg:w-[150px] origin-top rounded-b-[2rem] border-x border-b border-ink/10"
+          >
+            {/* Stitch marks at the top */}
+            <div className="absolute top-1.5 w-8 sm:w-12 h-px bg-ink/15"></div>
+            <div className="absolute top-2.5 w-8 sm:w-12 h-px bg-ink/15"></div>
             
-            <img src={logoImg} alt="Brand" className="w-8 h-auto mb-3 opacity-90 mix-blend-multiply grayscale" />
-            <div className="h-px w-6 bg-ink/10 mb-3"></div>
-            <span className="text-[7px] uppercase tracking-[0.2em] font-black text-ink/60 text-center leading-relaxed">
+            {/* Brand Logo landing slot: 90px desktop, 64px min on mobile */}
+            <BrandLogo 
+              data-brand-tag-logo="true"
+              className="w-[64px] sm:w-[76px] lg:w-[90px] h-auto mb-2.5 object-contain select-none"
+            />
+            
+            <div className="h-px w-8 sm:w-12 bg-ink/10 mb-2"></div>
+            <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.22em] font-black text-ink/70 text-center leading-relaxed">
               Premium<br/>Quality
             </span>
           </div>

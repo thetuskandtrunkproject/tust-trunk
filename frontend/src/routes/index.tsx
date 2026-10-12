@@ -1,12 +1,20 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useState, useRef, useCallback } from 'react'
 import { Hero } from '@/components/site/hero'
 import { CategoryTiles } from '@/components/site/category-tiles'
 import { ProductCarousel } from '@/components/site/product-carousel'
 import { TrustStrip } from '@/components/site/trust-strip'
 import { Newsletter } from '@/components/site/newsletter'
+import { BrandIntroLoader } from '@/components/site/brand-intro-loader'
 import { api } from '@/lib/api'
 
 export const Route = createFileRoute('/')({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      intro: search.intro ? Number(search.intro) : undefined,
+      pauseAt: search.pauseAt !== undefined ? Number(search.pauseAt) : undefined,
+    }
+  },
   loader: async () => {
     const [heroRes, featuredRes, newRes] = await Promise.all([
       api.get('/cms/hero').catch(() => ({ data: null })),
@@ -35,11 +43,45 @@ export const Route = createFileRoute('/')({
 })
 
 function Index() {
+  const { intro } = Route.useSearch()
   const { heroData, featuredProducts, newProducts } = Route.useLoaderData()
+  const matchCutTriggerRef = useRef<(() => void) | null>(null)
+  const [isIntroActive, setIsIntroActive] = useState(() => {
+    if (typeof window === 'undefined') return false
+    const isForced = intro === 1 || window.location.search.includes('intro=1') || window.location.href.includes('intro=1')
+    if (isForced) {
+      sessionStorage.removeItem('tusk_intro_seen')
+      return true
+    }
+    const hasSeen = sessionStorage.getItem('tusk_intro_seen')
+    return !hasSeen
+  })
+
+  const registerMatchCutTrigger = useCallback((trigger: (targetProgress?: number) => void) => {
+    matchCutTriggerRef.current = trigger
+  }, [])
+
+  const handleMatchCut = useCallback((targetProgress?: number) => {
+    matchCutTriggerRef.current?.(targetProgress)
+  }, [])
+
+  const handleIntroComplete = useCallback(() => {
+    setIsIntroActive(false)
+  }, [])
 
   return (
     <div className="flex flex-col relative">
-      <Hero initialData={heroData} />
+      {isIntroActive && (
+        <BrandIntroLoader 
+          onMatchCut={handleMatchCut} 
+          onComplete={handleIntroComplete} 
+        />
+      )}
+      <Hero 
+        initialData={heroData} 
+        isIntroActive={isIntroActive} 
+        registerMatchCutTrigger={registerMatchCutTrigger} 
+      />
       <div className="relative z-10 bg-cloud">
         <CategoryTiles initialData={featuredProducts} />
         <ProductCarousel initialData={newProducts} cmsKey="home-products" defaultTitle="New In" />
