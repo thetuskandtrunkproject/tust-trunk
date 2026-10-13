@@ -45,7 +45,10 @@ class PublicVariantResponse(BaseModel):
     id: uuid.UUID
     sku: str
     size: str
-    price: int  # in rupees
+    price: int  # in rupees/paise
+    sale_price: Optional[int] = None
+    sale_start_date: Optional[datetime] = None
+    sale_end_date: Optional[datetime] = None
     stock: int
     
     model_config = ConfigDict(from_attributes=True)
@@ -77,6 +80,7 @@ class PublicResolveVariantInfo(BaseModel):
     sku: str
     size: str
     price: int
+    original_price: Optional[int] = None
     stock: int
     is_active: bool
 

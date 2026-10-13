@@ -270,10 +270,19 @@ function ProductDetailPage() {
             </div>
 
             {/* Price */}
-            <div className="flex items-center gap-3 mb-4">
-              <p className="font-sans font-extrabold text-2xl text-ink">{formatPrice(displayPrice)}</p>
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
+              <p className={`font-sans font-extrabold text-2xl md:text-3xl ${displayOriginalPrice ? 'text-[#FF5A79]' : 'text-ink'}`}>
+                {formatPrice(displayPrice)}
+              </p>
               {displayOriginalPrice && (
-                <p className="font-sans font-medium text-lg text-ink/40 line-through">{formatPrice(displayOriginalPrice)}</p>
+                <>
+                  <p className="font-sans font-medium text-lg text-ink/40 line-through">
+                    {formatPrice(displayOriginalPrice)}
+                  </p>
+                  <span className="bg-[#FF5A79] text-white text-xs font-bold px-2.5 py-0.5 rounded-full shadow-sm">
+                    {Math.round(((displayOriginalPrice - displayPrice) / displayOriginalPrice) * 100)}% OFF
+                  </span>
+                </>
               )}
             </div>
 
