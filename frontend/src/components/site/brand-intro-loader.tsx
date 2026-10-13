@@ -224,7 +224,7 @@ export function BrandIntroLoader({ onMatchCut, onComplete }: BrandIntroLoaderPro
       if (pauseAt !== null && pauseAt >= 2.4) {
         onMatchCut?.(pauseAt >= 2.9 ? 1.0 : (pauseAt - 1.6) / 1.3)
         gsap.set(cloneLogo, { visibility: 'hidden' })
-        gsap.set(tagLogo, { visibility: 'visible', opacity: 1 })
+        gsap.set(targetLogo, { visibility: 'visible', opacity: 1 })
         gsap.set(currentOverlay, { visibility: 'hidden', display: 'none', pointerEvents: 'none' })
         return
       }
@@ -244,7 +244,7 @@ export function BrandIntroLoader({ onMatchCut, onComplete }: BrandIntroLoaderPro
           // === LANDING FRAME HANDOFF (2.4s) ===
           // Single-frame instantaneous handoff: hide loader clone, show tag's real logo
           gsap.set(cloneLogo, { visibility: 'hidden' })
-          gsap.set(tagLogo, { visibility: 'visible', opacity: 1 })
+          gsap.set(targetLogo, { visibility: 'visible', opacity: 1 })
 
           // Hide overlay (backdrop gradient matched hero left panel, so no flash)
           gsap.set(currentOverlay, { visibility: 'hidden', display: 'none', pointerEvents: 'none' })
