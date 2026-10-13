@@ -83,7 +83,7 @@ def create_category(db: Client, data: CategoryCreate) -> dict:
 def update_category(db: Client, category_id: str, data: CategoryUpdate) -> dict:
     get_category(db, category_id)  # Ensure it exists
 
-    update_data = data.model_dump(exclude_unset=True)
+    update_data = data.model_dump(mode='json', exclude_unset=True)
     if not update_data:
         return get_category(db, category_id)
     

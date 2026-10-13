@@ -333,7 +333,7 @@ def get_product(db: Client, product_id: str) -> dict:
 def update_product(db: Client, product_id: str, data: ProductUpdate) -> dict:
     _get_product_or_404(db, product_id)  # Raise 404 if not found
 
-    update_data = data.model_dump(exclude_unset=True)
+    update_data = data.model_dump(mode='json', exclude_unset=True)
     if 'category_id' in update_data and update_data['category_id'] is not None:
         update_data['category_id'] = str(update_data['category_id'])
     
@@ -428,7 +428,7 @@ def add_variant(db: Client, product_id: str, data: VariantCreate) -> dict:
 def update_variant(db: Client, product_id: str, variant_id: str, data: VariantUpdate) -> dict:
     _get_variant_or_404(db, variant_id, product_id)
 
-    update_data = data.model_dump(exclude_unset=True)
+    update_data = data.model_dump(mode='json', exclude_unset=True)
     if not update_data:
         return _get_variant_or_404(db, variant_id, product_id)
 

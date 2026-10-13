@@ -128,9 +128,9 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
             size: v.size, 
             price: finalPrice, 
             stock: v.stock, 
-            sale_price: finalSalePrice || undefined,
-            sale_start_date: saleStartDate ? new Date(saleStartDate).toISOString() : undefined,
-            sale_end_date: saleEndDate ? new Date(saleEndDate).toISOString() : undefined
+            sale_price: onSale ? finalSalePrice : null,
+            sale_start_date: onSale && saleStartDate ? new Date(saleStartDate).toISOString() : null,
+            sale_end_date: onSale && saleEndDate ? new Date(saleEndDate).toISOString() : null
           }
           if (v.id.startsWith('v')) {
             await addVariant(formData.id, payload)
@@ -149,16 +149,16 @@ export function ProductForm({ initialData, isEditing }: ProductFormProps) {
         showToast('Product updated successfully')
         navigate({ to: '/admin/products' })
       } else {
-        const bp = parseFloat(basePrice || '0') * 100
-        const sp = onSale && salePrice ? parseFloat(salePrice) * 100 : undefined
+        const bp = Math.round(parseFloat(basePrice || '0') * 100)
+        const sp = onSale && salePrice ? Math.round(parseFloat(salePrice) * 100) : undefined
         const variantsPayload = formData.variants.map(v => ({
           sku: v.sku, 
           size: v.size, 
           price: v.price > 0 ? v.price : bp, 
           stock: v.stock, 
           sale_price: sp,
-          sale_start_date: saleStartDate ? new Date(saleStartDate).toISOString() : undefined,
-          sale_end_date: saleEndDate ? new Date(saleEndDate).toISOString() : undefined
+          sale_start_date: onSale && saleStartDate ? new Date(saleStartDate).toISOString() : undefined,
+          sale_end_date: onSale && saleEndDate ? new Date(saleEndDate).toISOString() : undefined
         }))
         const newProduct = await createAdminProduct({
           name: formData.name, slug: formData.slug, description: formData.description, gender: formData.gender,
