@@ -162,17 +162,25 @@ export function BrandIntroLoader({ onMatchCut, onComplete }: BrandIntroLoaderPro
       }
 
       // Measure landing coordinates from live hero DOM
-      const tagLogo = document.querySelector('[data-brand-tag-logo]') as HTMLElement
+      let targetLogo = document.querySelector('[data-brand-tag-logo]') as HTMLElement
+      let tagParent = targetLogo?.closest('.hero-intro-tag') as HTMLElement | null
+
+      // On mobile where hero-intro-tag is hidden, land smoothly on the header logo!
+      if (!targetLogo || targetLogo.getBoundingClientRect().width === 0) {
+        targetLogo = document.querySelector('header img[alt="The Tusk & Trunk"]') as HTMLElement
+        tagParent = null
+      }
+
       const cloneLogo = logoRef.current
       const currentOverlay = overlayRef.current
 
-      if (!tagLogo || !cloneLogo || !currentOverlay) {
+      if (!targetLogo || !cloneLogo || !currentOverlay) {
         finish()
         return
       }
 
       // Measure target rect in viewport coordinates
-      const tagRect = tagLogo.getBoundingClientRect()
+      const tagRect = targetLogo.getBoundingClientRect()
       const cloneRect = cloneLogo.getBoundingClientRect()
 
       if (tagRect.width === 0 || cloneRect.width === 0) {
@@ -181,7 +189,6 @@ export function BrandIntroLoader({ onMatchCut, onComplete }: BrandIntroLoaderPro
       }
 
       // Account for any initial CSS or GSAP transforms on the tag container to get the true rest target
-      const tagParent = tagLogo.closest('.hero-intro-tag') as HTMLElement | null
       const tagOffsetY = tagParent ? ((gsap.getProperty(tagParent, 'y') as number) || 0) : 0
       const tagOffsetX = tagParent ? ((gsap.getProperty(tagParent, 'x') as number) || 0) : 0
 

@@ -168,12 +168,13 @@ def verify_otp(db: Client, phone: str, otp: str):
     # OTP is valid, delete it
     db.table('otps').delete().eq('phone', formatted_phone).execute()
 
-    # Get or create Firebase user
+    # Get or create Firebase user (Firebase requires strict E.164 with leading '+')
+    e164_phone = f"+{formatted_phone.lstrip('+')}"
     try:
         try:
-            firebase_user = auth.get_user_by_phone_number(formatted_phone)
+            firebase_user = auth.get_user_by_phone_number(e164_phone)
         except auth.UserNotFoundError:
-            firebase_user = auth.create_user(phone_number=formatted_phone)
+            firebase_user = auth.create_user(phone_number=e164_phone)
         
         # Generate custom token
         custom_token = auth.create_custom_token(firebase_user.uid)

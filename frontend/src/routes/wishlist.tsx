@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useWishlist } from '@/context/wishlist-context'
 import { useCart } from '@/context/cart-context'
 import { useToast } from '@/context/toast-context'
+import { useAuth } from '@/context/auth-context'
 import { api } from '@/lib/api'
 import { ProductCard } from '@/components/product/product-card'
 import { ShoppingBag, HeartCrack, Loader2 } from 'lucide-react'
@@ -15,9 +16,21 @@ function WishlistPage() {
   const { wishlistIds } = useWishlist()
   const { addItem } = useCart()
   const { showToast } = useToast()
+  const { firebaseUser, loading: authLoading } = useAuth()
+  const navigate = useNavigate()
 
   const [wishlistedProducts, setWishlistedProducts] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
+
+  // Auth requirement check: prompt login with redirect back to wishlist
+  useEffect(() => {
+    if (!authLoading) {
+      const isGuestAllowed = sessionStorage.getItem('tusk_guest_checkout') === 'true'
+      if (!firebaseUser && !isGuestAllowed) {
+        navigate({ to: '/login', search: { redirect: '/wishlist' }, replace: true })
+      }
+    }
+  }, [authLoading, firebaseUser, navigate])
 
   useEffect(() => {
     const loadProducts = async () => {

@@ -60,7 +60,8 @@ class AdminOrdersListResponse(BaseModel):
     page_size: int
 
 class UpdateOrderStatusRequest(BaseModel):
-    status: Literal['Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'requires_review'] = Field(
+    status: Literal['Pending', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'requires_review'] = Field(
         ..., description="New status for the order"
     )
+    tracking_number: Optional[str] = Field(None, description="ST Courier tracking number when status is Shipped")
 

@@ -264,19 +264,38 @@ def get_admin_order_detail(db: Client, order_id: str) -> dict:
     }
 from app.services import payperwa_service
 
-def update_admin_order_status(db: Client, order_id: str, new_status: str) -> dict:
+def update_admin_order_status(db: Client, order_id: str, new_status: str, tracking_number: str | None = None) -> dict:
     try:
         db.rpc('update_order_status', {
             'p_order_id': order_id,
             'p_new_status': new_status
         }).execute()
         
+        # If tracking_number was provided, save it into shipping_address JSON
+        if tracking_number:
+            try:
+                order_res = db.table('orders').select('shipping_address').eq('id', order_id).execute()
+                if order_res.data:
+                    addr = order_res.data[0].get('shipping_address') or {}
+                    addr['tracking_number'] = tracking_number.strip()
+                    addr['carrier'] = 'ST Courier'
+                    db.table('orders').update({'shipping_address': addr}).eq('id', order_id).execute()
+            except Exception as e:
+                logger.error(f"Failed to update tracking_number on order {order_id}: {e}")
+
         # Send WhatsApp status update
         try:
-            order_details_res = db.table('orders').select('order_number, guest_phone, users(phone)').eq('id', order_id).execute()
+            order_details_res = db.table('orders').select('order_number, guest_phone, shipping_address, users(full_name, phone)').eq('id', order_id).execute()
+            items_res = db.table('order_items').select('product_name_snapshot, size_snapshot, quantity').eq('order_id', order_id).execute()
+            items_list = [f"{item['product_name_snapshot']} ({item.get('size_snapshot', '')}) x {item['quantity']}" for item in (items_res.data or [])]
+            items_summary = ", ".join(items_list) if items_list else "Order Items"
+            if len(items_summary) > 100:
+                items_summary = items_summary[:97] + "..."
+
             if order_details_res.data:
                 order_info = order_details_res.data[0]
                 phone = order_info.get('guest_phone') or (order_info.get('users') or {}).get('phone') or ""
+                name = (order_info.get('shipping_address') or {}).get('name') or (order_info.get('users') or {}).get('full_name') or "Customer"
                 order_num = order_info['order_number']
                 
                 if phone:
@@ -285,12 +304,12 @@ def update_admin_order_status(db: Client, order_id: str, new_status: str) -> dic
                     elif phone.startswith("91") and len(phone) == 12:
                         phone = f"+{phone}"
                     
-                    # We reuse the order_confirmation template but pass the status as the second variable
-                    # based on the prompt's instructions for order status messages.
-                    payperwa_service.send_order_confirmation(phone, order_num, f"Status: {new_status}")
+                    if new_status == 'Shipped':
+                        final_tracking = tracking_number or (order_info.get('shipping_address') or {}).get('tracking_number') or "ST Courier"
+                        payperwa_service.send_order_shipped(phone, name, order_num, items_summary, final_tracking)
         except Exception as e:
             logger.error(f"Failed to send PayPerWA status update for order {order_id}: {e}")
             
-        return {"status": "success", "new_status": new_status}
+        return {"status": "success", "new_status": new_status, "tracking_number": tracking_number}
     except Exception as e:
         _map_errcode_to_http(e)

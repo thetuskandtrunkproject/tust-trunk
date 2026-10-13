@@ -64,4 +64,4 @@ def update_order_status(
     db: Client = Depends(get_db_client)
 ):
     """Update order status for admin."""
-    return orders_service.update_admin_order_status(db, order_id, payload.status)
+    return orders_service.update_admin_order_status(db, order_id, payload.status, payload.tracking_number)

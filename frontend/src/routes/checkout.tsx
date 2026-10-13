@@ -20,10 +20,28 @@ export const Route = createFileRoute('/checkout')({
 function CheckoutPage() {
   const { buyNow, qty } = Route.useSearch()
   const { items: cartItems, serverSubtotal: cartSubtotal } = useCart()
-  const { user } = useAuth()
+  const { user, firebaseUser, loading } = useAuth()
   const navigate = useNavigate()
   
   const [shopSettings, setShopSettings] = useState<any>(null)
+
+  // Auth / Guest Guard Check
+  useEffect(() => {
+    if (!loading) {
+      const isGuestAllowed = sessionStorage.getItem('tusk_guest_checkout') === 'true'
+      if (!user && !firebaseUser && !isGuestAllowed) {
+        let redirectUrl = '/checkout'
+        if (buyNow && qty) {
+          redirectUrl += `?buyNow=${buyNow}&qty=${qty}`
+        }
+        navigate({
+          to: '/login',
+          search: { redirect: redirectUrl },
+          replace: true,
+        })
+      }
+    }
+  }, [user, firebaseUser, loading, buyNow, qty, navigate])
 
   useEffect(() => {
     api.get('/cms/shop-settings').then(res => {

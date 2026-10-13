@@ -94,16 +94,27 @@ function AdminOrdersPage() {
     setIsDrawerOpen(true)
   }
 
-  const handleUpdateStatus = async (orderId: string, newStatus: OrderStatus) => {
+  const handleUpdateStatus = async (orderId: string, newStatus: OrderStatus, trackingNumber?: string) => {
     try {
-      await api.patch(`/api/v1/admin/orders/${orderId}/status`, { status: newStatus })
+      const payload: { status: OrderStatus; tracking_number?: string } = { status: newStatus }
+      if (trackingNumber) {
+        payload.tracking_number = trackingNumber
+      }
+
+      await api.patch(`/api/v1/admin/orders/${orderId}/status`, payload)
       
       // Update local state (this reflects immediately in the table behind the drawer)
       setOrders(prev => prev.map(o => {
         if (o.id === orderId) {
+          const updatedShipping = { ...(o.shipping_address || {}) }
+          if (trackingNumber) {
+            updatedShipping.tracking_number = trackingNumber
+            updatedShipping.carrier = 'ST Courier'
+          }
           return { 
             ...o, 
             status: newStatus,
+            shipping_address: updatedShipping,
             // Auto-update payment status if cancelled
             payment_status: newStatus === 'Cancelled' ? 'Refunded' : o.payment_status
           }
@@ -115,17 +126,23 @@ function AdminOrdersPage() {
       if (selectedOrder?.id === orderId) {
         setSelectedOrder((prev: any) => {
           if (!prev) return prev
+          const updatedShipping = { ...(prev.shipping_address || {}) }
+          if (trackingNumber) {
+            updatedShipping.tracking_number = trackingNumber
+            updatedShipping.carrier = 'ST Courier'
+          }
           return {
             ...prev,
             status: newStatus,
+            shipping_address: updatedShipping,
             payment_status: newStatus === 'Cancelled' ? 'Refunded' : prev.payment_status
           }
         })
       }
       
-      showToast('Order status updated')
-    } catch (err) {
-      showToast('Failed to update order status')
+      showToast(newStatus === 'Shipped' ? 'Order marked as Shipped & WhatsApp alert sent' : 'Order status updated')
+    } catch (err: any) {
+      showToast(err.response?.data?.detail || 'Failed to update order status')
     }
   }
 

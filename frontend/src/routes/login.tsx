@@ -8,10 +8,16 @@ import { auth } from '@/lib/firebase'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => {
+    return {
+      redirect: search.redirect as string | undefined,
+    }
+  },
 })
 
 function LoginPage() {
   const navigate = useNavigate()
+  const { redirect } = Route.useSearch()
   const { firebaseUser, refreshUser } = useAuth()
   
   const [phone, setPhone] = useState('')
@@ -22,11 +28,28 @@ function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState(0)
 
+  const handleRedirect = (fallback: string = '/account') => {
+    const dest = redirect || fallback
+    if (!dest) return
+
+    try {
+      if (dest.includes('?')) {
+        const [pathname, searchStr] = dest.split('?')
+        const searchParams = Object.fromEntries(new URLSearchParams(searchStr))
+        navigate({ to: pathname as any, search: searchParams as any, replace: true })
+      } else {
+        navigate({ to: dest as any, replace: true })
+      }
+    } catch {
+      window.location.href = dest
+    }
+  }
+
   useEffect(() => {
     if (firebaseUser) {
-      navigate({ to: '/', replace: true })
+      handleRedirect()
     }
-  }, [firebaseUser, navigate])
+  }, [firebaseUser])
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>
@@ -60,7 +83,7 @@ function LoginPage() {
       if (res.data.success && res.data.token) {
         await signInWithCustomToken(auth, res.data.token)
         await refreshUser()
-        navigate({ to: '/account' })
+        handleRedirect()
       } else {
         setError("Invalid response from server.")
       }
@@ -74,9 +97,17 @@ function LoginPage() {
   const onGoogleLogin = async () => {
     setError(null)
     const res = await handleGoogleLogin()
-    if (!res.success) {
+    if (res.success) {
+      await refreshUser()
+      handleRedirect()
+    } else {
       setError(res.error || "Google login failed")
     }
+  }
+
+  const handleContinueAsGuest = () => {
+    sessionStorage.setItem('tusk_guest_checkout', 'true')
+    handleRedirect('/checkout')
   }
 
   return (
@@ -194,11 +225,11 @@ function LoginPage() {
         </button>
 
         <button 
-          onClick={() => navigate({ to: '/' })}
+          onClick={handleContinueAsGuest}
           type="button"
-          className="w-full bg-transparent border-2 border-transparent text-ink/60 py-4 rounded-full font-bold hover:text-ink hover:bg-ink/5 transition-all mt-3"
+          className="w-full bg-white border-2 border-ink/10 text-ink/70 py-4 rounded-full font-bold hover:text-ink hover:bg-cloud hover:border-ink/20 transition-all mt-3"
         >
-          Continue as Guest
+          Continue with Guest Account
         </button>
 
       </div>

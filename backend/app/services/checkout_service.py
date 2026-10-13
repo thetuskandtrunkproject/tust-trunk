@@ -401,11 +401,17 @@ def _run_commit_rpc(db: Client, razorpay_order_id: str, razorpay_payment_id: str
             # Fetch order details to get customer info for WhatsApp
             try:
                 order_details_res = db.table('orders').select('order_number, total_paise, guest_email, guest_phone, shipping_address, users(full_name, phone)').eq('id', result['order_id']).execute()
+                items_res = db.table('order_items').select('product_name_snapshot, size_snapshot, quantity').eq('order_id', result['order_id']).execute()
+                items_list = [f"{item['product_name_snapshot']} ({item.get('size_snapshot', '')}) x {item['quantity']}" for item in (items_res.data or [])]
+                items_summary = ", ".join(items_list) if items_list else "Order Items"
+                if len(items_summary) > 100:
+                    items_summary = items_summary[:97] + "..."
+
                 if order_details_res.data:
                     order_info = order_details_res.data[0]
                     phone = order_info.get('guest_phone') or (order_info.get('users') or {}).get('phone') or ""
                     name = (order_info.get('shipping_address') or {}).get('name') or (order_info.get('users') or {}).get('full_name') or "Customer"
-                    amount = f"Rs. {order_info['total_paise'] / 100:.2f}"
+                    amount = f"{order_info['total_paise'] / 100:.0f}"
                     order_num = order_info['order_number']
                     
                     if phone:
@@ -413,9 +419,9 @@ def _run_commit_rpc(db: Client, razorpay_order_id: str, razorpay_payment_id: str
                             phone = f"+91{phone}"
                         elif phone.startswith("91") and len(phone) == 12:
                             phone = f"+{phone}"
-                        payperwa_service.send_order_confirmation(phone, order_num, amount)
+                        payperwa_service.send_order_confirmation(phone, name, order_num, items_summary, amount)
                     
-                    payperwa_service.send_owner_order_alert(order_num, name, amount)
+                    payperwa_service.send_owner_order_alert(order_num, name, amount, items_summary, "Paid")
             except Exception as e:
                 logger.error(f"Failed to send PayPerWA notifications for order {result.get('order_id')}: {e}")
                 

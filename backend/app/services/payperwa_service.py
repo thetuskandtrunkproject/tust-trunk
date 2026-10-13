@@ -41,21 +41,26 @@ def send_otp_message(phone: str, otp: str) -> bool:
     }
     return _send_message(payload)
 
-def send_order_confirmation(phone: str, order_id: str, amount: str) -> bool:
+def send_order_confirmation(phone: str, customer_name: str, order_id: str, items_summary: str, amount: str) -> bool:
     """
-    Sends order confirmation via PayPerWA using the order_confirmation template.
+    Sends order confirmation via PayPerWA using the approved order_confirmation template:
+    Hi {{1}}, thank you for shopping with The Tusk & Trunk!
+    Your order #{{2}} has been placed successfully.
+    Product: {{3}} Amount: ₹{{4}}
     """
     payload = {
         "to": phone.lstrip("+"),
         "template_name": "order_confirmation",
         "language": "en",
-        "variables": [order_id, amount]
+        "variables": [customer_name, order_id, items_summary, amount]
     }
     return _send_message(payload)
 
-def send_owner_order_alert(order_id: str, customer_name: str, amount: str) -> bool:
+def send_owner_order_alert(order_id: str, customer_name: str, amount: str, items_summary: str, payment_status: str = "Paid") -> bool:
     """
-    Sends order alert to owner via PayPerWA using the owner_order_alert template.
+    Sends order alert to owner via PayPerWA using the approved owner_order_alert template:
+    A new order has been received. Order ID: #{{1}}
+    Customer: {{2}} Amount: ₹{{3}} Items: {{4}} Payment Status: {{5}}
     """
     if not settings.OWNER_WHATSAPP_NUMBER:
         logger.warning("OWNER_WHATSAPP_NUMBER is not set, skipping owner alert.")
@@ -65,6 +70,20 @@ def send_owner_order_alert(order_id: str, customer_name: str, amount: str) -> bo
         "to": settings.OWNER_WHATSAPP_NUMBER.lstrip("+"),
         "template_name": "owner_order_alert",
         "language": "en",
-        "variables": [order_id, customer_name, amount]
+        "variables": [order_id, customer_name, amount, items_summary, payment_status]
+    }
+    return _send_message(payload)
+
+def send_order_shipped(phone: str, customer_name: str, order_id: str, items_summary: str, tracking_number: str) -> bool:
+    """
+    Sends shipping update via PayPerWA using order_shipped template:
+    Hi {{1}}, your order #{{2}} has been shipped via ST Courier!
+    Items: {{3}} Tracking No: {{4}}
+    """
+    payload = {
+        "to": phone.lstrip("+"),
+        "template_name": "order_shipped",
+        "language": "en",
+        "variables": [customer_name, order_id, items_summary, tracking_number]
     }
     return _send_message(payload)

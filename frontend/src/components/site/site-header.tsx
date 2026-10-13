@@ -239,7 +239,7 @@ export function SiteHeader() {
                     </div>
                   </>
                 ) : (
-                  <Link to="/login" className="text-ink hover:text-sky transition-colors flex items-center p-2">
+                  <Link to="/login" search={{ redirect: '/account' }} className="text-ink hover:text-sky transition-colors flex items-center p-2">
                     <User className="w-5 h-5" />
                   </Link>
                 )}
@@ -296,13 +296,24 @@ export function SiteHeader() {
             )}
             Cart
           </button>
-          <Link 
-            to={firebaseUser ? "/account" : "/login"} 
-            className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-colors ${location.pathname.startsWith('/account') ? 'text-cta' : 'text-ink/50'}`}
-          >
-            <User className="w-5 h-5" />
-            Account
-          </Link>
+          {firebaseUser ? (
+            <Link 
+              to="/account" 
+              className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-colors ${location.pathname.startsWith('/account') ? 'text-cta' : 'text-ink/50'}`}
+            >
+              <User className="w-5 h-5" />
+              Account
+            </Link>
+          ) : (
+            <Link 
+              to="/login"
+              search={{ redirect: '/account' }}
+              className={`flex flex-col items-center gap-0.5 text-[10px] font-bold transition-colors ${location.pathname.startsWith('/login') ? 'text-cta' : 'text-ink/50'}`}
+            >
+              <User className="w-5 h-5" />
+              Account
+            </Link>
+          )}
         </div>
       </nav>
 
@@ -386,6 +397,7 @@ export function SiteHeader() {
               ) : (
                 <Link 
                   to="/login" 
+                  search={{ redirect: '/account' }}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="w-full flex items-center justify-center gap-2.5 py-3 text-sm font-bold text-white bg-ink rounded-full hover:bg-ink/90 transition-colors"
                 >

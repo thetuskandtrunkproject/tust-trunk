@@ -5,10 +5,10 @@ import { OrderStatusBadge } from './order-status-badge'
 import { OrderStatusStepper } from './order-status-stepper'
 
 interface OrderDetailDrawerProps {
-  order: AdminOrder | null
+  order: AdminOrder | any | null
   isOpen: boolean
   onClose: () => void
-  onUpdateStatus: (orderId: string, newStatus: OrderStatus) => void
+  onUpdateStatus: (orderId: string, newStatus: OrderStatus, trackingNumber?: string) => void
 }
 
 export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: OrderDetailDrawerProps) {
@@ -98,7 +98,8 @@ export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: Or
             </div>
             <OrderStatusStepper 
               status={order.status} 
-              onStatusChange={(newStatus) => onUpdateStatus(order.id, newStatus)} 
+              initialTrackingNumber={order.shipping_address?.tracking_number}
+              onStatusChange={(newStatus, trackingNumber) => onUpdateStatus(order.id, newStatus, trackingNumber)} 
             />
           </div>
 
@@ -141,6 +142,14 @@ export function OrderDetailDrawer({ order, isOpen, onClose, onUpdateStatus }: Or
                 <p className="font-medium text-[#202223] pt-0.5">
                   {order.shipping_address?.city}, {order.shipping_address?.state} - {order.shipping_address?.pincode}
                 </p>
+                {order.shipping_address?.tracking_number && (
+                  <div className="mt-2.5 pt-2 border-t border-[#F1F2F4] flex flex-col gap-0.5">
+                    <span className="text-[11px] text-[#8C9196] uppercase font-semibold">ST Courier Tracking</span>
+                    <span className="font-mono font-bold text-xs text-[#202223] bg-[#F4F6F8] px-2 py-1 rounded border border-[#E1E3E5] inline-block w-fit">
+                      {order.shipping_address.tracking_number}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 

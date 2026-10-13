@@ -23,14 +23,14 @@ function AccountLayout() {
   useEffect(() => {
     if (!loading) {
       if (!firebaseUser) {
-        navigate({ to: '/login', replace: true })
-      } else if (!firebaseUser.emailVerified) {
+        navigate({ to: '/login', search: { redirect: location.pathname }, replace: true })
+      } else if (firebaseUser.email && !firebaseUser.emailVerified) {
         navigate({ to: '/verify-account', state: { email: firebaseUser.email } as any, replace: true })
       }
     }
-  }, [loading, firebaseUser, navigate])
+  }, [loading, firebaseUser, navigate, location.pathname])
 
-  if (loading || !firebaseUser || !firebaseUser.emailVerified) {
+  if (loading || !firebaseUser || (firebaseUser.email && !firebaseUser.emailVerified)) {
     return <div className="min-h-screen bg-cloud flex items-center justify-center font-bold text-ink/50">Loading...</div>
   }
 

@@ -427,9 +427,9 @@ export function Hero({ initialData, isIntroActive = false, registerMatchCutTrigg
             </div>
           </div>
 
-          {/* Hanging Brand Clothing Tag Badge with Match-Cut Landing */}
+          {/* Hanging Brand Clothing Tag Badge with Match-Cut Landing (Hidden on mobile to avoid blocking hero face) */}
           <div 
-            className="hero-intro-tag flex absolute top-4 sm:top-8 lg:top-10 left-1/2 -translate-x-1/2 z-40 flex-col items-center justify-center bg-white shadow-2xl px-3 sm:px-4 pt-4 sm:pt-5 pb-5 sm:pb-7 w-[110px] sm:w-[130px] lg:w-[150px] origin-top rounded-b-[2rem] border-x border-b border-ink/10"
+            className="hero-intro-tag hidden md:flex absolute top-4 sm:top-8 lg:top-10 left-1/2 -translate-x-1/2 z-40 flex-col items-center justify-center bg-white shadow-2xl px-3 sm:px-4 pt-4 sm:pt-5 pb-5 sm:pb-7 w-[110px] sm:w-[130px] lg:w-[150px] origin-top rounded-b-[2rem] border-x border-b border-ink/10"
           >
             {/* Stitch marks at the top */}
             <div className="absolute top-1.5 w-8 sm:w-12 h-px bg-ink/15"></div>
