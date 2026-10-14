@@ -34,7 +34,7 @@ def send_otp_message(phone: str, otp: str) -> bool:
     Sends OTP via PayPerWA using the otp_verification template.
     """
     payload = {
-        "to": phone.lstrip("+"),
+        "to": phone.strip().lstrip("+"),
         "template_name": "otp_verification",
         "language": "en",
         "variables": [otp]
@@ -49,7 +49,7 @@ def send_order_confirmation(phone: str, customer_name: str, order_id: str, items
     Product: {{3}} Amount: ₹{{4}}
     """
     payload = {
-        "to": phone.lstrip("+"),
+        "to": phone.strip().lstrip("+"),
         "template_name": "order_confirmation",
         "language": "en",
         "variables": [customer_name, order_id, items_summary, amount]
@@ -67,7 +67,7 @@ def send_owner_order_alert(order_id: str, customer_name: str, amount: str, items
         return False
 
     payload = {
-        "to": settings.OWNER_WHATSAPP_NUMBER.lstrip("+"),
+        "to": settings.OWNER_WHATSAPP_NUMBER.strip().lstrip("+"),
         "template_name": "owner_order_alert",
         "language": "en",
         "variables": [order_id, customer_name, amount, items_summary, payment_status]
@@ -81,7 +81,7 @@ def send_order_shipped(phone: str, customer_name: str, order_id: str, items_summ
     Items: {{3}} Tracking No: {{4}}
     """
     payload = {
-        "to": phone.lstrip("+"),
+        "to": phone.strip().lstrip("+"),
         "template_name": "order_shipped",
         "language": "en",
         "variables": [customer_name, order_id, items_summary, tracking_number]
