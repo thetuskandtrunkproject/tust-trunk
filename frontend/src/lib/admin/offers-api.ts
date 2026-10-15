@@ -59,6 +59,11 @@ export async function fetchAdminOffers(): Promise<ComboOffer[]> {
   return res.data
 }
 
+export async function fetchAdminOfferById(id: string): Promise<ComboOffer> {
+  const res = await api.get(`/api/v1/admin/combo-offers/${id}`)
+  return res.data
+}
+
 export async function createAdminOffer(data: ComboOfferFormData): Promise<ComboOffer> {
   // Convert flat discount rupees to paise for backend
   const payload = {

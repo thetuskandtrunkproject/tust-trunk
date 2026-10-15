@@ -1,8 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { Plus, Sparkles } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { OfferTable } from '@/components/admin/offers/offer-table'
-import { OfferFormModal } from '@/components/admin/offers/offer-form-modal'
 import {
   AdminPageHeader,
   AdminButton,
@@ -11,13 +10,10 @@ import {
 } from '@/components/admin/ui/primitives'
 import {
   type ComboOffer,
-  type ComboOfferFormData,
   fetchAdminOffers,
-  createAdminOffer,
   updateAdminOffer,
   deleteAdminOffer,
 } from '@/lib/admin/offers-api'
-import { type Category, fetchCategories } from '@/lib/admin/categories-api'
 import { useToast } from '@/context/toast-context'
 
 export const Route = createFileRoute('/admin/offers/')({
@@ -25,12 +21,9 @@ export const Route = createFileRoute('/admin/offers/')({
 })
 
 function AdminOffersPage() {
+  const navigate = useNavigate()
   const [offers, setOffers] = useState<ComboOffer[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
-  const [formModalOpen, setFormModalOpen] = useState(false)
-  const [editingOffer, setEditingOffer] = useState<ComboOffer | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const { showToast } = useToast()
 
   const [confirmModal, setConfirmModal] = useState<{
@@ -43,12 +36,8 @@ function AdminOffersPage() {
   const loadData = async () => {
     setLoading(true)
     try {
-      const [offersData, categoriesData] = await Promise.all([
-        fetchAdminOffers(),
-        fetchCategories(),
-      ])
+      const offersData = await fetchAdminOffers()
       setOffers(offersData)
-      setCategories(categoriesData)
     } catch (err: any) {
       showToast(err.response?.data?.detail || 'Failed to load offers', 'error')
     } finally {
@@ -62,36 +51,6 @@ function AdminOffersPage() {
 
   const activeCount = offers.filter((o) => o.is_active).length
   const inactiveCount = offers.filter((o) => !o.is_active).length
-
-  const handleOpenCreate = () => {
-    setEditingOffer(null)
-    setFormModalOpen(true)
-  }
-
-  const handleOpenEdit = (offer: ComboOffer) => {
-    setEditingOffer(offer)
-    setFormModalOpen(true)
-  }
-
-  const handleSaveOffer = async (formData: ComboOfferFormData) => {
-    setIsSubmitting(true)
-    try {
-      if (editingOffer) {
-        await updateAdminOffer(editingOffer.id, formData)
-        showToast('Combo offer updated successfully', 'success')
-      } else {
-        await createAdminOffer(formData)
-        showToast('Combo offer created successfully', 'success')
-      }
-      setFormModalOpen(false)
-      setEditingOffer(null)
-      loadData()
-    } catch (err: any) {
-      showToast(err.response?.data?.detail || 'Failed to save offer', 'error')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
 
   const handleToggleStatus = async (id: string, currentStatus: boolean) => {
     try {
@@ -133,12 +92,11 @@ function AdminOffersPage() {
         title="Category Combo Offers"
         description={`Active: ${activeCount} · Inactive: ${inactiveCount}`}
         actions={
-          <AdminButton
-            onClick={handleOpenCreate}
-            icon={<Plus className="w-4 h-4" />}
-          >
-            Add New Offer
-          </AdminButton>
+          <Link to={'/admin/offers/new' as any}>
+            <AdminButton icon={<Plus className="w-4 h-4" />}>
+              Add New Offer
+            </AdminButton>
+          </Link>
         }
       />
 
@@ -148,23 +106,12 @@ function AdminOffersPage() {
         <OfferTable
           offers={offers}
           onToggleStatus={handleToggleStatus}
-          onEdit={handleOpenEdit}
+          onEdit={(offer) => {
+            navigate({ to: `/admin/offers/${offer.id}` as any })
+          }}
           onDelete={handleDeleteClick}
         />
       )}
-
-      {/* Add / Edit Form Modal */}
-      <OfferFormModal
-        isOpen={formModalOpen}
-        onClose={() => {
-          setFormModalOpen(false)
-          setEditingOffer(null)
-        }}
-        onSave={handleSaveOffer}
-        offer={editingOffer}
-        categories={categories}
-        isLoading={isSubmitting}
-      />
 
       {/* Confirmation Modal for Delete */}
       <ConfirmModal
