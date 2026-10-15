@@ -83,29 +83,40 @@ export function OfferForm({
     const assumedItemPrice = 200 // Assumed ₹200 per product for clear preview
 
     for (let q = startQty; q <= endQty; q++) {
-      const isQtyEligible =
-        q >= baseQty &&
-        (sequenceType === 'even' ? q % 2 === 0 : q % 2 !== 0)
+      let eligibleQty = 0
+      if (q >= baseQty) {
+        if (sequenceType === 'even') {
+          const cand = q % 2 === 0 ? q : q - 1
+          if (cand >= baseQty) eligibleQty = cand
+        } else {
+          const cand = q % 2 !== 0 ? q : q - 1
+          if (cand >= baseQty) eligibleQty = cand
+        }
+      }
 
       const originalTotal = q * assumedItemPrice
       let discountAmount = 0
 
-      if (isQtyEligible) {
+      if (eligibleQty > 0) {
         if (discountType === 'flat') {
-          discountAmount = q * Number(discountValue)
+          discountAmount = eligibleQty * Number(discountValue)
         } else {
-          discountAmount = Math.round((originalTotal * Number(discountValue)) / 100)
+          const eligibleTotal = eligibleQty * assumedItemPrice
+          discountAmount = Math.round((eligibleTotal * Number(discountValue)) / 100)
         }
       }
 
       const finalPrice = Math.max(0, originalTotal - discountAmount)
+      const remainingQty = q - eligibleQty
 
       rows.push({
         quantity: q,
         originalTotal,
         discountAmount,
         finalPrice,
-        isEligible: isQtyEligible,
+        eligibleQty,
+        remainingQty,
+        isEligible: eligibleQty > 0,
       })
     }
     return rows
@@ -369,8 +380,7 @@ export function OfferForm({
             </div>
 
             <p className="text-xs text-[#64748B] pt-1">
-              The discount will apply automatically when the cart contains any of these eligible quantities.
-              Quantities outside this sequence receive <strong className="text-[#0F172A]">₹0</strong> discount.
+              Eligible sequence items receive the combo discount automatically. Any excess items (e.g. 5th item when minimum is 4) remain at their regular original price.
             </p>
           </div>
         </div>
@@ -518,16 +528,23 @@ export function OfferForm({
                     </td>
                     <td className="py-2.5 px-4">
                       {row.isEligible ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E3F1DF] text-[#007F5F]">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          Combo Applied
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E3F1DF] text-[#007F5F] w-fit">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            {row.remainingQty === 0
+                              ? `All ${row.quantity} in Combo`
+                              : `${row.eligibleQty} in Combo`}
+                          </span>
+                          {row.remainingQty > 0 && (
+                            <span className="text-[11px] text-[#6D7175] mt-0.5 font-medium">
+                              + {row.remainingQty} item at regular price
+                            </span>
+                          )}
+                        </div>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#F4F6F8] text-[#8C9196]">
                           <XCircle className="w-3.5 h-3.5" />
-                          {row.quantity < Number(minQuantity)
-                            ? `Below min (${minQuantity})`
-                            : `Outside ${sequenceType} sequence`}
+                          Below min ({minQuantity})
                         </span>
                       )}
                     </td>

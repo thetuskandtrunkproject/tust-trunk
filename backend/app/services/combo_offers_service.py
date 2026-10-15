@@ -219,44 +219,68 @@ def get_active_combo_offers(db: Client) -> List[dict]:
     all_offers = list_combo_offers(db)
     return [o for o in all_offers if o.get('is_active') is True]
 
-def check_sequence_eligibility(quantity: int, min_quantity: int, sequence_type: str) -> bool:
+def get_eligible_quantity(quantity: int, min_quantity: int, sequence_type: str) -> int:
     """
-    Checks if a quantity satisfies the combo offer sequence:
-    1. quantity >= min_quantity
-    2. Parity matches sequence_type:
-       - 'even': quantity % 2 == 0
-       - 'odd':  quantity % 2 == 1
+    Given total products in a category, returns how many of them qualify for the combo discount.
+    Rules:
+    - If quantity < min_quantity: 0 qualify (below minimum threshold).
+    - If sequence_type == 'even':
+        The largest even number <= quantity that is >= min_quantity.
+        E.g. min 4, even:
+          qty 3 -> 0
+          qty 4 -> 4 (all 4 at combo price)
+          qty 5 -> 4 (4 at combo price, 1 at original price)
+          qty 6 -> 6 (all 6 at combo price)
+          qty 7 -> 6 (6 at combo price, 1 at original price)
+    - If sequence_type == 'odd':
+        The largest odd number <= quantity that is >= min_quantity.
+        E.g. min 5, odd:
+          qty 4 -> 0
+          qty 5 -> 5 (all 5 at combo price)
+          qty 6 -> 5 (5 at combo price, 1 at original price)
+          qty 7 -> 7 (all 7 at combo price)
+          qty 8 -> 7 (7 at combo price, 1 at original price)
     """
     if quantity < min_quantity:
-        return False
+        return 0
     if sequence_type == 'even':
-        return (quantity % 2) == 0
-    elif sequence_type == 'odd':
-        return (quantity % 2) != 0
-    return False
+        candidate = quantity if (quantity % 2 == 0) else (quantity - 1)
+    else: # 'odd'
+        candidate = quantity if (quantity % 2 != 0) else (quantity - 1)
 
-def calculate_next_eligible_quantity(quantity: int, min_quantity: int, sequence_type: str) -> int:
-    """
-    Calculates how many additional items are needed to reach the next eligible quantity.
-    """
-    if quantity < min_quantity:
-        candidate = min_quantity
-    else:
-        candidate = quantity + 1
+    if candidate >= min_quantity:
+        return candidate
+    return 0
 
-    # Find the next candidate with the right parity
+def check_sequence_eligibility(quantity: int, min_quantity: int, sequence_type: str) -> bool:
+    """Helper to check if all items in quantity are fully aligned with the sequence."""
+    return get_eligible_quantity(quantity, min_quantity, sequence_type) == quantity
+
+def calculate_next_target(quantity: int, min_quantity: int, sequence_type: str) -> Tuple[int, int]:
+    """
+    Calculates the next higher target quantity in the sequence and how many more items are needed.
+    Returns: (needed_quantity, target_quantity)
+    """
+    candidate = max(min_quantity, quantity + 1)
     while True:
         if sequence_type == 'even' and (candidate % 2 == 0):
             break
         elif sequence_type == 'odd' and (candidate % 2 != 0):
             break
         candidate += 1
+    needed = max(1, candidate - quantity)
+    return needed, candidate
 
-    return max(1, candidate - quantity)
+def calculate_next_eligible_quantity(quantity: int, min_quantity: int, sequence_type: str) -> int:
+    """Returns how many more items are needed to reach the next sequence threshold."""
+    needed, _ = calculate_next_target(quantity, min_quantity, sequence_type)
+    return needed
 
 def calculate_combo_discount_for_cart(db: Client, items: List[dict]) -> Tuple[int, List[dict], List[dict]]:
     """
     Computes automatic combo offer discounts for items currently in cart.
+    Applies combo price to the eligible sequence items (e.g. 4 out of 5),
+    leaving the remaining items at their original price.
     Returns: (total_discount_paise, applied_offers, potential_offers)
     """
     active_offers = get_active_combo_offers(db)
@@ -316,21 +340,28 @@ def calculate_combo_discount_for_cart(db: Client, items: List[dict]) -> Tuple[in
             unit_price = int(i.get('price_paise') or (i.get('variant') or {}).get('price', 0))
             cat_total_paise += unit_price * int(i.get('quantity', 0))
 
-        is_eligible = check_sequence_eligibility(total_cat_qty, min_qty, seq_type)
+        eligible_qty = get_eligible_quantity(total_cat_qty, min_qty, seq_type)
 
-        if is_eligible:
+        if eligible_qty > 0:
+            # Flatten individual units from this category
+            units: List[int] = []
+            for i in cat_line_items:
+                unit_price = int(i.get('price_paise') or (i.get('variant') or {}).get('price', 0))
+                item_qty = int(i.get('quantity', 0))
+                for _ in range(item_qty):
+                    units.append(unit_price)
+
+            # Sort descending to give customer discount against top eligible units
+            units.sort(reverse=True)
+            eligible_units = units[:eligible_qty]
+
             cat_discount_paise = 0
             if disc_type == 'flat':
-                # Flat discount per product
-                # For each product unit, discount is min(unit_price, flat_discount_per_product)
-                for i in cat_line_items:
-                    unit_price = int(i.get('price_paise') or (i.get('variant') or {}).get('price', 0))
-                    item_qty = int(i.get('quantity', 0))
-                    unit_disc = min(unit_price, disc_val)
-                    cat_discount_paise += unit_disc * item_qty
+                for unit_p in eligible_units:
+                    cat_discount_paise += min(unit_p, disc_val)
             elif disc_type == 'percent':
-                # Percentage discount across the category's total price
-                cat_discount_paise = int(round(cat_total_paise * (disc_val / 100.0)))
+                eligible_total_paise = sum(eligible_units)
+                cat_discount_paise = int(round(eligible_total_paise * (disc_val / 100.0)))
 
             # Cap discount at category's total price
             cat_discount_paise = min(cat_discount_paise, cat_total_paise)
@@ -341,26 +372,50 @@ def calculate_combo_discount_for_cart(db: Client, items: List[dict]) -> Tuple[in
             else:
                 disc_desc = f"{disc_val}% off"
 
+            extra_qty = total_cat_qty - eligible_qty
+            if extra_qty > 0:
+                item_word = "item" if extra_qty == 1 else "items"
+                desc = f"Combo Offer ({disc_desc}) applied to {eligible_qty} of {total_cat_qty} {cat_name} items (+ {extra_qty} {item_word} at original price)"
+            else:
+                desc = f"Combo Offer ({disc_desc}) applied on {eligible_qty} {cat_name} items"
+
             applied_offers.append({
                 'offer_id': str(offer['id']),
                 'category_id': cat_id,
                 'category_name': cat_name,
-                'eligible_quantity': total_cat_qty,
+                'eligible_quantity': eligible_qty,
+                'total_quantity': total_cat_qty,
+                'remaining_quantity': extra_qty,
                 'sequence_type': seq_type,
                 'discount_type': disc_type,
                 'discount_value': disc_val,
                 'discount_paise': cat_discount_paise,
-                'description': f"Combo Offer ({disc_desc}) applied on {total_cat_qty} {cat_name} items",
+                'description': desc,
             })
-        else:
-            # Not eligible yet: calculate needed quantity for encouragement
-            needed = calculate_next_eligible_quantity(total_cat_qty, min_qty, seq_type)
-            target = total_cat_qty + needed
+
+            # Calculate next tier encouragement
+            needed, target = calculate_next_target(total_cat_qty, min_qty, seq_type)
             if disc_type == 'flat':
                 benefit = f"₹{disc_val // 100} off per item"
             else:
                 benefit = f"{disc_val}% off"
-                
+            msg = f"Add {needed} more {cat_name} item{'s' if needed > 1 else ''} to reach {target} and get {benefit} on all {target} items!"
+            potential_offers.append({
+                'category_id': cat_id,
+                'category_name': cat_name,
+                'current_quantity': total_cat_qty,
+                'needed_quantity': needed,
+                'target_quantity': target,
+                'message': msg,
+            })
+        else:
+            # Below minimum threshold: calculate needed quantity for initial activation
+            needed, target = calculate_next_target(total_cat_qty, min_qty, seq_type)
+            if disc_type == 'flat':
+                benefit = f"₹{disc_val // 100} off per item"
+            else:
+                benefit = f"{disc_val}% off"
+
             msg = f"Add {needed} more {cat_name} item{'s' if needed > 1 else ''} to reach {target} and get {benefit}!"
             potential_offers.append({
                 'category_id': cat_id,

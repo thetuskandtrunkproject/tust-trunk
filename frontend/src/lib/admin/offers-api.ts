@@ -30,6 +30,8 @@ export interface AppliedComboOffer {
   category_id: string
   category_name: string
   eligible_quantity: number
+  total_quantity?: number
+  remaining_quantity?: number
   sequence_type: string
   discount_type: string
   discount_value: number

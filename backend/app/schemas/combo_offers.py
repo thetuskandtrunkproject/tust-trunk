@@ -54,6 +54,8 @@ class ComboOfferApplied(BaseModel):
     category_id: str
     category_name: str
     eligible_quantity: int
+    total_quantity: Optional[int] = None
+    remaining_quantity: Optional[int] = None
     sequence_type: str
     discount_type: str
     discount_value: int
