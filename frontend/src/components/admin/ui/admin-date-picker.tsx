@@ -1,19 +1,32 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 interface AdminDatePickerProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
   className?: string
+  triggerClassName?: string
+  clearable?: boolean
 }
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
-export function AdminDatePicker({ value, onChange, placeholder = "Select date", className = "" }: AdminDatePickerProps) {
+export function AdminDatePicker({ 
+  value, 
+  onChange, 
+  placeholder = "Select date", 
+  className = "",
+  triggerClassName = "",
+  clearable = false
+}: AdminDatePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [currentView, setCurrentView] = useState(() => {
     if (value) {
+      const parts = value.split('T')[0].split('-').map(Number)
+      if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        return new Date(parts[0], parts[1] - 1, parts[2] || 1)
+      }
       const d = new Date(value)
       if (!isNaN(d.getTime())) return d
     }
@@ -21,6 +34,18 @@ export function AdminDatePicker({ value, onChange, placeholder = "Select date", 
   })
   
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (value) {
+      const parts = value.split('T')[0].split('-').map(Number)
+      if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        setCurrentView(new Date(parts[0], parts[1] - 1, parts[2] || 1))
+        return
+      }
+      const d = new Date(value)
+      if (!isNaN(d.getTime())) setCurrentView(d)
+    }
+  }, [value])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -56,25 +81,50 @@ export function AdminDatePicker({ value, onChange, placeholder = "Select date", 
   // Format display string
   let displayStr = placeholder
   if (value) {
-    const d = new Date(value)
-    if (!isNaN(d.getTime())) {
-      displayStr = `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`
+    if (value.includes('-')) {
+      const parts = value.split('T')[0].split('-')
+      if (parts.length === 3) {
+        displayStr = `${parts[2].padStart(2, '0')}-${parts[1].padStart(2, '0')}-${parts[0]}`
+      }
+    } else {
+      const d = new Date(value)
+      if (!isNaN(d.getTime())) {
+        displayStr = `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`
+      }
     }
   }
+
+  const defaultTriggerClass = "w-full flex items-center justify-between bg-white border border-[#C9CCCF] text-[#202223] rounded-full px-4 h-[36px] text-[13px] shadow-sm hover:border-[#8C9196] focus:outline-none focus:ring-2 focus:ring-[#005bd3] transition-all min-w-[140px]"
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between bg-white border border-[#C9CCCF] text-[#202223] rounded-full px-4 h-[36px] text-[13px] shadow-sm hover:border-[#8C9196] focus:outline-none focus:ring-2 focus:ring-[#005bd3] transition-all min-w-[140px]"
+        className={triggerClassName || defaultTriggerClass}
       >
-        <span className="font-medium truncate pr-2">{displayStr}</span>
-        <CalendarIcon className="w-4 h-4 text-[#5C5F62]" />
+        <span className={`font-medium truncate pr-2 ${!value ? 'text-ink/40' : 'text-[#202223]'}`}>{displayStr}</span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {clearable && value && (
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={(e) => {
+                e.stopPropagation()
+                onChange('')
+              }}
+              className="p-0.5 hover:bg-ink/10 rounded-full text-ink/40 hover:text-ink transition-colors cursor-pointer"
+              title="Clear date"
+            >
+              <X className="w-3.5 h-3.5" />
+            </span>
+          )}
+          <CalendarIcon className="w-4 h-4 text-[#5C5F62]" />
+        </div>
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-[280px] bg-white border border-[#E3E3E3] rounded-xl shadow-lg z-50 p-3 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-full left-0 mt-1 w-[280px] bg-white border border-[#E3E3E3] rounded-xl shadow-xl z-50 p-3 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="flex items-center justify-between mb-4">
             <button type="button" onClick={handlePrevMonth} className="p-1 hover:bg-[#F4F6F8] rounded-md transition-colors text-[#5C5F62]">
               <ChevronLeft className="w-4 h-4" />
@@ -97,7 +147,15 @@ export function AdminDatePicker({ value, onChange, placeholder = "Select date", 
             {days.map((date, i) => {
               if (!date) return <div key={`empty-${i}`} />
               
-              const isSelected = value && date.getTime() === new Date(value).getTime()
+              const isSelected = Boolean(value) && (() => {
+                const parts = value.split('T')[0].split('-').map(Number)
+                if (parts.length === 3) {
+                  return date.getFullYear() === parts[0] && date.getMonth() === parts[1] - 1 && date.getDate() === parts[2]
+                }
+                const d = new Date(value)
+                return !isNaN(d.getTime()) && d.toDateString() === date.toDateString()
+              })()
+
               const isToday = new Date().toDateString() === date.toDateString()
               
               return (
@@ -107,8 +165,8 @@ export function AdminDatePicker({ value, onChange, placeholder = "Select date", 
                   onClick={() => handleSelectDate(date)}
                   className={`
                     w-8 h-8 flex items-center justify-center rounded-full text-[13px] mx-auto transition-colors
-                    ${isSelected ? 'bg-[#303030] text-white font-semibold' : 'text-[#202223] hover:bg-[#F4F6F8]'}
-                    ${isToday && !isSelected ? 'border border-[#C9CCCF]' : ''}
+                    ${isSelected ? 'bg-sky text-white font-semibold shadow-sm' : 'text-[#202223] hover:bg-[#F4F6F8]'}
+                    ${isToday && !isSelected ? 'border border-[#C9CCCF] font-medium' : ''}
                   `}
                 >
                   {date.getDate()}
@@ -121,4 +179,5 @@ export function AdminDatePicker({ value, onChange, placeholder = "Select date", 
     </div>
   )
 }
+
 

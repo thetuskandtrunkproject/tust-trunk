@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Save } from 'lucide-react'
 import { type Coupon, type CouponType, type CouponScope } from '@/lib/admin/mock-coupons'
 import { useToast } from '@/context/toast-context'
+import { AdminDatePicker } from '@/components/admin/ui/primitives'
 
 interface CouponFormProps {
   initialData?: Coupon
@@ -185,21 +186,21 @@ export function CouponForm({ initialData, onSubmit }: CouponFormProps) {
             </div>
             <div>
               <label className="block text-sm font-bold text-ink mb-2">Start Date</label>
-              <input
-                type="date"
+              <AdminDatePicker
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full bg-cloud border border-ink/10 rounded-lg px-4 py-2.5 text-ink focus:outline-none focus:border-sky focus:bg-white transition-colors"
-                required
+                onChange={setStartDate}
+                placeholder="Select start date"
+                triggerClassName="w-full flex items-center justify-between bg-cloud border border-ink/10 rounded-lg px-4 py-2.5 text-ink text-sm focus:outline-none focus:border-sky focus:bg-white transition-colors cursor-pointer"
               />
             </div>
             <div>
               <label className="block text-sm font-bold text-ink mb-2">End Date</label>
-              <input
-                type="date"
+              <AdminDatePicker
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full bg-cloud border border-ink/10 rounded-lg px-4 py-2.5 text-ink focus:outline-none focus:border-sky focus:bg-white transition-colors"
+                onChange={setEndDate}
+                placeholder="dd-mm-yyyy (Optional)"
+                clearable
+                triggerClassName="w-full flex items-center justify-between bg-cloud border border-ink/10 rounded-lg px-4 py-2.5 text-ink text-sm focus:outline-none focus:border-sky focus:bg-white transition-colors cursor-pointer"
               />
               <p className="text-xs text-ink/50 mt-1">Leave blank for no expiry</p>
             </div>

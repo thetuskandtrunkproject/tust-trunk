@@ -121,6 +121,15 @@ def update_coupon(db: Client, coupon_id: str, data: dict) -> dict:
     return res.data[0]
 
 def delete_coupon(db: Client, coupon_id: str) -> None:
-    res = db.table('coupons').delete().eq('id', coupon_id).execute()
-    if not res.data:
-        raise HTTPException(status_code=404, detail="Coupon not found.")
+    try:
+        # Delete associated redemptions first to prevent FK constraint (23503) violation
+        db.table('coupon_redemptions').delete().eq('coupon_id', coupon_id).execute()
+        res = db.table('coupons').delete().eq('id', coupon_id).execute()
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Coupon not found.")
+    except HTTPException:
+        raise
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Failed to delete coupon {coupon_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete coupon.")
