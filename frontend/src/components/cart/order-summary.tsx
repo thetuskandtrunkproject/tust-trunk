@@ -9,7 +9,7 @@ interface OrderSummaryProps {
 }
 
 export function OrderSummary({ deliveryFee, onDiscountChange }: OrderSummaryProps) {
-  const { items, serverSubtotal } = useCart()
+  const { items, serverSubtotal, comboDiscount, appliedOffers } = useCart()
   const { user } = useAuth()
   const { showToast } = useToast()
   
@@ -21,6 +21,7 @@ export function OrderSummary({ deliveryFee, onDiscountChange }: OrderSummaryProp
   const cartDetails = items.filter(item => item.product !== undefined && item.variant !== undefined)
 
   const subtotal = user ? serverSubtotal : cartDetails.reduce((sum, item) => sum + (item.variant!.price * item.quantity), 0)
+  const netSubtotal = Math.max(0, subtotal - (comboDiscount || 0))
   
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,7 +33,7 @@ export function OrderSummary({ deliveryFee, onDiscountChange }: OrderSummaryProp
     setTimeout(() => {
       setIsApplying(false)
       if (promoCode.toUpperCase() === 'TUSK10') {
-        const discountAmount = subtotal * 0.10
+        const discountAmount = netSubtotal * 0.10
         setAppliedPromo(promoCode.toUpperCase())
         onDiscountChange(discountAmount)
         showToast('Promo code applied successfully!')
@@ -44,6 +45,9 @@ export function OrderSummary({ deliveryFee, onDiscountChange }: OrderSummaryProp
   }
 
   const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
+
+  const promoDiscount = appliedPromo ? netSubtotal * 0.10 : 0
+  const finalTotal = netSubtotal + deliveryFee - promoDiscount
 
   return (
     <div className="bg-ink/5 rounded-2xl p-6 lg:p-8 sticky top-24">
@@ -105,12 +109,18 @@ export function OrderSummary({ deliveryFee, onDiscountChange }: OrderSummaryProp
       <div className="flex flex-col gap-3 text-sm text-ink/80 mb-6 pb-6 border-b border-ink/10">
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span>{formatPrice(subtotal)}</span>
+          <span className={comboDiscount > 0 ? "line-through opacity-60 text-xs" : ""}>{formatPrice(subtotal)}</span>
         </div>
+        {comboDiscount > 0 && (
+          <div className="flex justify-between text-[#007F5F] font-bold">
+            <span>Combo Offer Savings</span>
+            <span>-{formatPrice(comboDiscount)}</span>
+          </div>
+        )}
         {appliedPromo && (
           <div className="flex justify-between text-sky font-medium">
             <span>Discount (10%)</span>
-            <span>-{formatPrice(subtotal * 0.10)}</span>
+            <span>-{formatPrice(promoDiscount)}</span>
           </div>
         )}
         <div className="flex justify-between">
@@ -121,7 +131,7 @@ export function OrderSummary({ deliveryFee, onDiscountChange }: OrderSummaryProp
 
       <div className="flex justify-between items-center text-lg font-medium text-ink">
         <span>Total</span>
-        <span className="font-fraunces text-2xl">{formatPrice(subtotal + deliveryFee - (appliedPromo ? subtotal * 0.10 : 0))}</span>
+        <span className="font-fraunces text-2xl">{formatPrice(finalTotal)}</span>
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import { X, Minus, Plus, Trash2 } from 'lucide-react'
+import { X, Minus, Plus, Trash2, Sparkles, Tag } from 'lucide-react'
 import { useCart } from '@/context/cart-context'
 import { Link, useRouter } from '@tanstack/react-router'
 import { useAuth } from '@/context/auth-context'
@@ -9,19 +9,17 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
-  const { items, updateQuantity, removeItem, cartCount, serverSubtotal } = useCart()
+  const { items, updateQuantity, removeItem, cartCount, serverSubtotal, comboDiscount, appliedOffers, potentialOffers } = useCart()
   const { user } = useAuth()
   const router = useRouter()
 
   if (!isOpen) return null
 
-  // Since guest users don't have product details from the backend,
-  // we filter out items missing product data to avoid crashes,
-  // but this means the guest cart will not display correctly until resolved.
+  // Filter out items missing product data
   const cartDetails = items.filter(item => item.product !== undefined && item.variant !== undefined)
 
-  // Use serverSubtotal if logged in, otherwise local computation (which will be 0 for guests without mock data)
   const subtotal = user ? serverSubtotal : cartDetails.reduce((sum, item) => sum + (item.variant!.price * item.quantity), 0)
+  const finalCartTotal = Math.max(0, subtotal - (comboDiscount || 0))
   
   const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
 
@@ -46,6 +44,45 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 hide-scrollbar">
+          {/* Active Applied Offers Banners */}
+          {appliedOffers && appliedOffers.length > 0 && (
+            <div className="flex flex-col gap-2">
+              {appliedOffers.map((offer) => (
+                <div
+                  key={offer.offer_id}
+                  className="bg-[#EBF7F2] border border-[#AEE9D1] rounded-2xl p-3.5 flex items-start gap-3 shadow-xs animate-in fade-in slide-in-from-top-1"
+                >
+                  <Sparkles className="w-5 h-5 text-[#007F5F] shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-bold text-[13px] text-[#007F5F]">
+                      Combo Offer Applied!
+                    </p>
+                    <p className="text-[12px] text-[#007F5F]/90 mt-0.5">
+                      {offer.description} (Save {formatPrice(offer.discount_paise)})
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Potential Offers Encouragement Banners */}
+          {potentialOffers && potentialOffers.length > 0 && (
+            <div className="flex flex-col gap-2">
+              {potentialOffers.map((pot, idx) => (
+                <div
+                  key={idx}
+                  className="bg-[#FFF8E5] border border-[#FFE082] rounded-2xl p-3 flex items-start gap-2.5 shadow-xs"
+                >
+                  <Tag className="w-4 h-4 text-[#B85D19] shrink-0 mt-0.5" />
+                  <p className="text-[12px] font-medium text-[#7A3F0B] flex-1">
+                    {pot.message}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center space-y-6 bg-mint/40 rounded-[3rem] p-8 m-4">
               <p className="text-ink/60 font-medium">Your cart is currently empty.</p>
@@ -134,13 +171,27 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         {cartDetails.length > 0 && (
           <div className="border-t border-ink/10 p-6 bg-sunshine/20 shrink-0">
             <div className="flex justify-between items-center mb-2">
+              <span className="text-lg text-ink font-medium">Original Price</span>
+              <span className={`text-xl font-bold text-ink ${comboDiscount > 0 ? 'line-through opacity-60 text-base' : ''}`}>
+                {formatPrice(subtotal)}
+              </span>
+            </div>
+            {comboDiscount > 0 && (
+              <div className="flex justify-between items-center mb-2 text-[#007F5F]">
+                <span className="text-base font-bold flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-[#007F5F]" /> Combo Savings
+                </span>
+                <span className="text-xl font-bold">-{formatPrice(comboDiscount)}</span>
+              </div>
+            )}
+            <div className="flex justify-between items-center mb-2">
               <span className="text-lg text-ink font-medium">Subtotal</span>
-              <span className="text-xl font-bold text-ink">{formatPrice(subtotal)}</span>
+              <span className="text-xl font-bold text-ink">{formatPrice(finalCartTotal)}</span>
             </div>
             <div className="flex justify-between items-center mb-6">
               <span className="text-lg text-ink font-medium">Delivery</span>
               <span className="text-xl font-bold text-ink">
-                {subtotal >= 300000 ? <span className="text-mint">Free</span> : '₹60'}
+                {finalCartTotal >= 300000 ? <span className="text-mint">Free</span> : '₹60'}
               </span>
             </div>
             <button 

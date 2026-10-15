@@ -74,6 +74,8 @@ class PublicResolveProductInfo(BaseModel):
     name: str
     slug: str
     images: List[str]
+    category_id: Optional[uuid.UUID] = None
+    category_name: Optional[str] = None
 
 class PublicResolveVariantInfo(BaseModel):
     id: uuid.UUID

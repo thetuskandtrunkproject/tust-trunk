@@ -47,7 +47,7 @@ def _raise_from_rpc_error(e: Exception) -> None:
 
 
 def get_cart(db: Client, user_id: str) -> dict:
-    res = db.table('cart_items').select('*, product_variants(*, products(*))').eq('user_id', user_id).execute()
+    res = db.table('cart_items').select('*, product_variants(*, products(*, categories(id, name, slug)))').eq('user_id', user_id).execute()
     items = res.data
 
     formatted_items = []
@@ -61,6 +61,16 @@ def get_cart(db: Client, user_id: str) -> dict:
         product = variant.get('products')
         if not product:
             continue
+
+        cat_rel = product.get('categories') or {}
+        product_info = {
+            "id": product["id"],
+            "name": product["name"],
+            "slug": product["slug"],
+            "images": product.get("images", []),
+            "category_id": product.get("category_id"),
+            "category_name": cat_rel.get("name") if isinstance(cat_rel, dict) else None,
+        }
 
         is_available = (
             variant.get('is_active') is True
@@ -97,13 +107,20 @@ def get_cart(db: Client, user_id: str) -> dict:
             "created_at": item["created_at"],
             "updated_at": item["updated_at"],
             "variant": variant,
-            "product": product,
+            "product": product_info,
             "is_available": is_available
         })
 
+    from app.services.combo_offers_service import calculate_combo_discount_for_cart
+    combo_discount, applied_offers, potential_offers = calculate_combo_discount_for_cart(db, formatted_items)
+
     return {
         "items": formatted_items,
-        "subtotal": subtotal
+        "subtotal": subtotal,
+        "combo_discount": combo_discount,
+        "final_subtotal": max(0, subtotal - combo_discount),
+        "applied_offers": applied_offers,
+        "potential_offers": potential_offers
     }
 
 

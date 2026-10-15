@@ -17,6 +17,8 @@ class CartProductInfo(BaseModel):
     name: str
     slug: str
     images: List[str]
+    category_id: Optional[UUID4] = None
+    category_name: Optional[str] = None
 
 class CartVariantInfo(BaseModel):
     id: UUID4
@@ -49,4 +51,8 @@ class CartCapInfo(BaseModel):
 class CartResponse(BaseModel):
     items: List[CartItemResponse]
     subtotal: int  # Computed server-side for available items only
+    combo_discount: int = 0
+    final_subtotal: int = 0
+    applied_offers: Optional[List[dict]] = None
+    potential_offers: Optional[List[dict]] = None
     cap_info: Optional[List[CartCapInfo]] = None

@@ -3,17 +3,24 @@ import type { ReactNode } from 'react'
 import { useAuth } from '@/context/auth-context'
 import { api } from '@/lib/api'
 import { useToast } from '@/context/toast-context'
+import {
+  type AppliedComboOffer,
+  type PotentialComboOffer,
+  calculatePublicComboOffers,
+} from '@/lib/admin/offers-api'
 
 export type CartItem = {
   variant_id: string
   quantity: number
-  // Backend populated fields for logged-in users
+  // Backend populated fields for logged-in users & resolved guest users
   id?: string
   product?: {
     id: string
     name: string
     slug: string
     images: string[]
+    category_id?: string
+    category_name?: string
   }
   variant?: {
     id: string
@@ -36,6 +43,10 @@ interface CartContextType {
   clearCart: () => Promise<void>
   cartCount: number
   serverSubtotal: number
+  comboDiscount: number
+  finalSubtotal: number
+  appliedOffers: AppliedComboOffer[]
+  potentialOffers: PotentialComboOffer[]
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -43,22 +54,28 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 export function CartProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
   const { showToast } = useToast()
-  
+
   const [items, setItems] = useState<CartItem[]>([])
   const [serverSubtotal, setServerSubtotal] = useState(0)
+  const [comboDiscount, setComboDiscount] = useState(0)
+  const [finalSubtotal, setFinalSubtotal] = useState(0)
+  const [appliedOffers, setAppliedOffers] = useState<AppliedComboOffer[]>([])
+  const [potentialOffers, setPotentialOffers] = useState<PotentialComboOffer[]>([])
 
   // Fetch cart from backend
   const fetchBackendCart = async () => {
     try {
       const res = await api.get('/api/v1/cart')
-      // The backend response gives us full item info. We map it to our CartItem type.
-      // Notice the backend cart item might return variant_id implicitly inside `variant.id`.
       const mapped = res.data.items.map((i: any) => ({
         ...i,
         variant_id: i.variant.id,
       }))
       setItems(mapped)
       setServerSubtotal(res.data.subtotal || 0)
+      setComboDiscount(res.data.combo_discount || 0)
+      setFinalSubtotal(res.data.final_subtotal || res.data.subtotal || 0)
+      setAppliedOffers(res.data.applied_offers || [])
+      setPotentialOffers(res.data.potential_offers || [])
     } catch (err) {
       console.error("Failed to fetch cart", err)
     }
@@ -80,7 +97,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (user) {
         // Logged in: merge local cart if any, then fetch
         if (items.length > 0 && !items[0].product) {
-          // If we have local guest items (no product info), merge them
           try {
             await api.post('/api/v1/cart/merge', {
               items: items.map(i => ({ variant_id: i.variant_id, quantity: i.quantity }))
@@ -96,12 +112,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         // Logged out: clear synced state, keep empty
         setItems([])
         setServerSubtotal(0)
+        setComboDiscount(0)
+        setFinalSubtotal(0)
+        setAppliedOffers([])
+        setPotentialOffers([])
       }
     }
     initAuth()
-    
+
     return () => { mounted = false }
-  }, [user]) // Re-run when user changes
+  }, [user])
 
   // Resolve guest cart items
   const unresolvedIds = useMemo(() => {
@@ -111,24 +131,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
       .map(i => i.variant_id)
   }, [items, user])
 
-  // CRITICAL FIX: Do NOT change the dependency array of this effect back to `[items, user]`.
-  // Using raw `items` as a dependency creates an infinite re-render/fetch loop for guest users 
-  // because successfully resolving an item calls `setItems`, which changes `items` and re-triggers the effect.
-  // We use `unresolvedIds.join(',')` to ensure the effect only fires when actual unresolved IDs change.
   useEffect(() => {
     let mounted = true
     const resolveGuestCart = async () => {
       if (unresolvedIds.length === 0) return
-      
+
       try {
         const res = await api.get(`/public/variants/resolve?ids=${unresolvedIds.join(',')}`)
         const resolvedData = res.data.items
-        
+
         if (!mounted) return
-        
+
         setItems(prev => prev.map(item => {
-          if (item.product || item.is_available === false || item.resolve_failed) return item // Already processed
-          
+          if (item.product || item.is_available === false || item.resolve_failed) return item
+
           const resolved = resolvedData.find((r: any) => r.variant.id === item.variant_id)
           if (resolved) {
             return {
@@ -138,7 +154,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
               is_available: resolved.is_available
             }
           } else {
-            // Missing from backend (deleted/inactive)
             return {
               ...item,
               is_available: false
@@ -158,10 +173,45 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
       }
     }
-    
+
     resolveGuestCart()
     return () => { mounted = false }
   }, [unresolvedIds.join(',')])
+
+  // Calculate combo offers for guest users
+  const guestCalculationKey = useMemo(() => {
+    if (user) return ''
+    return items.map(i => `${i.variant_id}:${i.quantity}:${i.product ? 1 : 0}`).join(',')
+  }, [items, user])
+
+  useEffect(() => {
+    if (user) return
+    const resolvedItems = items.filter(i => i.product && i.variant && i.is_available !== false)
+    if (resolvedItems.length === 0) {
+      setComboDiscount(0)
+      setFinalSubtotal(0)
+      setAppliedOffers([])
+      setPotentialOffers([])
+      return
+    }
+
+    let isSubscribed = true
+    calculatePublicComboOffers(resolvedItems.map(i => ({ variant_id: i.variant_id, quantity: i.quantity })))
+      .then(result => {
+        if (!isSubscribed) return
+        setComboDiscount(result.combo_discount_paise || 0)
+        setFinalSubtotal(result.final_subtotal_paise || 0)
+        setAppliedOffers(result.applied_offers || [])
+        setPotentialOffers(result.potential_offers || [])
+      })
+      .catch(err => {
+        console.error("Failed to compute guest combo offers", err)
+      })
+
+    return () => {
+      isSubscribed = false
+    }
+  }, [guestCalculationKey, user])
 
   const addItem = async (newItem: CartItem) => {
     if (user) {
@@ -232,13 +282,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     } else {
       setItems([])
+      setComboDiscount(0)
+      setFinalSubtotal(0)
+      setAppliedOffers([])
+      setPotentialOffers([])
     }
   }
 
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
-    <CartContext.Provider value={{ items, addItem, updateQuantity, removeItem, clearCart, cartCount, serverSubtotal }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addItem,
+        updateQuantity,
+        removeItem,
+        clearCart,
+        cartCount,
+        serverSubtotal,
+        comboDiscount,
+        finalSubtotal,
+        appliedOffers,
+        potentialOffers,
+      }}
+    >
       {children}
     </CartContext.Provider>
   )
@@ -249,4 +317,3 @@ export const useCart = () => {
   if (!context) throw new Error("useCart must be used within a CartProvider")
   return context
 }
-

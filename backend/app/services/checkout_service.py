@@ -169,7 +169,7 @@ def _validate_cart_items(db: Client, items: list[dict]) -> tuple[int, list[dict]
 
     variants_res = (
         db.table('product_variants')
-        .select('id, sku, size, price, stock, is_active, products(id, name, status, gender)')
+        .select('id, sku, size, price, stock, is_active, products(id, name, status, gender, category_id, categories(id, name, slug))')
         .in_('id', unique_variant_ids)
         .execute()
     )
@@ -205,6 +205,8 @@ def _validate_cart_items(db: Client, items: list[dict]) -> tuple[int, list[dict]
         line_total = variant['price'] * requested_qty
         subtotal_paise += line_total
 
+        cat_rel = product.get('categories') or {}
+
         validated_items.append({
             "variant_id": variant_id,
             "quantity": requested_qty,
@@ -213,6 +215,8 @@ def _validate_cart_items(db: Client, items: list[dict]) -> tuple[int, list[dict]
             "sku_snapshot": variant['sku'],
             "size_snapshot": variant['size'],
             "product_gender": product.get('gender'),
+            "category_id": product.get('category_id'),
+            "category_name": cat_rel.get('name') if isinstance(cat_rel, dict) else None,
         })
 
     return subtotal_paise, validated_items
@@ -256,13 +260,20 @@ def create_order(db: Client, user_id: str | None, payload: dict) -> dict:
     # -------------------------------------------------------------------------
     subtotal_paise, validated_items = _validate_cart_items(db, items)
 
-    discount_paise = 0
+    from app.services.combo_offers_service import calculate_combo_discount_for_cart
+    combo_discount_paise, applied_combo_offers, potential_combo_offers = calculate_combo_discount_for_cart(db, validated_items)
+
+    coupon_discount_paise = 0
     free_shipping_override = False
     
     if coupon_code:
-        discount_paise, coupon = validate_coupon_for_cart(db, coupon_code, subtotal_paise, user_id, validated_items)
+        # Evaluate coupon against subtotal after combo offer
+        applicable_subtotal = max(0, subtotal_paise - combo_discount_paise)
+        coupon_discount_paise, coupon = validate_coupon_for_cart(db, coupon_code, applicable_subtotal, user_id, validated_items)
         if coupon.get('discount_type') == 'free_shipping':
             free_shipping_override = True
+
+    discount_paise = combo_discount_paise + coupon_discount_paise
 
     delivery_fee_paise = _compute_delivery_fee(db, shipping['pincode'], subtotal_paise, free_shipping_override=free_shipping_override)
     
@@ -352,6 +363,9 @@ def create_order(db: Client, user_id: str | None, payload: dict) -> dict:
         'key_id': settings.RAZORPAY_KEY_ID,  # public — safe to expose
         'order_summary': {
             'subtotal_paise': subtotal_paise,
+            'combo_discount_paise': combo_discount_paise,
+            'coupon_discount_paise': coupon_discount_paise,
+            'applied_combo_offers': applied_combo_offers,
             'delivery_fee_paise': delivery_fee_paise,
             'gst_paise': gst_paise,
             'gst_percentage': gst_percentage,

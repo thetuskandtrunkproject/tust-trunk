@@ -136,7 +136,7 @@ def resolve_variants(db: Client, ids_str: str) -> dict:
     # Select only needed fields — previously used products(*) which fetched ALL columns
     res = (
         db.table('product_variants')
-        .select('id, sku, size, price, sale_price, sale_start_date, sale_end_date, stock, is_active, products(id, name, slug, images, status)')
+        .select('id, sku, size, price, sale_price, sale_start_date, sale_end_date, stock, is_active, products(id, name, slug, images, status, category_id, categories(id, name, slug))')
         .in_('id', valid_ids)
         .execute()
     )
@@ -167,6 +167,7 @@ def resolve_variants(db: Client, ids_str: str) -> dict:
             return v.get('price', 0)
 
         active_price = get_active_price(row)
+        cat_rel = prod.get('categories') or {}
 
         items.append({
             'is_available': is_available,
@@ -183,7 +184,9 @@ def resolve_variants(db: Client, ids_str: str) -> dict:
                 'id': prod['id'],
                 'name': prod['name'],
                 'slug': prod['slug'],
-                'images': prod.get('images', [])[:2]  # Only first 2 images needed
+                'images': prod.get('images', [])[:2],  # Only first 2 images needed
+                'category_id': prod.get('category_id'),
+                'category_name': cat_rel.get('name') if isinstance(cat_rel, dict) else None
             }
         })
 

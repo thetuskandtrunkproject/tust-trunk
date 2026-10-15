@@ -19,7 +19,7 @@ export const Route = createFileRoute('/checkout')({
 
 function CheckoutPage() {
   const { buyNow, qty } = Route.useSearch()
-  const { items: cartItems, serverSubtotal: cartSubtotal } = useCart()
+  const { items: cartItems, serverSubtotal: cartSubtotal, comboDiscount, appliedOffers } = useCart()
   const { user, firebaseUser, loading } = useAuth()
   const navigate = useNavigate()
   
@@ -162,11 +162,12 @@ function CheckoutPage() {
   } else {
     deliveryFee = (subtotal >= 300000 || isFreeShipping) ? 0 : 6000
   }
-  const discountAmount = discountPaise
+  const effectiveComboDiscount = isBuyNowFlow ? 0 : (comboDiscount || 0)
+  const totalDiscount = effectiveComboDiscount + (discountPaise || 0)
   const gstPercentage = shopSettings?.gstEnabled ? Number(shopSettings.gstPercentage || 5) : 0
-  const taxableAmount = Math.max(0, subtotal - discountAmount)
+  const taxableAmount = Math.max(0, subtotal - totalDiscount)
   const gstAmount = shopSettings?.gstEnabled ? Math.round(taxableAmount * (gstPercentage / 100)) : 0
-  const totalAmount = subtotal + deliveryFee + gstAmount - discountAmount
+  const totalAmount = Math.max(0, subtotal - effectiveComboDiscount) + deliveryFee + gstAmount - (discountPaise || 0)
 
 
   const handleNextToPayment = (newContact: any, newShipping: any, newSaveDefault: boolean) => {
@@ -243,8 +244,10 @@ function CheckoutPage() {
               deliveryFee={deliveryFee} 
               items={items} 
               subtotal={subtotal} 
+              comboDiscount={effectiveComboDiscount}
+              appliedOffers={isBuyNowFlow ? [] : appliedOffers}
               couponCode={couponCode}
-              discountAmount={discountAmount}
+              discountAmount={discountPaise}
               gstAmount={gstAmount}
               gstPercentage={gstPercentage}
               onApplyCoupon={(code, discount, type) => {

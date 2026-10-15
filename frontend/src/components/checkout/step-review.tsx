@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowRight, Trash2, Plus, Minus } from 'lucide-react'
+import { ArrowRight, Trash2, Plus, Minus, Sparkles } from 'lucide-react'
 import { useCart } from '@/context/cart-context'
 import { useToast } from '@/context/toast-context'
 import { api } from '@/lib/api'
@@ -9,6 +9,8 @@ interface StepReviewProps {
   deliveryFee: number
   items: any[]
   subtotal: number
+  comboDiscount?: number
+  appliedOffers?: any[]
   couponCode?: string | null
   discountAmount?: number
   gstAmount?: number
@@ -18,7 +20,21 @@ interface StepReviewProps {
   isBuyNowFlow?: boolean
 }
 
-export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, discountAmount = 0, gstAmount = 0, gstPercentage = 0, onApplyCoupon, onRemoveCoupon, isBuyNowFlow }: StepReviewProps) {
+export function StepReview({
+  onNext,
+  deliveryFee,
+  items,
+  subtotal,
+  comboDiscount = 0,
+  appliedOffers = [],
+  couponCode,
+  discountAmount = 0,
+  gstAmount = 0,
+  gstPercentage = 0,
+  onApplyCoupon,
+  onRemoveCoupon,
+  isBuyNowFlow,
+}: StepReviewProps) {
   const { updateQuantity, removeItem } = useCart()
   const [promoInput, setPromoInput] = useState(couponCode || '')
   const [isApplying, setIsApplying] = useState(false)
@@ -57,7 +73,7 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
   // but guests should be logged in to sync and render correctly.
   const cartDetails = items.filter(item => item.product !== undefined && item.variant !== undefined)
 
-  const total = subtotal + deliveryFee + (gstAmount || 0) - discountAmount
+  const total = Math.max(0, subtotal - (comboDiscount || 0)) + deliveryFee + (gstAmount || 0) - discountAmount
 
   const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
 
@@ -66,6 +82,20 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
       <h2 className="font-heading font-bold text-4xl text-ink mb-8">Review your order</h2>
       
       <div className="bg-white border border-ink/10 rounded-[2rem] overflow-hidden mb-8 shadow-sm">
+        {/* Applied Combo Offers Notification */}
+        {appliedOffers && appliedOffers.length > 0 && (
+          <div className="bg-[#EBF7F2] border-b border-[#AEE9D1] px-6 py-4 flex flex-col gap-2">
+            {appliedOffers.map((offer, idx) => (
+              <div key={idx} className="flex items-center gap-2.5 text-[#007F5F]">
+                <Sparkles className="w-4 h-4 shrink-0 text-[#007F5F]" />
+                <span className="text-xs font-bold">
+                  {offer.description} (-{formatPrice(offer.discount_paise)})
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="p-6 lg:p-8 flex flex-col gap-6 border-b border-ink/10">
           {cartDetails.length === 0 ? (
             <p className="text-ink/60 font-medium">Your cart is empty.</p>
@@ -172,8 +202,16 @@ export function StepReview({ onNext, deliveryFee, items, subtotal, couponCode, d
           <div className="flex flex-col gap-4 text-ink/80 mb-6 pb-6 border-b border-ink/10">
             <div className="flex justify-between font-medium">
               <span>Subtotal</span>
-              <span>{formatPrice(subtotal)}</span>
+              <span className={comboDiscount > 0 ? "line-through opacity-60 text-sm" : ""}>{formatPrice(subtotal)}</span>
             </div>
+            {comboDiscount > 0 && (
+              <div className="flex justify-between font-bold text-[#007F5F]">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-[#007F5F]" /> Combo Savings
+                </span>
+                <span>-{formatPrice(comboDiscount)}</span>
+              </div>
+            )}
             <div className="flex justify-between font-medium">
               <span>Delivery</span>
               <span>{deliveryFee === 0 ? 'Free' : formatPrice(deliveryFee)}</span>

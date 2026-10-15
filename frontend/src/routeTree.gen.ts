@@ -45,6 +45,7 @@ import { Route as AdminCouponsCouponIdRouteImport } from './routes/admin.coupons
 import { Route as AdminCouponsNewRouteImport } from './routes/admin.coupons.new'
 import { Route as AdminCustomersIndexRouteImport } from './routes/admin.customers.index'
 import { Route as AdminCustomersCustomerIdRouteImport } from './routes/admin.customers.$customerId'
+import { Route as AdminOffersIndexRouteImport } from './routes/admin.offers.index'
 import { Route as AdminProductsIndexRouteImport } from './routes/admin.products.index'
 import { Route as AdminProductsProductIdRouteImport } from './routes/admin.products.$productId'
 import { Route as AdminProductsNewRouteImport } from './routes/admin.products.new'
@@ -231,6 +232,11 @@ const AdminCustomersCustomerIdRoute =
     path: '/customers/$customerId',
     getParentRoute: () => AdminRoute,
   } as any)
+const AdminOffersIndexRoute = AdminOffersIndexRouteImport.update({
+  id: '/offers/',
+  path: '/offers/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminProductsIndexRoute = AdminProductsIndexRouteImport.update({
   id: '/products/',
   path: '/products/',
@@ -291,6 +297,7 @@ export interface FileRoutesByFullPath {
   '/admin/categories/': typeof AdminCategoriesIndexRoute
   '/admin/coupons/': typeof AdminCouponsIndexRoute
   '/admin/customers/': typeof AdminCustomersIndexRoute
+  '/admin/offers/': typeof AdminOffersIndexRoute
   '/admin/products/': typeof AdminProductsIndexRoute
   '/admin/reviews/': typeof AdminReviewsIndexRoute
 }
@@ -331,6 +338,7 @@ export interface FileRoutesByTo {
   '/admin/categories': typeof AdminCategoriesIndexRoute
   '/admin/coupons': typeof AdminCouponsIndexRoute
   '/admin/customers': typeof AdminCustomersIndexRoute
+  '/admin/offers': typeof AdminOffersIndexRoute
   '/admin/products': typeof AdminProductsIndexRoute
   '/admin/reviews': typeof AdminReviewsIndexRoute
 }
@@ -374,6 +382,7 @@ export interface FileRoutesById {
   '/admin/categories/': typeof AdminCategoriesIndexRoute
   '/admin/coupons/': typeof AdminCouponsIndexRoute
   '/admin/customers/': typeof AdminCustomersIndexRoute
+  '/admin/offers/': typeof AdminOffersIndexRoute
   '/admin/products/': typeof AdminProductsIndexRoute
   '/admin/reviews/': typeof AdminReviewsIndexRoute
 }
@@ -418,6 +427,7 @@ export interface FileRouteTypes {
     | '/admin/categories/'
     | '/admin/coupons/'
     | '/admin/customers/'
+    | '/admin/offers/'
     | '/admin/products/'
     | '/admin/reviews/'
   fileRoutesByTo: FileRoutesByTo
@@ -458,6 +468,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/admin/coupons'
     | '/admin/customers'
+    | '/admin/offers'
     | '/admin/products'
     | '/admin/reviews'
   id:
@@ -500,6 +511,7 @@ export interface FileRouteTypes {
     | '/admin/categories/'
     | '/admin/coupons/'
     | '/admin/customers/'
+    | '/admin/offers/'
     | '/admin/products/'
     | '/admin/reviews/'
   fileRoutesById: FileRoutesById
@@ -781,6 +793,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCustomersCustomerIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/offers/': {
+      id: '/admin/offers/'
+      path: '/offers'
+      fullPath: '/admin/offers/'
+      preLoaderRoute: typeof AdminOffersIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/products/': {
       id: '/admin/products/'
       path: '/products'
@@ -844,6 +863,7 @@ interface AdminRouteChildren {
   AdminCategoriesIndexRoute: typeof AdminCategoriesIndexRoute
   AdminCouponsIndexRoute: typeof AdminCouponsIndexRoute
   AdminCustomersIndexRoute: typeof AdminCustomersIndexRoute
+  AdminOffersIndexRoute: typeof AdminOffersIndexRoute
   AdminProductsIndexRoute: typeof AdminProductsIndexRoute
   AdminReviewsIndexRoute: typeof AdminReviewsIndexRoute
 }
@@ -863,6 +883,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCategoriesIndexRoute: AdminCategoriesIndexRoute,
   AdminCouponsIndexRoute: AdminCouponsIndexRoute,
   AdminCustomersIndexRoute: AdminCustomersIndexRoute,
+  AdminOffersIndexRoute: AdminOffersIndexRoute,
   AdminProductsIndexRoute: AdminProductsIndexRoute,
   AdminReviewsIndexRoute: AdminReviewsIndexRoute,
 }
