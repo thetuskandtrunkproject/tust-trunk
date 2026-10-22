@@ -6,7 +6,7 @@ class ComboOfferBase(BaseModel):
     title: Optional[str] = None
     category_id: UUID4
     min_quantity: int = Field(..., ge=1, description="Minimum product quantity required to activate offer")
-    sequence_type: Literal['even', 'odd'] = Field(..., description="Quantity sequence: 'even' or 'odd'")
+    sequence_type: str = Field(default='multiple', description="Quantity sequence: 'multiple', 'table', etc.")
     discount_type: Literal['flat', 'percent'] = Field(..., description="Discount type: 'flat' (per product in paise) or 'percent'")
     discount_value: int = Field(..., gt=0, description="Discount amount in paise (flat per product) or percentage (1-100)")
     is_active: bool = Field(default=True, description="Whether offer is currently active")
@@ -24,7 +24,7 @@ class ComboOfferUpdate(BaseModel):
     title: Optional[str] = None
     category_id: Optional[UUID4] = None
     min_quantity: Optional[int] = Field(None, ge=1)
-    sequence_type: Optional[Literal['even', 'odd']] = None
+    sequence_type: Optional[str] = None
     discount_type: Optional[Literal['flat', 'percent']] = None
     discount_value: Optional[int] = Field(None, gt=0)
     is_active: Optional[bool] = None

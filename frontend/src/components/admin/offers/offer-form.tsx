@@ -39,9 +39,6 @@ export function OfferForm({
   const [minQuantity, setMinQuantity] = useState(
     initialData ? initialData.min_quantity : 4
   )
-  const [sequenceType, setSequenceType] = useState<'even' | 'odd'>(
-    initialData ? initialData.sequence_type : 'even'
-  )
   const [discountType, setDiscountType] = useState<'flat' | 'percent'>(
     initialData ? initialData.discount_type : 'flat'
   )
@@ -59,39 +56,40 @@ export function OfferForm({
 
   const selectedCategory = categories.find((c) => c.id === categoryId)
 
-  // Generate the first 5 eligible quantities in the sequence
+  // Generate the first 5 eligible quantities in the sequence (Table of minQuantity: e.g. 4, 8, 12, 16, 20...)
   const sequencePreview = useMemo(() => {
-    const list: number[] = []
-    let curr = Math.max(1, Number(minQuantity) || 1)
-    while (list.length < 5 && curr < 1000) {
-      if (sequenceType === 'even' && curr % 2 === 0) {
-        list.push(curr)
-      } else if (sequenceType === 'odd' && curr % 2 !== 0) {
-        list.push(curr)
-      }
-      curr++
-    }
-    return list
-  }, [minQuantity, sequenceType])
+    const base = Math.max(1, Number(minQuantity) || 1)
+    return [base * 1, base * 2, base * 3, base * 4, base * 5]
+  }, [minQuantity])
 
-  // Simulation table for quantities around minQuantity
+  // Simulation table for quantities around minQuantity and multiples
   const simulationRows = useMemo(() => {
     const rows = []
     const baseQty = Math.max(1, Number(minQuantity) || 1)
-    const startQty = Math.max(1, baseQty - 1)
-    const endQty = startQty + 5
+    
+    // Pick meaningful simulation sample quantities:
+    // e.g. Below min: 1, 2, 3 (if baseQty=4)
+    // First bundle: 4, 5, 6
+    // Next bundles: 8, 12, 16
+    const testQuantities = new Set<number>()
+    for (let q = 1; q < baseQty; q++) {
+      testQuantities.add(q)
+    }
+    testQuantities.add(baseQty)
+    testQuantities.add(baseQty + 1)
+    if (baseQty > 2) testQuantities.add(baseQty + 2)
+    testQuantities.add(baseQty * 2)
+    testQuantities.add(baseQty * 2 + 1)
+    testQuantities.add(baseQty * 3)
+    testQuantities.add(baseQty * 4)
+
+    const sortedQtys = Array.from(testQuantities).sort((a, b) => a - b).slice(0, 8)
     const assumedItemPrice = 200 // Assumed ₹200 per product for clear preview
 
-    for (let q = startQty; q <= endQty; q++) {
+    for (const q of sortedQtys) {
       let eligibleQty = 0
       if (q >= baseQty) {
-        if (sequenceType === 'even') {
-          const cand = q % 2 === 0 ? q : q - 1
-          if (cand >= baseQty) eligibleQty = cand
-        } else {
-          const cand = q % 2 !== 0 ? q : q - 1
-          if (cand >= baseQty) eligibleQty = cand
-        }
+        eligibleQty = Math.floor(q / baseQty) * baseQty
       }
 
       const originalTotal = q * assumedItemPrice
@@ -108,6 +106,7 @@ export function OfferForm({
 
       const finalPrice = Math.max(0, originalTotal - discountAmount)
       const remainingQty = q - eligibleQty
+      const bundleCount = Math.floor(eligibleQty / baseQty)
 
       rows.push({
         quantity: q,
@@ -116,11 +115,12 @@ export function OfferForm({
         finalPrice,
         eligibleQty,
         remainingQty,
+        bundleCount,
         isEligible: eligibleQty > 0,
       })
     }
     return rows
-  }, [minQuantity, sequenceType, discountType, discountValue])
+  }, [minQuantity, discountType, discountValue])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -129,7 +129,7 @@ export function OfferForm({
     await onSubmit({
       category_id: categoryId,
       min_quantity: Number(minQuantity) || 1,
-      sequence_type: sequenceType,
+      sequence_type: 'multiple',
       discount_type: discountType,
       discount_value: Number(discountValue) || 0,
       title: title.trim() || undefined,
@@ -166,7 +166,7 @@ export function OfferForm({
               </span>
             </div>
             <p className="text-sm text-[#6D7175] mt-1">
-              Configure dynamic category-based rules, quantity sequence parity, and automatic cart discounts.
+              Configure dynamic category-based rules, bundle table sequence (multiples), and automatic cart discounts.
             </p>
           </div>
         </div>
@@ -240,8 +240,8 @@ export function OfferForm({
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={
                   selectedCategory
-                    ? `${selectedCategory.name} Combo Offer`
-                    : 'e.g., Even Quantity Special Offer'
+                    ? `${selectedCategory.name} ${minQuantity}-Piece Combo Offer`
+                    : 'e.g., 4 Piece Combo Offer'
                 }
                 className="w-full bg-[#F4F6F8] border border-[#C9CCCF] rounded-lg px-3.5 py-2.5 text-sm text-[#202223] focus:outline-none focus:border-[#005bd3] focus:bg-white transition-colors"
               />
@@ -283,7 +283,7 @@ export function OfferForm({
               Quantity Sequence & Activation Rules
             </h2>
             <p className="text-xs text-[#6D7175] mt-0.5">
-              Set the minimum items required and whether the combo requires even or odd quantities.
+              Set the minimum items required. The combo discount automatically applies in bundle multiples following the table sequence (e.g. 4, 8, 12, 16, 20...).
             </p>
           </div>
 
@@ -302,55 +302,32 @@ export function OfferForm({
                 required
               />
               <p className="text-xs text-[#6D7175] mt-1.5">
-                The offer will only activate once the customer has at least this many items from the category.
+                Customers unlock combo discounts for each full bundle of {minQuantity} items (Table of {minQuantity}: {sequencePreview.join(', ')}...).
               </p>
             </div>
 
-            {/* Quantity Sequence */}
+            {/* Quantity Sequence Rule */}
             <div>
               <label className="block text-sm font-semibold text-[#202223] mb-1.5">
-                Quantity Sequence <span className="text-[#D82C0D]">*</span>
+                Quantity Sequence Rule
               </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setSequenceType('even')}
-                  className={`p-3 rounded-lg border text-left transition-all ${
-                    sequenceType === 'even'
-                      ? 'border-[#005bd3] bg-[#E1F3FA]/40 ring-1 ring-[#005bd3]'
-                      : 'border-[#C9CCCF] bg-white hover:bg-[#F4F6F8]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-sm text-[#202223]">Even Sequence</span>
-                    {sequenceType === 'even' && (
-                      <Check className="w-4 h-4 text-[#005bd3]" />
-                    )}
-                  </div>
-                  <p className="text-xs text-[#6D7175] mt-1">
-                    4, 6, 8, 10, 12... (even numbers)
-                  </p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSequenceType('odd')}
-                  className={`p-3 rounded-lg border text-left transition-all ${
-                    sequenceType === 'odd'
-                      ? 'border-[#005bd3] bg-[#E1F3FA]/40 ring-1 ring-[#005bd3]'
-                      : 'border-[#C9CCCF] bg-white hover:bg-[#F4F6F8]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-sm text-[#202223]">Odd Sequence</span>
-                    {sequenceType === 'odd' && (
-                      <Check className="w-4 h-4 text-[#005bd3]" />
-                    )}
-                  </div>
-                  <p className="text-xs text-[#6D7175] mt-1">
-                    5, 7, 9, 11, 13... (odd numbers)
-                  </p>
-                </button>
+              <div className="p-3.5 rounded-lg border border-[#005bd3] bg-[#E1F3FA]/40 ring-1 ring-[#005bd3]/20">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-sm text-[#202223] flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-[#005bd3]" />
+                    Table of {minQuantity} Sequence
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#007F5F] bg-[#E3F1DF] px-2.5 py-0.5 rounded-full">
+                    <Check className="w-3.5 h-3.5" />
+                    Active Rule
+                  </span>
+                </div>
+                <p className="text-xs font-bold text-[#005bd3] mt-1.5 font-mono">
+                  {sequencePreview.join(', ')}... ({minQuantity}th table sequence)
+                </p>
+                <p className="text-[11px] text-[#6D7175] mt-1">
+                  Discounts apply in bundle multiples of {minQuantity}. Excess items remain at regular price.
+                </p>
               </div>
             </div>
           </div>
@@ -363,7 +340,7 @@ export function OfferForm({
                 Calculated Eligible Quantities:
               </span>
               <span className="text-xs font-bold px-2 py-0.5 rounded bg-[#E1F3FA] text-[#005bd3] uppercase">
-                {sequenceType}
+                TABLE OF {minQuantity} ({minQuantity}th table)
               </span>
             </div>
 
@@ -380,7 +357,7 @@ export function OfferForm({
             </div>
 
             <p className="text-xs text-[#64748B] pt-1">
-              Eligible sequence items receive the combo discount automatically. Any excess items (e.g. 5th item when minimum is 4) remain at their regular original price.
+              Eligible sequence items receive the combo discount in complete bundles of {minQuantity} (e.g. {sequencePreview.join(', ')} items). Any excess items (e.g. {minQuantity + 1}th, {minQuantity + 2}th, or {minQuantity + 3}th item when minimum is {minQuantity}) remain at their regular original price.
             </p>
           </div>
         </div>
@@ -484,7 +461,7 @@ export function OfferForm({
                 Live Rule Simulation
               </h2>
               <p className="text-xs text-[#6D7175] mt-0.5">
-                Simulated cart calculation (assuming each product costs ₹200) to verify your logic:
+                Simulated cart calculation (assuming each product costs ₹200) to verify Table of {minQuantity} bundle logic:
               </p>
             </div>
           </div>
@@ -532,19 +509,19 @@ export function OfferForm({
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E3F1DF] text-[#007F5F] w-fit">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             {row.remainingQty === 0
-                              ? `All ${row.quantity} in Combo`
-                              : `${row.eligibleQty} in Combo`}
+                              ? `All ${row.quantity} in Combo (${row.bundleCount} ${row.bundleCount === 1 ? 'bundle' : 'bundles'})`
+                              : `${row.eligibleQty} in Combo (${row.bundleCount} ${row.bundleCount === 1 ? 'bundle' : 'bundles'})`}
                           </span>
                           {row.remainingQty > 0 && (
                             <span className="text-[11px] text-[#6D7175] mt-0.5 font-medium">
-                              + {row.remainingQty} item at regular price
+                              + {row.remainingQty} item{row.remainingQty > 1 ? 's' : ''} at regular price
                             </span>
                           )}
                         </div>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#F4F6F8] text-[#8C9196]">
                           <XCircle className="w-3.5 h-3.5" />
-                          Below min ({minQuantity})
+                          Below min ({minQuantity}) • Need {minQuantity - row.quantity} more
                         </span>
                       )}
                     </td>

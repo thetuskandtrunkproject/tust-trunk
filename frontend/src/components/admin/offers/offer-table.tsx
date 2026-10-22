@@ -23,15 +23,9 @@ export function OfferTable({ offers, onToggleStatus, onEdit, onDelete }: OfferTa
     return `${offer.discount_value}% off`
   }
 
-  const formatSequencePreview = (minQty: number, seq: string) => {
-    const isEven = seq === 'even'
-    let start = minQty
-    // First number matching parity >= minQty
-    while (isEven ? start % 2 !== 0 : start % 2 === 0) {
-      start++
-    }
-    const samples = [start, start + 2, start + 4]
-    return `${seq.toUpperCase()} (${samples.join(', ')}...)`
+  const formatSequencePreview = (minQty: number) => {
+    const base = Math.max(1, minQty)
+    return `${base}, ${base * 2}, ${base * 3}, ${base * 4}...`
   }
 
   return (
@@ -49,7 +43,6 @@ export function OfferTable({ offers, onToggleStatus, onEdit, onDelete }: OfferTa
         </thead>
         <tbody className="divide-y divide-[#E3E3E3]">
           {offers.map((offer) => {
-            const isEven = offer.sequence_type === 'even'
             return (
               <tr key={offer.id} className="hover:bg-[#F9FAFB] transition-colors">
                 {/* Offer Details */}
@@ -59,7 +52,7 @@ export function OfferTable({ offers, onToggleStatus, onEdit, onDelete }: OfferTa
                       {offer.title || `${offer.category_name || 'Category'} Combo`}
                     </span>
                     <p className="text-[12px] text-[#6D7175] mt-0.5">
-                      Min {offer.min_quantity} products required
+                      Min {offer.min_quantity} products required • Multiples of {offer.min_quantity}
                     </p>
                   </div>
                 </AdminTd>
@@ -74,17 +67,11 @@ export function OfferTable({ offers, onToggleStatus, onEdit, onDelete }: OfferTa
                 {/* Sequence */}
                 <AdminTd>
                   <div className="flex flex-col gap-1">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider w-fit ${
-                        isEven
-                          ? 'bg-[#EBF3FC] text-[#1E56A0]'
-                          : 'bg-[#FDF2E9] text-[#B85D19]'
-                      }`}
-                    >
-                      {offer.sequence_type} sequence
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider w-fit bg-[#EBF3FC] text-[#1E56A0]">
+                      Table of {offer.min_quantity}
                     </span>
                     <span className="text-[12px] font-mono text-[#5C5F62]">
-                      {formatSequencePreview(offer.min_quantity, offer.sequence_type)}
+                      {formatSequencePreview(offer.min_quantity)}
                     </span>
                   </div>
                 </AdminTd>

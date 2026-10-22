@@ -121,8 +121,7 @@ def create_combo_offer(db: Client, data: dict) -> dict:
     # Auto-generate title if missing
     if not data.get('title'):
         disc_text = f"₹{data['discount_value'] // 100} off/item" if data['discount_type'] == 'flat' else f"{data['discount_value']}% off"
-        seq_text = data['sequence_type'].capitalize()
-        data['title'] = f"{category['name']} Combo ({seq_text} from {data['min_quantity']}): {disc_text}"
+        data['title'] = f"{category['name']} Combo (Table of {data['min_quantity']}): {disc_text}"
 
     now_iso = datetime.now(timezone.utc).isoformat()
     record = {
@@ -130,7 +129,7 @@ def create_combo_offer(db: Client, data: dict) -> dict:
         'title': data.get('title'),
         'category_id': cat_id,
         'min_quantity': int(data['min_quantity']),
-        'sequence_type': data['sequence_type'],
+        'sequence_type': data.get('sequence_type') or 'multiple',
         'discount_type': data['discount_type'],
         'discount_value': int(data['discount_value']),
         'is_active': bool(data.get('is_active', True)),
@@ -142,7 +141,24 @@ def create_combo_offer(db: Client, data: dict) -> dict:
         res = db.table(COMBO_OFFERS_TABLE).insert(record).execute()
         created = res.data[0] if res.data else record
     except Exception as e:
-        if _is_table_not_found(e):
+        err_msg = str(e).lower()
+        if "sequence_type" in err_msg or "check constraint" in err_msg or "violates check" in err_msg:
+            logger.warning("DB check constraint hit on sequence_type; retrying insert with legacy 'even': %s", e)
+            fallback_rec = dict(record)
+            fallback_rec['sequence_type'] = 'even'
+            try:
+                res = db.table(COMBO_OFFERS_TABLE).insert(fallback_rec).execute()
+                created = res.data[0] if res.data else fallback_rec
+            except Exception as e2:
+                if _is_table_not_found(e2):
+                    offers = _get_site_settings_offers(db)
+                    offers.insert(0, record)
+                    _save_site_settings_offers(db, offers)
+                    created = record
+                else:
+                    logger.error(f"Failed to create combo offer after fallback: {e2}")
+                    raise HTTPException(status_code=500, detail="Failed to create combo offer")
+        elif _is_table_not_found(e):
             logger.info("combo_offers table not found, saving to site_settings")
             offers = _get_site_settings_offers(db)
             offers.insert(0, record)
@@ -176,7 +192,30 @@ def update_combo_offer(db: Client, offer_id: str, data: dict) -> dict:
     except Exception as e:
         if isinstance(e, HTTPException):
             raise e
-        if _is_table_not_found(e):
+        err_msg = str(e).lower()
+        if ("sequence_type" in err_msg or "check constraint" in err_msg or "violates check" in err_msg) and 'sequence_type' in data:
+            fallback_data = dict(data)
+            fallback_data['sequence_type'] = 'even'
+            try:
+                res = db.table(COMBO_OFFERS_TABLE).update(fallback_data).eq('id', offer_id).execute()
+                if not res.data:
+                    raise HTTPException(status_code=404, detail="Combo offer not found")
+                updated = res.data[0]
+            except Exception as e2:
+                if isinstance(e2, HTTPException):
+                    raise e2
+                if _is_table_not_found(e2):
+                    offers = _get_site_settings_offers(db)
+                    idx = next((i for i, o in enumerate(offers) if str(o.get('id')) == str(offer_id)), -1)
+                    if idx == -1:
+                        raise HTTPException(status_code=404, detail="Combo offer not found")
+                    offers[idx].update(data)
+                    _save_site_settings_offers(db, offers)
+                    updated = offers[idx]
+                else:
+                    logger.error(f"Failed to update combo offer after fallback: {e2}")
+                    raise HTTPException(status_code=500, detail="Failed to update combo offer")
+        elif _is_table_not_found(e):
             offers = _get_site_settings_offers(db)
             idx = next((i for i, o in enumerate(offers) if str(o.get('id')) == str(offer_id)), -1)
             if idx == -1:
@@ -219,59 +258,44 @@ def get_active_combo_offers(db: Client) -> List[dict]:
     all_offers = list_combo_offers(db)
     return [o for o in all_offers if o.get('is_active') is True]
 
-def get_eligible_quantity(quantity: int, min_quantity: int, sequence_type: str) -> int:
+def get_eligible_quantity(quantity: int, min_quantity: int, sequence_type: str = 'multiple') -> int:
     """
     Given total products in a category, returns how many of them qualify for the combo discount.
     Rules:
-    - If quantity < min_quantity: 0 qualify (below minimum threshold).
-    - If sequence_type == 'even':
-        The largest even number <= quantity that is >= min_quantity.
-        E.g. min 4, even:
-          qty 3 -> 0
-          qty 4 -> 4 (all 4 at combo price)
-          qty 5 -> 4 (4 at combo price, 1 at original price)
-          qty 6 -> 6 (all 6 at combo price)
-          qty 7 -> 6 (6 at combo price, 1 at original price)
-    - If sequence_type == 'odd':
-        The largest odd number <= quantity that is >= min_quantity.
-        E.g. min 5, odd:
-          qty 4 -> 0
-          qty 5 -> 5 (all 5 at combo price)
-          qty 6 -> 5 (5 at combo price, 1 at original price)
-          qty 7 -> 7 (all 7 at combo price)
-          qty 8 -> 7 (7 at combo price, 1 at original price)
+    - Combo applies in full bundle multiples of min_quantity (Table Sequence):
+      e.g. min 4 (4th table sequence: 4, 8, 12, 16, 20...):
+        qty 1-3  -> 0 (below min bundle)
+        qty 4    -> 4 (all 4 at combo price: 1 bundle)
+        qty 5-7  -> 4 (4 at combo price, 1-3 items at regular price)
+        qty 8    -> 8 (all 8 at combo price: 2 bundles)
+        qty 9-11 -> 8 (8 at combo price, 1-3 items at regular price)
+        qty 12   -> 12 (all 12 at combo price: 3 bundles)
     """
-    if quantity < min_quantity:
+    if quantity < min_quantity or min_quantity <= 0:
         return 0
-    if sequence_type == 'even':
-        candidate = quantity if (quantity % 2 == 0) else (quantity - 1)
-    else: # 'odd'
-        candidate = quantity if (quantity % 2 != 0) else (quantity - 1)
+    return (quantity // min_quantity) * min_quantity
 
-    if candidate >= min_quantity:
-        return candidate
-    return 0
-
-def check_sequence_eligibility(quantity: int, min_quantity: int, sequence_type: str) -> bool:
+def check_sequence_eligibility(quantity: int, min_quantity: int, sequence_type: str = 'multiple') -> bool:
     """Helper to check if all items in quantity are fully aligned with the sequence."""
-    return get_eligible_quantity(quantity, min_quantity, sequence_type) == quantity
+    return quantity >= min_quantity and min_quantity > 0 and (quantity % min_quantity == 0)
 
-def calculate_next_target(quantity: int, min_quantity: int, sequence_type: str) -> Tuple[int, int]:
+def calculate_next_target(quantity: int, min_quantity: int, sequence_type: str = 'multiple') -> Tuple[int, int]:
     """
-    Calculates the next higher target quantity in the sequence and how many more items are needed.
+    Calculates the next higher target quantity in the table sequence and how many more items are needed.
     Returns: (needed_quantity, target_quantity)
     """
-    candidate = max(min_quantity, quantity + 1)
-    while True:
-        if sequence_type == 'even' and (candidate % 2 == 0):
-            break
-        elif sequence_type == 'odd' and (candidate % 2 != 0):
-            break
-        candidate += 1
-    needed = max(1, candidate - quantity)
-    return needed, candidate
+    if min_quantity <= 0:
+        min_quantity = 1
+    if quantity < min_quantity:
+        target = min_quantity
+        needed = min_quantity - quantity
+    else:
+        bundles = quantity // min_quantity
+        target = (bundles + 1) * min_quantity
+        needed = target - quantity
+    return max(1, needed), target
 
-def calculate_next_eligible_quantity(quantity: int, min_quantity: int, sequence_type: str) -> int:
+def calculate_next_eligible_quantity(quantity: int, min_quantity: int, sequence_type: str = 'multiple') -> int:
     """Returns how many more items are needed to reach the next sequence threshold."""
     needed, _ = calculate_next_target(quantity, min_quantity, sequence_type)
     return needed
@@ -373,11 +397,13 @@ def calculate_combo_discount_for_cart(db: Client, items: List[dict]) -> Tuple[in
                 disc_desc = f"{disc_val}% off"
 
             extra_qty = total_cat_qty - eligible_qty
+            bundles_count = eligible_qty // min_qty
+            bundle_label = "bundle" if bundles_count == 1 else "bundles"
             if extra_qty > 0:
                 item_word = "item" if extra_qty == 1 else "items"
-                desc = f"Combo Offer ({disc_desc}) applied to {eligible_qty} of {total_cat_qty} {cat_name} items (+ {extra_qty} {item_word} at original price)"
+                desc = f"Combo Offer ({disc_desc}) applied to {eligible_qty} of {total_cat_qty} {cat_name} items ({bundles_count} {bundle_label}, + {extra_qty} {item_word} at regular price)"
             else:
-                desc = f"Combo Offer ({disc_desc}) applied on {eligible_qty} {cat_name} items"
+                desc = f"Combo Offer ({disc_desc}) applied on {eligible_qty} {cat_name} items ({bundles_count} {bundle_label})"
 
             applied_offers.append({
                 'offer_id': str(offer['id']),
@@ -395,11 +421,12 @@ def calculate_combo_discount_for_cart(db: Client, items: List[dict]) -> Tuple[in
 
             # Calculate next tier encouragement
             needed, target = calculate_next_target(total_cat_qty, min_qty, seq_type)
+            next_bundles = target // min_qty
             if disc_type == 'flat':
                 benefit = f"₹{disc_val // 100} off per item"
             else:
                 benefit = f"{disc_val}% off"
-            msg = f"Add {needed} more {cat_name} item{'s' if needed > 1 else ''} to reach {target} and get {benefit} on all {target} items!"
+            msg = f"Add {needed} more {cat_name} item{'s' if needed > 1 else ''} to complete {next_bundles} combo bundles ({target} items) and get {benefit}!"
             potential_offers.append({
                 'category_id': cat_id,
                 'category_name': cat_name,
@@ -416,7 +443,7 @@ def calculate_combo_discount_for_cart(db: Client, items: List[dict]) -> Tuple[in
             else:
                 benefit = f"{disc_val}% off"
 
-            msg = f"Add {needed} more {cat_name} item{'s' if needed > 1 else ''} to reach {target} and get {benefit}!"
+            msg = f"Add {needed} more {cat_name} item{'s' if needed > 1 else ''} to reach {target} items (bundle of {target}) and unlock {benefit}!"
             potential_offers.append({
                 'category_id': cat_id,
                 'category_name': cat_name,

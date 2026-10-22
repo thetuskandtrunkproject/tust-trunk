@@ -7,7 +7,7 @@ export interface ComboOffer {
   category_name?: string
   category_slug?: string
   min_quantity: number
-  sequence_type: 'even' | 'odd'
+  sequence_type: string
   discount_type: 'flat' | 'percent'
   discount_value: number // In paise for flat (₹ = value / 100), or percent (1-100)
   is_active: boolean
@@ -19,7 +19,7 @@ export interface ComboOfferFormData {
   title?: string
   category_id: string
   min_quantity: number
-  sequence_type: 'even' | 'odd'
+  sequence_type?: string
   discount_type: 'flat' | 'percent'
   discount_value: number // in Rupees for flat input, or % (1-100)
   is_active: boolean
@@ -70,6 +70,7 @@ export async function createAdminOffer(data: ComboOfferFormData): Promise<ComboO
   // Convert flat discount rupees to paise for backend
   const payload = {
     ...data,
+    sequence_type: data.sequence_type || 'multiple',
     discount_value: data.discount_type === 'flat' ? Math.round(data.discount_value * 100) : data.discount_value,
   }
   const res = await api.post('/api/v1/admin/combo-offers', payload)
