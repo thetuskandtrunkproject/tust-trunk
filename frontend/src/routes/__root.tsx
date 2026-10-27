@@ -33,6 +33,13 @@ function RootComponent() {
     }
   }, [isExempt])
 
+  // Track page views in Meta Pixel on route changes for storefront visitors
+  useEffect(() => {
+    if (!isAdmin && typeof window !== 'undefined' && typeof (window as any).fbq === 'function') {
+      ;(window as any).fbq('track', 'PageView')
+    }
+  }, [location.pathname, isAdmin])
+
   // Show maintenance page for storefront visitors (except /admin and /login)
   if (!isExempt && maintenance?.enabled) {
     return <MaintenancePage message={maintenance.message} timerEnd={maintenance.timerEnd} />
