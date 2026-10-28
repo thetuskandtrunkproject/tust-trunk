@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect } from 'react'
 import { useCart } from '@/context/cart-context'
 import { api } from '@/lib/api'
 import { StepReview } from '@/components/checkout/step-review'
@@ -170,13 +170,36 @@ function CheckoutPage() {
   const totalAmount = Math.max(0, subtotal - effectiveComboDiscount) + deliveryFee + gstAmount - (discountPaise || 0)
 
 
+  // Ensure page always starts at top and resets scroll on step changes to prevent footer clamping on mobile
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+  }, [currentStep])
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    const raf = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    })
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    }, 60)
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(timer)
+    }
+  }, [currentStep])
+
   const handleNextToPayment = (newContact: any, newShipping: any, newSaveDefault: boolean) => {
     setContact(newContact)
     setShipping(newShipping)
     setSaveDefault(newSaveDefault)
     setCurrentStep(2)
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
   }
-  const handleBackToDetails = () => setCurrentStep(1)
+  const handleBackToDetails = () => {
+    setCurrentStep(1)
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }
 
   if (isLoadingBuyNow) {
     return <div className="min-h-screen bg-cloud pt-24 text-center">Loading checkout...</div>
@@ -193,7 +216,10 @@ function CheckoutPage() {
           <div className="absolute top-1/2 left-0 w-full h-1 bg-ink/10 -z-10 -translate-y-1/2 rounded-full"></div>
           <div className="absolute top-1/2 left-0 h-1 bg-coral transition-all duration-500 -z-10 -translate-y-1/2 rounded-full" style={{ width: currentStep === 1 ? '50%' : '100%' }}></div>
           
-          <div className="flex flex-col items-center gap-2 bg-cloud px-2">
+          <div 
+            onClick={() => currentStep === 2 && handleBackToDetails()}
+            className={`flex flex-col items-center gap-2 bg-cloud px-2 ${currentStep === 2 ? 'cursor-pointer hover:opacity-80' : ''}`}
+          >
             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-500 shadow-sm ${currentStep >= 1 ? 'bg-cta text-white scale-110' : 'bg-ink/10 text-ink/40'}`}>1</div>
             <span className={`text-xs font-bold uppercase tracking-widest transition-colors ${currentStep >= 1 ? 'text-cta' : 'text-ink/40'}`}>Details</span>
           </div>
@@ -206,12 +232,13 @@ function CheckoutPage() {
         {/* Wizard Content */}
         <div className="flex flex-col lg:flex-row gap-8">
           
-          <div className="flex-1 overflow-hidden order-2 lg:order-1">
+          {/* On mobile: In Step 2 (Payment), place Payment card on top (order-1) so user immediately sees Pay with Razorpay button */}
+          <div className={`flex-1 overflow-hidden ${currentStep === 2 ? 'order-1' : 'order-2'} lg:order-1`}>
             {currentStep === 1 && (
               <div className="animate-in slide-in-from-right fade-in duration-500 ease-out fill-mode-both">
                 <StepDetails 
                   onNext={handleNextToPayment} 
-                  onBack={() => {}} // No back button on details step
+                  onBack={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   initialContact={contact}
                   initialShipping={shipping}
                   initialSaveDefault={saveDefault}
@@ -238,7 +265,7 @@ function CheckoutPage() {
             )}
           </div>
 
-          <div className="w-full lg:w-[450px] shrink-0 order-1 lg:order-2">
+          <div className={`w-full lg:w-[450px] shrink-0 ${currentStep === 2 ? 'order-2' : 'order-1'} lg:order-2`}>
             <StepReview 
               onNext={() => {}} 
               deliveryFee={deliveryFee} 
