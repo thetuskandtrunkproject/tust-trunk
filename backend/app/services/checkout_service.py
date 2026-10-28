@@ -2,6 +2,7 @@ import hmac
 import hashlib
 import logging
 import uuid
+from datetime import datetime, timezone
 import requests as http_requests
 
 from fastapi import HTTPException
@@ -169,12 +170,36 @@ def _validate_cart_items(db: Client, items: list[dict]) -> tuple[int, list[dict]
 
     variants_res = (
         db.table('product_variants')
-        .select('id, sku, size, price, stock, is_active, products(id, name, status, gender, category_id, categories(id, name, slug))')
+        .select('id, sku, size, price, sale_price, sale_start_date, sale_end_date, stock, is_active, products(id, name, status, gender, category_id, categories(id, name, slug))')
         .in_('id', unique_variant_ids)
         .execute()
     )
 
     variants_by_id: dict[str, dict] = {v['id']: v for v in (variants_res.data or [])}
+
+    now = datetime.now(timezone.utc)
+
+    def _parse_dt(dt_val):
+        if dt_val is None:
+            return None
+        if isinstance(dt_val, datetime):
+            return dt_val if dt_val.tzinfo else dt_val.replace(tzinfo=timezone.utc)
+        if isinstance(dt_val, str):
+            try:
+                return datetime.fromisoformat(dt_val.replace('Z', '+00:00'))
+            except (ValueError, TypeError):
+                return None
+        return None
+
+    def _get_active_price(v: dict) -> int:
+        if v.get('sale_price'):
+            start = _parse_dt(v.get('sale_start_date'))
+            end = _parse_dt(v.get('sale_end_date'))
+            started = not start or now >= start
+            not_ended = not end or now <= end
+            if started and not_ended:
+                return v['sale_price']
+        return v.get('price', 0)
 
     validated_items = []
     subtotal_paise = 0
@@ -202,7 +227,8 @@ def _validate_cart_items(db: Client, items: list[dict]) -> tuple[int, list[dict]
                 )
             )
 
-        line_total = variant['price'] * requested_qty
+        effective_price = _get_active_price(variant)
+        line_total = effective_price * requested_qty
         subtotal_paise += line_total
 
         cat_rel = product.get('categories') or {}
@@ -210,7 +236,7 @@ def _validate_cart_items(db: Client, items: list[dict]) -> tuple[int, list[dict]
         validated_items.append({
             "variant_id": variant_id,
             "quantity": requested_qty,
-            "price_paise": variant['price'],
+            "price_paise": effective_price,
             "product_name_snapshot": product['name'],
             "sku_snapshot": variant['sku'],
             "size_snapshot": variant['size'],

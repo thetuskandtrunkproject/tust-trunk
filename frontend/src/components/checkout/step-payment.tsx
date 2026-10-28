@@ -167,7 +167,16 @@ export function StepPayment({ onBack, contact, shipping, totalAmount, items, isB
     setIsResending(false)
   }
 
-  const formatPrice = (price?: number) => ((price ?? 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
+  const formatPrice = (price?: number) => {
+    const val = (price ?? 0) / 100
+    const hasDecimals = (price ?? 0) % 100 !== 0
+    return val.toLocaleString('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: hasDecimals ? 2 : 0,
+      maximumFractionDigits: 2,
+    })
+  }
 
   return (
     <div>
