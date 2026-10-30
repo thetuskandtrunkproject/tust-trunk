@@ -1,5 +1,5 @@
 import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
 import { MaintenancePage } from '@/components/site/maintenance-page'
@@ -12,6 +12,11 @@ function RootComponent() {
   const isAdmin = location.pathname.startsWith('/admin')
   const isExempt = isAdmin || location.pathname === '/login' || user?.role === 'admin' || user?.role === 'owner'
   const [maintenance, setMaintenance] = useState<{ enabled: boolean; message: string; timerEnd: string } | null>(null)
+
+  // Track page views in Meta Pixel on client-side route changes.
+  // We initialize prevPathnameRef to the initial location.pathname so that
+  // the initial page load (which is already tracked by index.html) does not trigger a duplicate PageView.
+  const prevPathnameRef = useRef<string>(location.pathname)
 
   useEffect(() => {
     // Only check maintenance for non-exempt pages.
@@ -33,12 +38,15 @@ function RootComponent() {
     }
   }, [isExempt])
 
-  // Track page views in Meta Pixel on route changes for storefront visitors
+  // Track page views in Meta Pixel on SPA route changes without duplicate initial events
   useEffect(() => {
-    if (!isAdmin && typeof window !== 'undefined' && typeof (window as any).fbq === 'function') {
-      ;(window as any).fbq('track', 'PageView')
+    if (prevPathnameRef.current !== location.pathname) {
+      prevPathnameRef.current = location.pathname
+      if (typeof window !== 'undefined' && typeof (window as any).fbq === 'function') {
+        ;(window as any).fbq('track', 'PageView')
+      }
     }
-  }, [location.pathname, isAdmin])
+  }, [location.pathname])
 
   // Show maintenance page for storefront visitors (except /admin and /login)
   if (!isExempt && maintenance?.enabled) {
