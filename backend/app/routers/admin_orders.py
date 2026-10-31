@@ -7,7 +7,12 @@ from supabase import Client
 
 from app.core.database import get_db_client
 from app.dependencies.auth import get_current_admin
-from app.schemas.orders import AdminOrdersListResponse, AdminOrderResponse, UpdateOrderStatusRequest
+from app.schemas.orders import (
+    AdminOrdersListResponse,
+    AdminOrderResponse,
+    UpdateOrderStatusRequest,
+    BulkDeleteOrdersRequest
+)
 from app.services import orders_service
 
 logger = logging.getLogger(__name__)
@@ -65,3 +70,25 @@ def update_order_status(
 ):
     """Update order status for admin."""
     return orders_service.update_admin_order_status(db, order_id, payload.status, payload.tracking_number)
+
+@router.delete("/{order_id}")
+@admin_orders_limiter.limit("30/minute")
+def delete_order(
+    request: Request,
+    order_id: str,
+    current_admin: dict = Depends(get_and_attach_admin),
+    db: Client = Depends(get_db_client)
+):
+    """Delete single order by ID for admin."""
+    return orders_service.delete_admin_order(db, order_id)
+
+@router.post("/bulk/delete")
+@admin_orders_limiter.limit("20/minute")
+def bulk_delete_orders(
+    request: Request,
+    payload: BulkDeleteOrdersRequest,
+    current_admin: dict = Depends(get_and_attach_admin),
+    db: Client = Depends(get_db_client)
+):
+    """Bulk delete orders by IDs for admin."""
+    return orders_service.bulk_delete_admin_orders(db, payload.order_ids)

@@ -35,10 +35,11 @@ export function BrandIntroLoader({ onMatchCut, onComplete }: BrandIntroLoaderPro
       overlayRef.current.style.display = 'none'
       overlayRef.current.style.pointerEvents = 'none'
     }
-    // Ensure tag logo in hero is visible if not already
-    const tagLogo = document.querySelector('[data-brand-tag-logo]') as HTMLElement
-    if (tagLogo) {
-      gsap.set(tagLogo, { visibility: 'visible', opacity: 1 })
+    // Ensure navbar logo is visible
+    const navLogo = (document.querySelector('[data-navbar-logo="true"]') ||
+      document.querySelector('header img[alt="The Tusk & Trunk"]')) as HTMLElement | null
+    if (navLogo) {
+      gsap.set(navLogo, { visibility: 'visible', opacity: 1 })
     }
     onComplete?.()
   }, [onComplete])
@@ -118,6 +119,15 @@ export function BrandIntroLoader({ onMatchCut, onComplete }: BrandIntroLoaderPro
     gsap.set(wrapper, { x: 0, y: 0, scale: 1 })
     gsap.set(logo, { scale: 0.85, opacity: 0, transformOrigin: 'center center' })
 
+    const findNavbarLogo = () => (document.querySelector('[data-navbar-logo="true"]') ||
+      document.querySelector('header img[alt="The Tusk & Trunk"]') ||
+      document.querySelector('header img')) as HTMLElement | null
+
+    const initialNavLogo = findNavbarLogo()
+    if (initialNavLogo) {
+      gsap.set(initialNavLogo, { opacity: 0, visibility: 'hidden' })
+    }
+
     const tl = gsap.timeline()
     masterTlRef.current = tl
 
@@ -161,16 +171,8 @@ export function BrandIntroLoader({ onMatchCut, onComplete }: BrandIntroLoaderPro
         if (isCancelled || isSkippedRef.current) return
       }
 
-      // Measure landing coordinates from live hero DOM
-      let targetLogo = document.querySelector('[data-brand-tag-logo]') as HTMLElement
-      let tagParent = targetLogo?.closest('.hero-intro-tag') as HTMLElement | null
-
-      // On mobile where hero-intro-tag is hidden, land smoothly on the header logo!
-      if (!targetLogo || targetLogo.getBoundingClientRect().width === 0) {
-        targetLogo = document.querySelector('header img[alt="The Tusk & Trunk"]') as HTMLElement
-        tagParent = null
-      }
-
+      // Target is always the navbar logo
+      const targetLogo = findNavbarLogo()
       const cloneLogo = logoRef.current
       const currentOverlay = overlayRef.current
 
@@ -188,20 +190,15 @@ export function BrandIntroLoader({ onMatchCut, onComplete }: BrandIntroLoaderPro
         return
       }
 
-      // Account for any initial CSS or GSAP transforms on the tag container to get the true rest target
-      const tagOffsetY = tagParent ? ((gsap.getProperty(tagParent, 'y') as number) || 0) : 0
-      const tagOffsetX = tagParent ? ((gsap.getProperty(tagParent, 'x') as number) || 0) : 0
-
-      const targetCenterX = (tagRect.left - tagOffsetX) + tagRect.width / 2
-      const targetCenterY = (tagRect.top - tagOffsetY) + tagRect.height / 2
+      const targetCenterX = tagRect.left + tagRect.width / 2
+      const targetCenterY = tagRect.top + tagRect.height / 2
 
       const dx = targetCenterX - (cloneRect.left + cloneRect.width / 2)
       const dy = targetCenterY - (cloneRect.top + cloneRect.height / 2)
       const scaleTarget = tagRect.width / cloneRect.width
 
       // At 1.6s, match cut begins:
-      // The overlay background clears so the hero (which has identical background gradient on its left panel)
-      // is revealed around the travelling logo.
+      // The overlay background clears so the hero and navbar are revealed around the travelling logo.
       currentOverlay.style.background = 'transparent'
       currentOverlay.style.pointerEvents = 'none'
 
@@ -232,7 +229,7 @@ export function BrandIntroLoader({ onMatchCut, onComplete }: BrandIntroLoaderPro
       // Trigger hero reveal around travelling logo
       onMatchCut?.()
 
-      // === PHASE 3: THE MATCH CUT (1.6s – 2.4s, 0.8s continuous travel) ===
+      // === PHASE 3: THE MATCH CUT (1.6s – 2.4s, 0.8s continuous travel to navbar logo) ===
       gsap.to(cloneLogo, {
         x: dx,
         y: dy,
@@ -242,11 +239,11 @@ export function BrandIntroLoader({ onMatchCut, onComplete }: BrandIntroLoaderPro
         onComplete: () => {
           if (isCancelled || isSkippedRef.current) return
           // === LANDING FRAME HANDOFF (2.4s) ===
-          // Single-frame instantaneous handoff: hide loader clone, show tag's real logo
+          // Single-frame instantaneous handoff: hide loader clone, show navbar's real logo
           gsap.set(cloneLogo, { visibility: 'hidden' })
           gsap.set(targetLogo, { visibility: 'visible', opacity: 1 })
 
-          // Hide overlay (backdrop gradient matched hero left panel, so no flash)
+          // Hide overlay
           gsap.set(currentOverlay, { visibility: 'hidden', display: 'none', pointerEvents: 'none' })
           document.body.style.overflow = ''
           sessionStorage.setItem('tusk_intro_seen', 'true')
@@ -262,6 +259,10 @@ export function BrandIntroLoader({ onMatchCut, onComplete }: BrandIntroLoaderPro
       if (overlay) overlay.removeEventListener('click', handleClick)
       if (masterTlRef.current) masterTlRef.current.kill()
       if (logoRef.current) gsap.killTweensOf(logoRef.current)
+      const navLogo = findNavbarLogo()
+      if (navLogo) {
+        gsap.set(navLogo, { visibility: 'visible', opacity: 1 })
+      }
     }
   }, [finish, onMatchCut, onComplete, skip])
 

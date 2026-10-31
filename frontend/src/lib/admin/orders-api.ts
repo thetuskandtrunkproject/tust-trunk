@@ -25,6 +25,7 @@ export interface AdminOrderItem {
   gst_paise?: number
   total_paise: number
   items?: OrderItemDetail[]
+  shipping_address?: any
 }
 
 export interface AdminOrdersListResponse {
@@ -42,5 +43,15 @@ export async function fetchAdminOrders(startDate?: string, endDate?: string): Pr
   if (endDate) params.append('end_date', endDate)
   
   const res = await api.get(`/api/v1/admin/orders?${params.toString()}`)
+  return res.data
+}
+
+export async function deleteAdminOrder(orderId: string): Promise<any> {
+  const res = await api.delete(`/api/v1/admin/orders/${orderId}`)
+  return res.data
+}
+
+export async function bulkDeleteAdminOrders(orderIds: string[]): Promise<any> {
+  const res = await api.post('/api/v1/admin/orders/bulk/delete', { order_ids: orderIds })
   return res.data
 }

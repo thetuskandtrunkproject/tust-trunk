@@ -90,7 +90,12 @@ export function SiteHeader() {
             {/* Logo (Left on Desktop, Center on Mobile) */}
             <div className="flex justify-center lg:justify-start flex-1 lg:flex-none">
               <Link to="/" className="group transition-transform hover:scale-105 flex items-center gap-1 md:gap-2">
-                <img src={logo} alt="The Tusk & Trunk" className="h-12 md:h-16 lg:h-20 w-auto object-contain mix-blend-multiply" />
+                <img 
+                  data-navbar-logo="true"
+                  src={logo} 
+                  alt="The Tusk & Trunk" 
+                  className="h-12 md:h-16 lg:h-20 w-auto object-contain mix-blend-multiply" 
+                />
               </Link>
             </div>
 

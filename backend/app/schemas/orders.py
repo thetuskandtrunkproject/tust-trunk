@@ -65,3 +65,5 @@ class UpdateOrderStatusRequest(BaseModel):
     )
     tracking_number: Optional[str] = Field(None, description="ST Courier tracking number when status is Shipped")
 
+class BulkDeleteOrdersRequest(BaseModel):
+    order_ids: List[str] = Field(..., description="List of order UUIDs to delete")

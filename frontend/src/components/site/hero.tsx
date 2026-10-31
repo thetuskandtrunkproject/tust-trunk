@@ -3,7 +3,6 @@ import { Link } from '@tanstack/react-router'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ChevronLeft, ChevronRight, ArrowRight, Sparkles, Heart, ShieldCheck, Truck, Star } from 'lucide-react'
-import { BrandLogo } from './brand-logo'
 import { api } from '@/lib/api'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -129,15 +128,7 @@ export function Hero({ initialData, isIntroActive = false, registerMatchCutTrigg
         ease: 'power3.inOut',
       }, 0)
 
-      // 2. Hanging tag drops down from above and reaches rest exactly as logo lands (0.8s, power3.out)
-      tl.to('.hero-intro-tag', {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: 'power3.out',
-      }, 0)
-
-      // 3. Headline lines rise in (0.7s, stagger, power3.out)
+      // 2. Headline lines rise in (0.7s, stagger, power3.out)
       tl.to('.hero-headline-line', {
         opacity: 1,
         y: 0,
@@ -189,17 +180,11 @@ export function Hero({ initialData, isIntroActive = false, registerMatchCutTrigg
       // Headlines, CTA, trust chips hidden
       gsap.set('.hero-headline-line', { opacity: 0, y: 32 })
       gsap.set('.hero-intro-cta, .hero-intro-chips', { opacity: 0, y: 20 })
-      // Tag drops from above
-      gsap.set('.hero-intro-tag', { opacity: 0, y: -40 })
-      // Tag logo invisible until landing handoff frame
-      gsap.set('[data-brand-tag-logo]', { opacity: 0, visibility: 'hidden' })
       gsap.set('.hero-parallax-img', { scale: 1.15 })
     } else {
       // Normal state when intro is finished or subsequent visits
       gsap.set('.hero-photo-panel', { clipPath: 'inset(0% 0% 0% 0%)' })
       gsap.set('.hero-headline-line, .hero-intro-cta, .hero-intro-chips', { opacity: 1, y: 0 })
-      gsap.set('.hero-intro-tag', { opacity: 1, y: 0 })
-      gsap.set('[data-brand-tag-logo]', { opacity: 1, visibility: 'visible' })
       gsap.set('.hero-parallax-img', { scale: 1 })
     }
 
@@ -425,26 +410,6 @@ export function Hero({ initialData, isIntroActive = false, registerMatchCutTrigg
                 ))}
               </div>
             </div>
-          </div>
-
-          {/* Hanging Brand Clothing Tag Badge with Match-Cut Landing (Hidden on mobile to avoid blocking hero face) */}
-          <div 
-            className="hero-intro-tag hidden md:flex absolute top-4 sm:top-8 lg:top-10 left-1/2 -translate-x-1/2 z-40 flex-col items-center justify-center bg-white shadow-2xl px-3 sm:px-4 pt-4 sm:pt-5 pb-5 sm:pb-7 w-[110px] sm:w-[130px] lg:w-[150px] origin-top rounded-b-[2rem] border-x border-b border-ink/10"
-          >
-            {/* Stitch marks at the top */}
-            <div className="absolute top-1.5 w-8 sm:w-12 h-px bg-ink/15"></div>
-            <div className="absolute top-2.5 w-8 sm:w-12 h-px bg-ink/15"></div>
-            
-            {/* Brand Logo landing slot: 90px desktop, 64px min on mobile */}
-            <BrandLogo 
-              data-brand-tag-logo="true"
-              className="w-[64px] sm:w-[76px] lg:w-[90px] h-auto mb-2.5 object-contain select-none"
-            />
-            
-            <div className="h-px w-8 sm:w-12 bg-ink/10 mb-2"></div>
-            <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.22em] font-black text-ink/70 text-center leading-relaxed">
-              Premium<br/>Quality
-            </span>
           </div>
 
         </div>

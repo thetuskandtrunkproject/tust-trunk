@@ -313,3 +313,27 @@ def update_admin_order_status(db: Client, order_id: str, new_status: str, tracki
         return {"status": "success", "new_status": new_status, "tracking_number": tracking_number}
     except Exception as e:
         _map_errcode_to_http(e)
+
+
+def delete_admin_order(db: Client, order_id: str) -> dict:
+    """Delete a single order by ID for admin."""
+    res = db.table('orders').select('id, order_number').eq('id', order_id).execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    order = res.data[0]
+    db.table('orders').delete().eq('id', order_id).execute()
+    return {"message": "Order deleted successfully", "id": order_id, "order_number": order.get('order_number')}
+
+
+def bulk_delete_admin_orders(db: Client, order_ids: list[str]) -> dict:
+    """Bulk delete orders by IDs for admin."""
+    if not order_ids:
+        return {"message": "No order IDs provided", "deleted_count": 0, "deleted_ids": []}
+    
+    db.table('orders').delete().in_('id', order_ids).execute()
+    return {
+        "message": f"Successfully deleted {len(order_ids)} orders",
+        "deleted_count": len(order_ids),
+        "deleted_ids": order_ids
+    }
