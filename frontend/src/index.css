@@ -251,21 +251,38 @@ input:-webkit-autofill:active {
 }
 
 @media print {
+  @page {
+    size: auto;
+    margin: 0mm !important;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   body * {
     visibility: hidden;
   }
-  .print-active-target, .print-active-target * {
+
+  .print-active-target,
+  .print-active-target * {
     visibility: visible;
   }
+
   .print-active-target {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 0;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    display: block !important;
   }
-  @page { margin: 1cm; }
 }
 
 /* Mobile bottom nav safe area */

@@ -64,7 +64,17 @@ function AdminOrdersPage() {
         if (params.toString()) url += `?${params.toString()}`
 
         const res = await api.get(url, { signal: controller.signal })
-        setOrders(res.data.orders || [])
+        const raw = res.data.orders || []
+        const seen = new Set()
+        const dedupedOrders = []
+        for (const o of raw) {
+          const key = o.id || o.order_number
+          if (key && !seen.has(key)) {
+            seen.add(key)
+            dedupedOrders.push(o)
+          }
+        }
+        setOrders(dedupedOrders)
       } catch (err: any) {
         if (err.name === 'CanceledError' || controller.signal.aborted) return
         showToast('Failed to load orders')
@@ -139,8 +149,17 @@ function AdminOrdersPage() {
   // Print handlers
   const handlePrintSelected = () => {
     const selected = orders.filter((o) => selectedOrderIds.includes(o.id))
-    if (selected.length === 0) return
-    setOrdersToPrint(selected)
+    const seen = new Set()
+    const uniqueSelected = []
+    for (const o of selected) {
+      const key = o.id || o.order_number
+      if (key && !seen.has(key)) {
+        seen.add(key)
+        uniqueSelected.push(o)
+      }
+    }
+    if (uniqueSelected.length === 0) return
+    setOrdersToPrint(uniqueSelected)
     setIsPrintModalOpen(true)
   }
 
