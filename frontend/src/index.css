@@ -264,16 +264,16 @@ input:-webkit-autofill:active {
     print-color-adjust: exact !important;
   }
 
-  body * {
+  body.has-print-target * {
     visibility: hidden;
   }
 
-  .print-active-target,
-  .print-active-target * {
+  body.has-print-target .print-active-target,
+  body.has-print-target .print-active-target * {
     visibility: visible;
   }
 
-  .print-active-target {
+  body.has-print-target .print-active-target {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;

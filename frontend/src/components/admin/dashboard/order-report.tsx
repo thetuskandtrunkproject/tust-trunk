@@ -90,11 +90,13 @@ export function OrderReport() {
 
   const exportPDF = () => {
     setIsPdfGenerating(true)
+    document.body.classList.add('has-print-target')
     if (reportRef.current) {
       reportRef.current.classList.add('print-active-target')
     }
     setTimeout(() => {
       window.print()
+      document.body.classList.remove('has-print-target')
       if (reportRef.current) {
         reportRef.current.classList.remove('print-active-target')
       }
