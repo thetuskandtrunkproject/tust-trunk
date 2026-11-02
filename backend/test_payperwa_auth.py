@@ -1,10 +1,14 @@
 import os
 import requests
 
-API_KEY = os.environ.get("PAYPERWA_API_KEY", "ppw_live_sk_eab99b79bc795e09223fe45a259a9a44")
+API_KEY = os.environ.get("PAYPERWA_API_KEY", "")
 API_URL = "https://payperwa.com/api/v1/messages/send"
 
-def test():
+def run_manual_test():
+    if not API_KEY:
+        print("PAYPERWA_API_KEY environment variable is not set.")
+        return
+
     otp = "123456"
     payload = {
         "to": "919443460663",
@@ -43,4 +47,4 @@ def test():
     print(f"Response: {response.text}")
 
 if __name__ == "__main__":
-    test()
+    run_manual_test()

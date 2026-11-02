@@ -5,10 +5,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_KEY = os.environ.get("PAYPERWA_API_KEY", "ppw_live_sk_eab99b79bc795e09223fe45a259a9a44")
+API_KEY = os.environ.get("PAYPERWA_API_KEY", "")
 API_URL = "https://payperwa.com/api/v1"
 
-def test_endpoint(endpoint, payload):
+def run_manual_test_endpoint(endpoint, payload):
+    if not API_KEY:
+        print("PAYPERWA_API_KEY environment variable is not set.")
+        return 0
+
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
@@ -63,7 +67,7 @@ if __name__ == "__main__":
     }
 
     print("--- Test 1: /messages/send with Payload 1 ---")
-    test_endpoint("/messages/send", payload1)
+    run_manual_test_endpoint("/messages/send", payload1)
     
     print("\n--- Test 2: /messages/send with Payload 2 ---")
-    test_endpoint("/messages/send", payload2)
+    run_manual_test_endpoint("/messages/send", payload2)

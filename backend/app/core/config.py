@@ -16,7 +16,31 @@ class Settings(BaseSettings):
     RAZORPAY_KEY_SECRET: str = ""
     RAZORPAY_WEBHOOK_SECRET: str = ""
     
+    # PayPerWA WhatsApp Configuration
+    # Channel selector: 'old' (default, +91 94434 60663) or 'new' (+91 96778 50663)
+    PAYPERWA_ACTIVE_CHANNEL: str = "old"
+
+    # API Keys (Preserves PAYPERWA_API_KEY for backward compatibility)
     PAYPERWA_API_KEY: str = ""
+    PAYPERWA_OLD_API_KEY: str = ""
+    PAYPERWA_NEW_API_KEY: str = ""
+
+    # Channel IDs (Optional UUID from PayPerWA Dashboard -> Settings -> API / WhatsApp)
+    PAYPERWA_CHANNEL_ID: str = ""
+    PAYPERWA_OLD_CHANNEL_ID: str = ""
+    PAYPERWA_NEW_CHANNEL_ID: str = ""
+
+    # Phone Identifiers (Reference / Sender metadata)
+    PAYPERWA_OLD_PHONE: str = "919443460663"
+    PAYPERWA_NEW_PHONE: str = "919677850663"
+
+    # Template Names (Configurable with channel-aware defaults)
+    PAYPERWA_OTP_TEMPLATE: str = ""
+    PAYPERWA_ORDER_CONFIRMATION_TEMPLATE: str = "order_confirmation"
+    PAYPERWA_OWNER_ALERT_TEMPLATE: str = "owner_order_alert"
+    PAYPERWA_ORDER_SHIPPED_TEMPLATE: str = "order_shipped"
+
+    # Destination phone number for owner order alerts
     OWNER_WHATSAPP_NUMBER: str = ""
 
     class Config:
@@ -24,4 +48,3 @@ class Settings(BaseSettings):
         extra = "ignore"
 
 settings = Settings()
-

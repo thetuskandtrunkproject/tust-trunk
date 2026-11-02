@@ -1,7 +1,7 @@
 import asyncio
-from app.db.supabase import get_db_client
+from app.core.database import get_db_client
 
-async def test():
+async def run_db_test():
     db = get_db_client()
     try:
         res = db.table('site_settings').select('*').limit(1).execute()
@@ -10,4 +10,4 @@ async def test():
         print("Table does NOT exist or error:", e)
 
 if __name__ == "__main__":
-    asyncio.run(test())
+    asyncio.run(run_db_test())

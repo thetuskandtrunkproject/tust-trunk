@@ -2,10 +2,14 @@ import os
 import sys
 import requests
 
-API_KEY = os.environ.get("PAYPERWA_API_KEY", "ppw_live_sk_eab99b79bc795e09223fe45a259a9a44")
+API_KEY = os.environ.get("PAYPERWA_API_KEY", "")
 API_URL = "https://payperwa.com/api/v1/messages/send"
 
-def test_payload(payload):
+def run_manual_payload_test(payload):
+    if not API_KEY:
+        print("PAYPERWA_API_KEY environment variable is not set.")
+        return
+
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
@@ -49,6 +53,6 @@ if __name__ == "__main__":
         "template_name": "otp_verification"
     }
     
-    test_payload(payload3)
-    test_payload(payload4)
-    test_payload(payload5)
+    run_manual_payload_test(payload3)
+    run_manual_payload_test(payload4)
+    run_manual_payload_test(payload5)

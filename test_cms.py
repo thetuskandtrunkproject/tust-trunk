@@ -5,5 +5,6 @@ import json
 # We need to authenticate as admin.
 # Let's see if we can just get the error from the server directly.
 
-res = requests.get('http://127.0.0.1:8000/public/categories')
-print(res.status_code)
+if __name__ == "__main__":
+    res = requests.get('http://127.0.0.1:8000/public/categories')
+    print(res.status_code)
