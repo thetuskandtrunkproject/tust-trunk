@@ -318,6 +318,16 @@ def create_order(db: Client, user_id: str | None, payload: dict) -> dict:
 
     total_paise = subtotal_paise + delivery_fee_paise + gst_paise - discount_paise
 
+    # Guard: Razorpay requires amount >= 100 paise (₹1 minimum).
+    # If discounts reduce the total below ₹1, clamp to ₹1 to prevent a
+    # Razorpay API rejection (which surfaces as a vague 502 to the user).
+    if total_paise < 100:
+        logger.warning(
+            "Total paise %d is below Razorpay minimum (100). "
+            "subtotal=%d delivery=%d gst=%d discount=%d. Clamping to 100.",
+            total_paise, subtotal_paise, delivery_fee_paise, gst_paise, discount_paise,
+        )
+        total_paise = 100
 
     # -------------------------------------------------------------------------
     # Step 4: Create Razorpay order via their REST API.
@@ -345,10 +355,18 @@ def create_order(db: Client, user_id: str | None, payload: dict) -> dict:
         rz_response.raise_for_status()
         rz_order = rz_response.json()
     except http_requests.HTTPError as e:
-        logger.error("Razorpay order creation failed: status=%s", e.response.status_code)
+        rz_body = ""
+        try:
+            rz_body = e.response.text[:500]
+        except Exception:
+            pass
+        logger.error(
+            "Razorpay order creation failed: status=%s body=%s amount=%s",
+            e.response.status_code, rz_body, total_paise,
+        )
         raise HTTPException(status_code=502, detail="Could not create payment order. Please try again.")
     except http_requests.RequestException as e:
-        logger.error("Razorpay API unreachable: %s", type(e).__name__)
+        logger.error("Razorpay API unreachable: %s amount=%s", type(e).__name__, total_paise)
         raise HTTPException(status_code=502, detail="Payment gateway unreachable. Please try again.")
 
     razorpay_order_id = rz_order['id']

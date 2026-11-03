@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter, Depends, Request, status, Header
+from fastapi import APIRouter, Depends, Request, status, Header, HTTPException
 from typing import Optional
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -159,9 +159,10 @@ def create_order_endpoint(
             user_id=user_id,
             payload=payload.model_dump(),
         )
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to create order (Razorpay/DB error): {e}")
-        from fastapi import HTTPException
         raise HTTPException(
             status_code=502,
             detail="Failed to initialize payment gateway. Please try again."

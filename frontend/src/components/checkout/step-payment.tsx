@@ -138,7 +138,7 @@ export function StepPayment({ onBack, contact, shipping, totalAmount, items, isB
       rzp.open()
       
     } catch (err: any) {
-      console.error(err)
+      console.error('Checkout create-order failed:', err.response?.status, err.response?.data, err)
       setIsProcessing(false)
       
       if (err.response) {
@@ -147,8 +147,12 @@ export function StepPayment({ onBack, contact, shipping, totalAmount, items, isB
           setErrorMsg("Your email is not verified. Please verify your email to continue.")
         } else if (err.response.status === 400) {
           setErrorMsg(`Checkout failed: ${err.response.data.detail || 'Insufficient stock or invalid items in cart. Please review your cart.'}`)
+        } else if (err.response.status === 422) {
+          setErrorMsg("Your cart contains invalid items. Please go back and refresh your cart.")
+        } else if (err.response.status === 429) {
+          setErrorMsg("Too many attempts. Please wait a moment and try again.")
         } else {
-          setErrorMsg("Failed to initiate checkout. Please try again.")
+          setErrorMsg(err.response.data?.detail || "Failed to initiate checkout. Please try again.")
         }
       } else {
         setErrorMsg("Network error. Please try again.")
